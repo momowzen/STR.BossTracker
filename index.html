@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta content="width=device-width,initial-scale=1" name="viewport" />
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
 
   <title>LORDNINE BOSS TRACKER</title>
   <link
@@ -32,46 +32,57 @@
     html,
     body {
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
       font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .container {
       display: flex;
       flex-direction: column;
       height: 100%;
-      padding: 12px;
-      max-width: 1200px;
+      height: 100dvh;
+      padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+      max-width: 100%;
       margin: 0 auto;
-      gap: 12px;
+      gap: 8px;
     }
 
-    /* === HEADER CONTAINER - DARK MINIMAL === */
+    /* === HEADER (mobile-first) === */
     header.app-header {
       flex: 0 0 auto;
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 8px;
       background: #0a0a0a;
       border: 1px solid #2a2a2a;
-      padding: 10px 16px;
+      padding: 8px 10px;
       border-radius: 4px;
-      box-shadow: none;
-      backdrop-filter: none;
       box-sizing: border-box;
       position: relative;
       overflow: visible;
     }
 
-    /* === HEADER TOP ROW (Logo + Title + Settings) === */
     .header-top {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex: 1;
+      justify-content: space-between;
+      gap: 8px;
+      flex: 1 1 100%;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .header-top .app-title {
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     /* Animated scan line across header */
@@ -104,7 +115,7 @@
 
     /* === LOGO IMAGE === */
     .logo-img {
-      height: 44px;
+      height: 36px;
       width: auto;
       display: block;
       object-fit: contain;
@@ -112,9 +123,8 @@
       animation: none;
     }
 
-    /* === MAIN TITLE (Refined Techy HUD Style, aligned & continuous) === */
     .main-title {
-      font-size: 20px;
+      font-size: clamp(11px, 3.8vw, 20px);
       font-family: Inter, "Segoe UI", sans-serif;
       font-weight: 900;
       text-transform: uppercase;
@@ -148,7 +158,7 @@
 
     /* === WARNING TEXT (aligned, modern subtle glow gradient) === */
     .warning-text {
-      font-size: 11px;
+      font-size: clamp(9px, 2.5vw, 11px);
       font-weight: 700;
       background: none;
       color: #888888;
@@ -162,22 +172,31 @@
 
     .header-controls {
       display: flex;
-      gap: 8px;
-      align-items: center;
+      flex: 1 1 100%;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: stretch;
       position: relative;
       z-index: 2;
-      flex-shrink: 0;
-      margin-left: auto;
+      margin-left: 0;
+    }
+
+    .search-wrapper {
+      flex: 1 1 100%;
+      min-width: 0;
+      position: relative;
     }
 
     .search {
-      width: 200px;
+      width: 100%;
       background: #1a1a1a;
       border: 1px solid #333;
-      padding: 6px 10px;
-      border-radius: 2px;
+      padding: 10px 32px 10px 10px;
+      border-radius: 4px;
       color: var(--text);
-      font-size: 13px;
+      font-size: 16px;
+      min-height: 44px;
       box-shadow: none;
       transition: none;
     }
@@ -193,21 +212,25 @@
     }
 
     .settings {
-      width: auto;
-      height: auto;
-      border: none;
-      border-radius: 0;
-      background: transparent;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #1a1a1a;
       color: #9aa6b2;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
       gap: 4px;
       transition: none;
       position: relative;
       z-index: 10001;
       padding: 0;
+      flex-shrink: 0;
     }
 
     .settings::before,
@@ -249,255 +272,85 @@
 
     .server-time {
       display: flex;
+      flex: 1 1 auto;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
       font-family: Inter, "Segoe UI", sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: #9aa6b2;
-      padding: 6px 10px;
+      padding: 8px 10px;
+      min-height: 44px;
       border: 1px solid #333;
       border-radius: 4px;
       background: #1a1a1a;
-      letter-spacing: 0;
       text-shadow: none;
-      white-space: nowrap;
-      min-width: 240px;
+      min-width: 0;
       font-variant-numeric: tabular-nums;
     }
 
-    .main {
-      flex: 1 1 auto;
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 12px;
-      min-height: 0;
+    #serverTimeLabel {
+      color: #888888;
+      font-size: 10px;
+      margin-right: 4px;
+      flex-shrink: 0;
     }
 
-    @media (max-width: 768px) {
+    #serverTime {
+      flex: 1 1 auto;
+      text-align: center;
+      min-width: 0;
+    }
 
-      /* Mobile Header: Logo+Title on top-left, Settings on top-right, Search below */
-      header.app-header {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: flex-start;
-      }
+    /* === MAIN LAYOUT (mobile: single column) === */
+    .main {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
 
-      .header-top {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1 0 auto;
-        order: 1;
-      }
+    .right-column {
+      display: contents;
+    }
 
-      .app-title {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
+    #nextBoss {
+      order: 1;
+      flex: 0 0 auto;
+    }
 
-      .logo-img {
-        height: 36px !important;
-      }
+    #bossListPanel {
+      order: 2;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .main-title {
-        font-size: clamp(10px, 4vw, 16px) !important;
-        letter-spacing: 0.5px !important;
-        line-height: 1;
-        display: inline !important;
-        margin-left: 0 !important;
-        margin-right: 4px;
-      }
+    #timersPanel {
+      order: 3;
+      flex: 0 0 auto;
+      max-height: min(32vh, 240px);
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .warning-text {
-        font-size: clamp(8px, 3vw, 12px) !important;
-        margin-top: 0 !important;
-        display: inline;
-        line-height: 1;
-      }
+    #timers {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+    }
 
-      .header-controls {
-        display: flex;
-        width: 70%;
-        gap: 8px !important;
-        align-items: center;
-        margin-left: 0 !important;
-        flex-basis: 100%;
-        order: 3;
-      }
-
-      .search-wrapper {
-        flex: 1;
-      }
-
-      .search {
-        width: 100%;
-        padding: 6px 8px !important;
-        font-size: 12px !important;
-      }
-
-      #settingsBtn {
-        order: 2;
-        flex-shrink: 0;
-        margin-left: auto;
-      }
-
-      .main {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        grid-template-rows: auto auto auto !important;
-        gap: 12px;
-      }
-
-      .right-column {
-        display: contents;
-      }
-
-      #nextBoss {
-        grid-row: 1 !important;
-        grid-column: 1 !important;
-      }
-
-      #timersPanel {
-        grid-row: 3 !important;
-        grid-column: 1 !important;
-        display: flex;
-        flex: 0 0 auto;
-        max-height: 25vh;
-        min-height: 0;
-        overflow: hidden;
-      }
-
-      #timers {
-        max-height: 100%;
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow: auto;
-      }
-
-      #bossList {
-        max-height: none;
-        flex: 1 1 auto;
-      }
-
-      #bossListPanel {
-        grid-row: 2 !important;
-        grid-column: 1 !important;
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow: hidden;
-      }
-
-      #bossListPanel .card-header {
-        min-height: 35px;
-        padding: 8px 0;
-        margin: 0;
-        border-radius: var(--radius) var(--radius) 0 0;
-      }
-
-      /* Mobile: Smaller text and buttons */
-      .boss .name {
-        font-size: 0.75rem !important;
-        letter-spacing: 0.3px !important;
-      }
-
-      .boss .sub {
-        font-size: 9px !important;
-      }
-
-      .boss {
-        padding: 3px 4px !important;
-        font-size: 11px !important;
-      }
-
-      .kbtn {
-        padding: 3px 4px !important;
-        font-size: 10px !important;
-        border-radius: 4px !important;
-      }
-
-      .timer {
-        padding: 8px 10px !important;
-        min-height: 50px !important;
-        font-size: 10px !important;
-        width: 98% !important;
-        margin: 0 auto !important;
-      }
-
-      .timer-left {
-        gap: 2px !important;
-      }
-
-      .timer-name {
-        font-size: 12px !important;
-      }
-
-      .timer-spawn {
-        font-size: 9px !important;
-      }
-
-      .timer-time {
-        font-size: 10px !important;
-      }
-
-      .timer-content {
-        padding: 4px 0 !important;
-      }
-
-      .timer-actions {
-        gap: 4px !important;
-      }
-
-      .clear-timer-btn {
-        padding: 4px 8px !important;
-        font-size: 9px !important;
-      }
-
-      /* Mobile: Always show expanded section on timers */
-      .timer-expanded {
-        height: 18px !important;
-        padding: 4px 10px 4px 0 !important;
-        opacity: 1 !important;
-        padding-left: 0 !important;
-      }
-
-      .timer {
-        min-height: 60px !important;
-      }
-
-      .timer-remaining-label {
-        font-size: 9px !important;
-      }
-
-      .timer-remaining-value {
-        font-size: 9px !important;
-      }
-
-      #nextBoss {
-        min-height: 75px !important;
-        padding: 6px 8px !important;
-      }
-
-      #nextBoss .boss-name {
-        font-size: 1.4rem !important;
-      }
-
-      #nextBoss .time-remaining {
-        font-size: 0.85rem !important;
-      }
-
-      .card-header h2 {
-        font-size: 14px !important;
-      }
-
-      /* Status icons smaller */
-      .status-icon {
-        width: 16px !important;
-        height: 16px !important;
-        font-size: 12px !important;
-      }
+    #bossList {
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .card {
@@ -544,8 +397,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 95%;
-      padding: 4px 6px;
+      width: 100%;
+      max-width: 100%;
+      padding: 6px 8px;
       border-radius: 2px;
       background: var(--panel-bg);
       border: 1px solid #222;
@@ -561,11 +415,9 @@
       display: none;
     }
 
-    .boss:hover {
+    .boss:active {
       background: #1a1a1a;
-      border-color: #222;
-      transform: scale(1.04);
-      box-shadow: 0 8px 24px rgba(0, 240, 255, 0.15);
+      border-color: #333;
     }
 
     .boss:hover::after {
@@ -600,6 +452,8 @@
       display: flex;
       flex-direction: column;
       gap: 1px;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     /* Normal (alive / cooldown) */
@@ -607,7 +461,7 @@
       font-family: Inter, "Segoe UI", sans-serif;
       color: #ffffff;
       font-weight: 900;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       text-shadow: none;
@@ -624,13 +478,15 @@
     }
 
     .kbtn {
-      padding: 4px 6px;
-      border-radius: 2px;
+      padding: 8px 10px;
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 4px;
       border: 1px solid #333;
       background: #1a1a1a;
       color: var(--text);
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       transition: none;
     }
@@ -675,8 +531,7 @@
       margin: 0;
       width: 100%;
       /* match timer width */
-      min-height: 90px;
-      /* taller panel */
+      min-height: 72px;
 
       border-radius: 4px;
       border: 1px solid #222;
@@ -720,7 +575,10 @@
 
     /* === NEXT BOSS NAME: DARK MINIMALIST === */
     #nextBoss .boss-name {
-      font-size: 1.8rem;
+      font-size: clamp(1.1rem, 5vw, 1.8rem);
+      white-space: normal;
+      text-align: center;
+      max-width: 100%;
       font-weight: 900;
       color: #ff9500;
       text-transform: uppercase;
@@ -731,12 +589,11 @@
       text-shadow: none;
       animation: none;
       z-index: 1;
-      white-space: nowrap;
-      flex-shrink: 0;
+      flex-shrink: 1;
     }
 
     #nextBoss .time-remaining {
-      font-size: 0.95rem;
+      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
       font-weight: 700;
       color: #999999;
       text-shadow: none;
@@ -753,7 +610,8 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      width: 95%;
+      width: 100%;
+      max-width: 100%;
       border-radius: 2px;
       background: var(--panel-bg);
       border: 1px solid #222;
@@ -763,35 +621,25 @@
         min-height 0.3s ease-out;
       overflow: hidden;
       height: auto;
-      min-height: 48px;
-    }
-
-    .timer:hover {
-      min-height: 70px;
+      min-height: 56px;
     }
 
     .timer-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
+      padding: 8px 10px;
+      gap: 8px;
     }
 
     .timer-expanded {
-      height: 0;
-      overflow: hidden;
-      transition: height 0.3s ease-out, padding 0.3s ease-out,
-        opacity 0.3s ease-out;
-      padding: 0 12px;
+      height: auto;
+      min-height: 20px;
+      overflow: visible;
+      padding: 4px 10px 8px;
       display: flex;
       align-items: center;
       gap: 8px;
-      opacity: 0;
-    }
-
-    .timer:hover .timer-expanded {
-      height: 18px;
-      padding: 4px 12px;
       opacity: 1;
     }
 
@@ -921,104 +769,126 @@
       background: #1a1a1a;
     }
 
-    @media (max-width: 900px) {
-
-      html,
-      body {
-        height: 100% !important;
-        overflow: hidden !important;
+    /* === DESKTOP (wider screens) === */
+    @media (min-width: 901px) {
+      .container {
+        max-width: 1200px;
+        padding: 12px;
+        gap: 12px;
       }
 
-      .container {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+      header.app-header {
+        flex-wrap: nowrap;
+        align-items: center;
+        padding: 10px 16px;
+      }
+
+      .header-top {
+        flex: 1 1 auto;
+        width: auto;
+      }
+
+      .header-controls {
+        flex: 0 0 auto;
+        width: auto;
+        flex-wrap: nowrap;
+        margin-left: auto;
+      }
+
+      .search-wrapper {
+        flex: 0 0 auto;
+      }
+
+      .search {
+        width: 200px;
+        min-height: auto;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .server-time {
+        min-width: 220px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+        min-height: auto;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .logo-img {
+        height: 44px;
       }
 
       .main {
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1 1 auto;
-        height: 100%;
-        overflow: hidden !important;
-        gap: 10px;
-        /* match right-column gap */
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 12px;
       }
 
       .right-column {
-        order: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        flex: 0 0 auto;
-        width: 100%;
+        min-height: 0;
+        order: unset;
       }
 
-      /* Stacking order */
-      #nextBoss {
-        order: 0 !important;
-        flex: 0 0 auto !important;
-        width: 100% !important;
-      }
-
-      /* Active timers â€” taller and directly â€œtouchingâ€ boss list */
+      #nextBoss,
+      #bossListPanel,
       #timersPanel {
-        display: flex;
-        order: 2 !important;
+        order: unset;
+        max-height: none;
       }
 
-      /* Boss list â€” directly attached to timers */
-      #bossListPanel {
-        order: 1 !important;
+      #timersPanel {
         flex: 1 1 auto;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
+      }
+
+      .boss {
+        width: 95%;
+      }
+
+      .boss:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 24px rgba(0, 240, 255, 0.15);
+      }
+
+      .timer {
+        width: 95%;
+      }
+
+      .timer:hover {
+        min-height: 70px;
+      }
+
+      .timer-expanded {
+        height: 0;
+        min-height: 0;
         overflow: hidden;
-        margin: 0;
-        padding: 0 10px 10px 10px;
-        box-shadow: none;
+        opacity: 0;
+        padding: 0 12px;
       }
 
-      /* Keep both panels the same background for seamless look */
-      #timersPanel,
-      #bossListPanel {
-        background: var(--panel-bg);
-        border: 1px solid #222;
+      .timer:hover .timer-expanded {
+        height: 18px;
+        padding: 4px 12px;
+        opacity: 1;
       }
 
-      /* Compact headers to minimize space */
-      #timersPanel .card-header,
-      #bossListPanel .card-header {
-        min-height: 35px;
-        padding: 8px 0;
-        margin: 0;
-        border-radius: var(--radius) var(--radius) 0 0;
+      .kbtn {
+        min-height: auto;
+        min-width: auto;
+        padding: 4px 6px;
+        font-size: 11px;
       }
 
-      /* Only the inner lists scroll */
-      #timers,
-      #bossList {
-        flex: 1 1 auto;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 6px 4px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-      }
-
-      /* Scrollbar */
-      #bossList::-webkit-scrollbar,
-      #timers::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      #bossList::-webkit-scrollbar-thumb,
-      #timers::-webkit-scrollbar-thumb {
-        background: rgba(0, 240, 255, 0.3);
-        border-radius: 8px;
+      .settings {
+        width: auto;
+        height: auto;
+        min-width: 0;
+        min-height: 0;
+        border: none;
+        background: transparent;
       }
     }
 
@@ -1139,9 +1009,9 @@
       border: 1px solid #222;
       border-radius: 2px;
       box-shadow: none;
-      padding: 22px 20px;
-      width: 340px;
-      max-width: 90%;
+      padding: 22px 16px;
+      width: min(340px, calc(100vw - 24px));
+      max-width: calc(100vw - 24px);
       color: var(--text);
       text-align: center;
       transform: none;
@@ -1442,9 +1312,9 @@
       border: 1px solid #222;
       border-radius: 2px;
       box-shadow: none;
-      padding: 20px 18px;
-      width: 340px;
-      max-width: 90%;
+      padding: 20px 16px;
+      width: min(340px, calc(100vw - 24px));
+      max-width: calc(100vw - 24px);
       color: var(--text);
       text-align: center;
       animation: none;
@@ -1538,17 +1408,14 @@
       background: #1a1a1a;
     }
 
-    /* Mobile tweak */
-    @media (max-width: 420px) {
-      #timeModal .modal-content {
-        width: 92%;
-        padding: 14px;
-      }
+    #killTimeInput {
+      font-size: 16px;
+      min-height: 44px;
+    }
 
-      #killTimeInput {
-        font-size: 14px;
-        padding: 10px;
-      }
+    #webhookInput {
+      font-size: 16px;
+      min-height: 44px;
     }
 
     .boss.shake {
@@ -1640,27 +1507,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 35px;
+      min-height: 40px;
       position: relative;
       overflow: visible;
       border-bottom: none;
-      padding: 8px 0;
+      padding: 8px 4px;
+      text-align: center;
       text-shadow: none;
       box-sizing: border-box;
       margin: 0;
       width: 100%;
       /* no overflow */
-    }
-
-    /* --- Mobile refinement --- */
-    @media (max-width: 720px) {
-      .card-header {
-        font-size: 13px;
-        letter-spacing: 0.8px;
-        padding: 8px 4px;
-        min-height: 44px;
-        text-align: center;
-      }
     }
 
     .clear-icon {
@@ -1728,8 +1585,9 @@
     }
 
     .boss-portrait {
-      width: 48px;
-      height: 64px;
+      width: 40px;
+      height: 52px;
+      flex-shrink: 0;
       object-fit: cover;
       border-radius: 6px;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1745,6 +1603,12 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .timer .timer-spawn {
+      word-break: break-word;
     }
 
     .actions {
@@ -1772,9 +1636,14 @@
       position: relative;
       background: #1a1a1a;
       border: 1px solid #333;
-      border-radius: 2px;
+      border-radius: 4px;
       cursor: pointer;
-      padding: 8px;
+      padding: 10px;
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       color: #9aa6b2;
       transition: none;
       box-shadow: none;
@@ -1884,9 +1753,9 @@
       border: 1px solid #333;
       border-radius: 4px;
       box-shadow: 0 6px 20px rgba(0, 240, 255, 0.04);
-      padding: 28px 24px;
-      width: 340px;
-      max-width: 90%;
+      padding: 24px 16px;
+      width: min(340px, calc(100vw - 24px));
+      max-width: calc(100vw - 24px);
       color: var(--text);
       text-align: center;
     }
@@ -1959,9 +1828,9 @@
       border: 1px solid #333;
       border-radius: 4px;
       box-shadow: 0 6px 20px rgba(0, 240, 255, 0.04);
-      padding: 28px 24px;
-      width: 340px;
-      max-width: 90%;
+      padding: 24px 16px;
+      width: min(340px, calc(100vw - 24px));
+      max-width: calc(100vw - 24px);
       color: var(--text);
       text-align: center;
     }
@@ -2087,22 +1956,22 @@
             <div class="warning-text">BY STR4NG3RZ</div>
           </div>
         </div>
-      </div>
-      <div class="header-controls">
-        <div class="search-wrapper" style="position: relative">
-          <input class="search" id="bossSearch" placeholder="Search boss..." />
-          <span class="clear-icon" id="clearSearch">✕</span>
-        </div>
-        <div class="server-time" id="serverTimeBox">
-          <span id="serverTimeLabel" style="color: #888888; font-size: 12px; margin-right: 6px;">SERVER TIME:</span>
-          <span id="serverTime">-- : -- : --</span>
-        </div>
-        <button aria-label="Settings" class="settings" id="settingsBtn">
+        <button aria-label="Settings" class="settings" id="settingsBtn" type="button">
           <span class="line"></span>
           <span class="line"></span>
           <span class="line"></span>
           <span class="line"></span>
         </button>
+      </div>
+      <div class="header-controls">
+        <div class="search-wrapper">
+          <input class="search" id="bossSearch" placeholder="Search boss..." autocomplete="off" />
+          <span class="clear-icon" id="clearSearch">✕</span>
+        </div>
+        <div class="server-time" id="serverTimeBox">
+          <span id="serverTimeLabel">SERVER TIME:</span>
+          <span id="serverTime">-- : -- : --</span>
+        </div>
       </div>
     </header>
     <main class="main">
@@ -2341,6 +2210,13 @@
         name: "Tumier",
         weeklyRespawns: [
           { day: 0, hour: 20, minute: 0 },
+        ],
+      },
+	  {
+        id: "Lucus",
+        name: "Lucus",
+        weeklyRespawns: [
+          { day: 6, hour: 23, minute: 0 },
         ],
       },
 	  //{ id: "Test Boss", name: "Test Boss", respawn: 60 * 5 + 10 },
