@@ -247,29 +247,6 @@
       background-color: #9aa6b2;
     }
 
-    .lang-toggle {
-      width: auto;
-      height: auto;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #1a1a1a;
-      color: #9aa6b2;
-      cursor: pointer;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .lang-toggle:hover {
-      color: #00f0ff;
-      border-color: #00f0ff;
-      box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
-    }
-
     .server-time {
       display: flex;
       align-items: center;
@@ -1738,293 +1715,6 @@
       scrollbar-color: #333 #1a1a1a;
     }
 
-    /* --- Online Users Indicator --- */
-    .online-users {
-      position: fixed;
-      bottom: 14px;
-      right: 16px;
-      padding: 6px 10px;
-      font-family: Consolas, monospace;
-      font-size: 12px;
-      color: #9aa6b2;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 2px;
-      backdrop-filter: none;
-      box-shadow: none;
-      text-shadow: none;
-      transition: none;
-      animation: none;
-      z-index: 3000;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* 🟢 Default icon */
-    .online-users::before {
-      content: "🟢";
-      margin-right: 4px;
-      transition: none;
-    }
-
-    /* 💬 replaces 🟢 when there's a new chat message */
-    .online-users.notify::before {
-      content: "🗨️";
-      color: #9aa6b2;
-      text-shadow: none;
-      animation: none;
-    }
-
-    /* Count text (only number updates via JS) */
-    .online-users .count {
-      font-weight: 600;
-    }
-
-    /* Hover effect */
-    .online-users:hover {
-      box-shadow: none;
-      color: #9aa6b2;
-    }
-
-    /* Fade-in animation */
-    @keyframes fadeInUsers {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* 💬 red pulse animation */
-    @keyframes pulseNotify {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 0.9;
-        text-shadow: 0 0 6px rgba(255, 80, 80, 0.9),
-          0 0 12px rgba(255, 0, 0, 0.7), 0 0 18px rgba(255, 0, 0, 0.5);
-      }
-
-      50% {
-        transform: scale(1.3);
-        opacity: 1;
-        text-shadow: 0 0 10px rgba(255, 100, 100, 1),
-          0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.5);
-      }
-    }
-
-    /* --- Tooltip: Softer Red Chat Bubble --- */
-    .online-users::after {
-      display: none;
-    }
-
-    /* Show tooltip when new message arrives */
-    .online-users.notify::after {
-      display: none;
-    }
-
-    /* Chat bubble tail */
-    .online-users.notify::after::before {
-      content: "";
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 6px solid #333;
-      filter: none;
-    }
-
-    /* Tooltip glow animation */
-    @keyframes tooltipPulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 10px rgba(255, 80, 80, 0.4),
-          0 0 18px rgba(255, 0, 0, 0.25);
-      }
-
-      50% {
-        box-shadow: 0 0 14px rgba(255, 100, 100, 0.5),
-          0 0 26px rgba(255, 0, 0, 0.35);
-      }
-    }
-
-    /* --- Chat Box Styling --- */
-    .chat-box {
-      position: fixed;
-      bottom: 50px;
-      right: 16px;
-      width: 300px;
-      height: 350px;
-      background: #0f0f0f;
-      border: 1px solid #222;
-      border-radius: 2px;
-      box-shadow: none;
-      transform: none;
-      opacity: 1;
-      transition: none;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 4000;
-      backdrop-filter: none;
-    }
-
-    /* Open animation */
-    .chat-box.active {
-      transform: none;
-      opacity: 1;
-      box-shadow: none;
-    }
-
-    /* Fully hidden (when minimized) */
-    .chat-box.hidden {
-      transform: none;
-      opacity: 0;
-      pointer-events: none;
-      transition: none;
-    }
-
-    /* --- Chat Header --- */
-    .chat-header {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Inter, "Segoe UI", sans-serif;
-      background: #1a1a1a;
-      color: #888888;
-      padding: 8px 10px;
-      text-align: center;
-      font-size: 14px;
-      letter-spacing: 1px;
-      border-bottom: 1px solid #222;
-      text-shadow: none;
-      box-shadow: none;
-    }
-
-    /* --- Minimize Button --- */
-    .chat-minimize-btn {
-      position: absolute;
-      right: 8px;
-      top: 4px;
-      background: #222;
-      border: 1px solid #333;
-      color: var(--accent);
-      font-size: 16px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 2px;
-      transition: none;
-      text-shadow: none;
-      box-shadow: none;
-      backdrop-filter: none;
-    }
-
-    .chat-minimize-btn:hover {
-      color: #9aa6b2;
-      background: transparent;
-      box-shadow: none;
-    }
-
-    /* --- Messages --- */
-    .chat-messages {
-      flex: 1;
-      padding: 8px;
-      overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.4;
-      color: var(--text);
-      scrollbar-width: thin;
-      scrollbar-color: #333 #1a1a1a;
-    }
-
-    /* Custom scrollbar (Chrome / Edge / Safari) */
-    .chat-messages::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track {
-      background: #1a1a1a;
-      border-radius: 2px;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 2px;
-      box-shadow: none;
-      transition: none;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb:hover {
-      background: #444;
-      box-shadow: none;
-    }
-
-    /* --- Each Message --- */
-    .chat-message {
-      margin-bottom: 6px;
-      word-wrap: break-word;
-    }
-
-    /* --- Input Area --- */
-    .chat-input-area {
-      display: flex;
-      padding: 6px;
-      gap: 6px;
-      border-top: 1px solid #222;
-      background: #1a1a1a;
-      backdrop-filter: none;
-    }
-
-    /* Input field */
-    .chat-input-area input {
-      flex: 1;
-      padding: 6px 8px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 2px;
-      color: var(--text);
-      outline: none;
-      transition: none;
-    }
-
-    .chat-input-area input:focus {
-      border-color: #333;
-      box-shadow: none;
-      background: #1a1a1a;
-    }
-
-    /* Send button */
-    .chat-input-area button {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #9aa6b2;
-      border-radius: 2px;
-      cursor: pointer;
-      padding: 0 10px;
-      font-weight: 600;
-      text-shadow: none;
-      transition: none;
-    }
-
-    .chat-input-area button:hover {
-      background: #222;
-      border-color: #333;
-      color: #9aa6b2;
-    }
-
     .name-wrapper {
       display: flex;
       align-items: center;
@@ -2394,7 +2084,7 @@
           </div>
           <div>
             <div class="main-title">BOSS TIME TRACKER</div>
-            <div class="warning-text">BY TADATOKICHI</div>
+            <div class="warning-text">BY STR4NG3RZ</div>
           </div>
         </div>
       </div>
@@ -2407,7 +2097,6 @@
           <span id="serverTimeLabel" style="color: #888888; font-size: 12px; margin-right: 6px;">SERVER TIME:</span>
           <span id="serverTime">-- : -- : --</span>
         </div>
-        <button class="lang-toggle" id="langToggle" title="Toggle language">EN</button>
         <button aria-label="Settings" class="settings" id="settingsBtn">
           <span class="line"></span>
           <span class="line"></span>
@@ -2828,41 +2517,7 @@
     }
 
     function formatShortDateTime(ms) {
-      const date = new Date(ms);
-      const parts = shortDateTimeFormatter.formatToParts(date);
-
-      let month = "";
-      let day = "";
-      let hour = "";
-      let minute = "";
-      let dayPeriod = "";
-
-      parts.forEach(part => {
-        if (part.type === "month") month = part.value;
-        if (part.type === "day") day = part.value;
-        if (part.type === "hour") hour = part.value;
-        if (part.type === "minute") minute = part.value;
-        if (part.type === "dayPeriod") dayPeriod = part.value;
-      });
-
-      // Translate month if needed
-      const monthIndex = date.getMonth();
-      const monthTranslated = getMonthLabel(monthIndex);
-
-      // Translate AM/PM if needed
-      const periodTranslated = dayPeriod === "AM"
-        ? translations[currentLanguage].am
-        : translations[currentLanguage].pm;
-
-      // In Japanese, add the weekday label and period
-      if (currentLanguage === "jp") {
-        const weekdayIndex = date.getDay();
-        const weekdayLabel = getWeekdayLabel(weekdayIndex);
-        const dayLabel = translations[currentLanguage].day;
-        return `${monthTranslated} ${day}${dayLabel} (${weekdayLabel}曜日) ${periodTranslated} ${hour}:${minute}`.trim();
-      }
-
-      return `${monthTranslated} ${day} ${hour}:${minute} ${periodTranslated}`.trim();
+      return shortDateTimeFormatter.format(new Date(ms));
     }
 
     function formatTimeOnly(ms) {
@@ -2902,24 +2557,10 @@
       serverTimestamp, // ✅ Firestore FieldValue server timestamp (used in dedupe transaction)
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-    import {
-      getDatabase,
-      ref,
-      onDisconnect,
-      onValue,
-      set,
-      push,
-      serverTimestamp as rtdbServerTimestamp,
-      onChildAdded,
-      get, // ✅ rename this one so you donâ€™t clash
-    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-
     // ✅ Initialize Firebase app
     const firebaseConfig = {
       apiKey: "AIzaSyB32C6L6YvZlHY6_xu_VMUzVjeOQJnF_Kc",
       authDomain: "fieldbosstracker.firebaseapp.com",
-      databaseURL:
-        "https://fieldbosstracker-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "fieldbosstracker",
       storageBucket: "fieldbosstracker.firebasestorage.app",
       messagingSenderId: "180196105610",
@@ -2928,7 +2569,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const rtdb = getDatabase(app);
 
     // ✅ Firestore-based Global Synchronization
     let lastTriggeredBySelf = null;
@@ -3525,12 +3165,11 @@
       for (const b of BOSSES) {
         const isWeekly = !!b.weeklyRespawns;
         const isActive = timers[b.id] && timers[b.id].endTime > Date.now();
-        const translatedName = getBossName(b.id);
-        if (q && !translatedName.toLowerCase().includes(q) && !b.name.toLowerCase().includes(q)) continue;
+        if (q && !b.name.toLowerCase().includes(q)) continue;
 
         const subText = isWeekly
-          ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlotTranslated).join(", ")} ${TIME_ZONE_LABEL}`
-          : b.respawn / 3600 + " " + translations[currentLanguage].hour;
+          ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")} ${TIME_ZONE_LABEL}`
+          : b.respawn / 3600 + " hr";
 
         const node = document.createElement("div");
         node.className = isActive ? "boss is-dead" : "boss is-alive";
@@ -3538,16 +3177,16 @@
 
         const nameClass = isActive ? "name dead" : "name";
 
-        const manualSetTooltip = translations[currentLanguage].manualSet;
-        const markDeadTooltip = translations[currentLanguage].markDead;
+        const manualSetTooltip = "Set date and time manually";
+        const markDeadTooltip = "Mark Dead";
 
         node.innerHTML = `
 					<div class="meta">
 						<div class="portrait-meta">
 							<img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id
-          }.png" alt="${translatedName}">
+          }.png" alt="${b.name}">
 							<div class="info">
-								<div class="${nameClass}">${translatedName}</div>
+								<div class="${nameClass}">${b.name}</div>
 								<div class="sub">${subText}</div>
 							</div>
 						</div>
@@ -3683,9 +3322,7 @@
         Math.round((info.endTime - Date.now()) / 1000)
       );
       const spawnStr = formatShortDateTime(info.endTime);
-      const translatedName = getBossName(bossId);
-      const spawnTimeLabel = translations[currentLanguage].spawnTime;
-      const spawnLabel = `${spawnTimeLabel} (${TIME_ZONE_LABEL}): ${spawnStr}`;
+      const spawnLabel = `Spawn Time (${TIME_ZONE_LABEL}): ${spawnStr}`;
 
       if (existing) {
         existing.dataset.remaining = String(remainingSec);
@@ -3698,7 +3335,7 @@
         // Format remaining time using original format
         const remainingTimeStr = formatSec(remainingSec);
 
-        if (nameEl) nameEl.textContent = translatedName;
+        if (nameEl) nameEl.textContent = boss.name;
         if (spawnEl) spawnEl.textContent = spawnLabel;
         if (remainingValueEl) remainingValueEl.textContent = remainingTimeStr;
         if (remainingSec === 0) existing.classList.add("ready");
@@ -3711,15 +3348,15 @@
 
         // Format remaining time using original format
         const remainingTimeStr = formatSec(remainingSec);
-        const remainingTimeLabel = translations[currentLanguage].remainingTime;
-        const removeLabel = translations[currentLanguage].remove;
+        const remainingTimeLabel = "Remaining Time";
+        const removeLabel = "Remove";
         const userMode = sessionStorage.getItem("userMode");
         const removeButtonHidden = userMode === "member" ? "hidden" : "";
 
         node.innerHTML = `
           <div class="timer-content">
             <div class="timer-left">
-             <div class="timer-name">${translatedName}</div>
+             <div class="timer-name">${boss.name}</div>
              <div class="timer-spawn">${spawnLabel}</div>
             </div>
             <div class="timer-actions">
@@ -3850,7 +3487,7 @@
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = Math.floor(totalSeconds % 60);
 
-      nextBossNameEl.textContent = `${getBossName(soon.id)}`;
+      nextBossNameEl.textContent = soon.boss.name;
       if (totalSeconds === 0) {
         nextTimeEl.textContent = "SPAWNED";
       } else {
@@ -4478,414 +4115,9 @@
       window.addEventListener("load", () => init());
     }
 
-    // ✅ Online presence tracking (Realtime Database)
-    const presenceRef = ref(rtdb, "presence");
-    const myConnection = push(presenceRef);
-    set(myConnection, { connected: true, timestamp: rtdbServerTimestamp() });
-    onDisconnect(myConnection).remove();
-
-    // ✅ Create or update the online users badge (🟢 icon now handled by CSS)
-    onValue(presenceRef, (snap) => {
-      const count = snap.size || snap.numChildren();
-      let el = document.getElementById("onlineCount");
-
-      if (!el) {
-        el = document.createElement("div");
-        el.id = "onlineCount";
-        el.classList.add("online-users");
-        // 🟢 icon handled via CSS ::before â€” only insert count span here
-        el.innerHTML = `<span class="count">${count}</span>`;
-        document.body.appendChild(el);
-      } else {
-        const countSpan = el.querySelector(".count");
-        if (countSpan && countSpan.textContent !== String(count)) {
-          countSpan.textContent = count;
-        }
-      }
-    });
-
-    // === GLOBAL CHAT FUNCTIONALITY ===
-    const chatBox = document.getElementById("chatBox");
-    const chatMessages = document.getElementById("chatMessages");
-    const chatInput = document.getElementById("chatInput");
-    const chatSend = document.getElementById("chatSend");
-    const chatMinimize = document.getElementById("chatMinimize");
-
-    let lastSeenTimestamp = 0; // used to detect truly new messages
-    let initialLoadComplete = false;
-
-    // ðŸ§  Generate random boss-based username (new each reload)
-    function generateRandomUsername() {
-      const prefixes = [
-        "The",
-        "Dark",
-        "Crimson",
-        "Iron",
-        "Shadow",
-        "Arcane",
-        "Silent",
-        "Ancient",
-        "Eternal",
-        "Solar",
-        "Lunar",
-        "Neon",
-        "Fallen",
-        "Cyber",
-        "Storm",
-        "Infernal",
-        "Frozen",
-        "Radiant",
-        "Cursed",
-        "Sacred",
-        "Phantom",
-        "Celestial",
-        "Venomous",
-        "Emerald",
-        "Golden",
-        "Azure",
-        "Scarlet",
-        "Mystic",
-        "Quantum",
-        "Obsidian",
-        "Violet",
-        "Titan",
-        "Echo",
-        "Prime",
-        "Nova",
-        "Omega",
-        "Spectral",
-        "Astral",
-        "Dire",
-        "Eclipse",
-        "Wraith",
-        "Void",
-        "Ironclad",
-        "Lucent",
-        "Abyssal",
-      ];
-
-      const boss = BOSSES[Math.floor(Math.random() * BOSSES.length)];
-      const prefix =
-        Math.random() < 0.8
-          ? prefixes[Math.floor(Math.random() * prefixes.length)] + " "
-          : "";
-
-      return prefix + boss.name;
-    }
-
-    const localUserName = generateRandomUsername();
-
-    // === LANGUAGE TOGGLE FUNCTIONALITY ===
-    const langToggle = document.getElementById("langToggle");
-    let currentLanguage = localStorage.getItem("language") || "en";
-
-    // Set initial button state
-    langToggle.textContent = currentLanguage === "en" ? "EN" : "JP";
-
-    // Weekday translations
-    const weekdayLabels = {
-      en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      jp: ["日", "月", "火", "水", "木", "金", "土"]
-    };
-
-    // Month translations
-    const monthLabels = {
-      en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      jp: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
-    };
-
-    // Boss name translations
-    const bossNames = {
-      en: {
-        Venatus: "Venatus",
-        Viorent: "Viorent",
-        Ego: "Ego",
-        Clemantis: "Clemantis",
-        Livera: "Livera",
-        Araneo: "Araneo",
-        Undomiel: "Undomiel",
-        Saphirus: "Saphirus",
-        Neutro: "Neutro",
-        LadyDalia: "Lady Dalia",
-        GeneralAquleus: "General Aquleus",
-        Thymele: "Thymele",
-        Amentis: "Amentis",
-        BaronBraudmore: "Baron Braudmore",
-        Milavy: "Milavy",
-        Wannitas: "Wannitas",
-        Metus: "Metus",
-        Duplican: "Duplican",
-        Shuliar: "Shuliar",
-        Ringor: "Ringor",
-        Roderick: "Roderick",
-        Gareth: "Gareth",
-        Titore: "Titore",
-        Larba: "Larba",
-        Catena: "Catena",
-        Auraq: "Auraq",
-        Secreta: "Secreta",
-        Ordo: "Ordo",
-        Asta: "Asta",
-        Supore: "Supore",
-        Chaiflock: "Chaiflock",
-        Benji: "Benji",
-		wb: "World Boss",
-      },
-      jp: {
-        Venatus: "ヴェナトゥス",
-        Viorent: "ヴィオレント",
-        Ego: "エゴ",
-        Clemantis: "クレマンティス",
-        Livera: "リヴェラ",
-        Araneo: "アラネオ",
-        Undomiel: "ウンドミエル",
-        Saphirus: "サフィルス",
-        Neutro: "ニュートロ",
-        LadyDalia: "レディ ダリア",
-        GeneralAquleus: "将軍 アクレウス",
-        Thymele: "タイメル",
-        Amentis: "アメンティス",
-        BaronBraudmore: "男爵 ブラウドモア",
-        Milavy: "ミラヴィ",
-        Wannitas: "ワンニタス",
-        Metus: "メトゥス",
-        Duplican: "ドゥプリカン",
-        Shuliar: "シュリアール",
-        Ringor: "リンゴール",
-        Roderick: "ロデリック",
-        Gareth: "ガレス",
-        Titore: "ティトレ",
-        Larba: "ラルバ",
-        Catena: "カテナ",
-        Auraq: "アウラク",
-        Secreta: "セクレタ",
-        Ordo: "オルド",
-        Asta: "アスタ",
-        Supore: "スポーレ",
-        Chaiflock: "チェイフロック",
-        Benji: "ベンジ",
-		wb: "ワールドボス",
-      }
-    };
-
-    // Translation dictionary
-    const translations = {
-      en: {
-        mainTitle: "FIELD BOSS TIME TRACKER",
-        warningText: "FOR RICARDO04",
-        searchPlaceholder: "Search boss...",
-        bossListHeader: "BOSS LIST",
-        nextBossLabel: "Next Boss",
-        activeTimersHeader: "ACTIVE TIMERS",
-        serverChat: "SERVER CHAT",
-        cancelBtn: "Cancel",
-        saveBtn: "Save",
-        exportBtn: "Export JSON",
-        importBtn: "Import JSON",
-        resetBtn: "Reset Timers",
-        syncBtn: "Sync Users",
-        webhookBtn: "Webhook URL",
-        discordWebhook: "💬 Discord Webhook",
-        webhookPlaceholder: "Paste your Discord Webhook URL here.",
-        webhookSave: "SAVE",
-        webhookTest: "TEST",
-        webhookClear: "CLEAR",
-        chatPlaceholder: "Type a message...",
-        chatSend: "Send",
-        spawnTime: "Spawn Time",
-        remainingTime: "Remaining Time",
-        remove: "Remove",
-        hour: "hr",
-        day: "",
-        serverTimeLabel: "SERVER TIME:",
-        am: "AM",
-        pm: "PM",
-        modalSubtitle: "Set date and time of death (UTC+9 JST)",
-        manualSet: "Set date and time manually",
-        markDead: "Mark Dead",
-        toggleLanguage: "Toggle language",
-      },
-      jp: {
-        mainTitle: "フィールドボスタイムトラッカー",
-        warningText: "リカルド04用",
-        searchPlaceholder: "ボスを検索...",
-        bossListHeader: "ボスリスト",
-        nextBossLabel: "次のボス",
-        activeTimersHeader: "アクティブタイマー",
-        serverChat: "サーバーチャット",
-        cancelBtn: "キャンセル",
-        saveBtn: "保存",
-        exportBtn: "JSON をエクスポート",
-        importBtn: "JSON をインポート",
-        resetBtn: "タイマーをリセット",
-        syncBtn: "ユーザーを同期",
-        webhookBtn: "Webhook URL",
-        discordWebhook: "💬 Discord Webhook",
-        webhookPlaceholder: "Discord Webhook URL を貼り付けてください。",
-        webhookSave: "保存",
-        webhookTest: "テスト",
-        webhookClear: "クリア",
-        chatPlaceholder: "メッセージを入力...",
-        chatSend: "送信",
-        spawnTime: "出現時間",
-        remainingTime: "残り時間",
-        remove: "削除",
-        hour: "時間",
-        day: "日",
-        serverTimeLabel: "サーバー時間:",
-        am: "午前",
-        pm: "午後",
-        modalSubtitle: "死亡時刻を設定してください (UTC+9 JST)",
-        manualSet: "日時を手動で設定",
-        markDead: "死亡マーク",
-        toggleLanguage: "言語を切り替える",
-      }
-    };
-
-    // Function to get translated boss name
-    function getBossName(bossId) {
-      return bossNames[currentLanguage]?.[bossId] || bossId;
-    }
-
-    // Function to get translated weekday
-    function getWeekdayLabel(dayIndex) {
-      return weekdayLabels[currentLanguage][dayIndex] || weekdayLabels.en[dayIndex];
-    }
-
-    // Function to get translated month
-    function getMonthLabel(monthIndex) {
-      return monthLabels[currentLanguage][monthIndex] || monthLabels.en[monthIndex];
-    }
-
-    // Function to format weekly respawn slot with translations
-    function formatWeeklyRespawnSlotTranslated(slot) {
-      const day = getWeekdayLabel(slot.day);
-      const time = `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`;
-
-      // In Japanese, add the day label before the time
-      if (currentLanguage === "jp") {
-        return `${day}曜日 ${time}`;
-      }
-
-      return `${day} ${time}`;
-    }
-
-    // Function to apply translations
-    function applyTranslations() {
-      const lang = currentLanguage;
-
-      document.querySelector(".main-title").textContent = translations[lang].mainTitle;
-      document.querySelector(".warning-text").textContent = translations[lang].warningText;
-      document.getElementById("bossSearch").placeholder = translations[lang].searchPlaceholder;
-      document.getElementById("serverTimeLabel").textContent = translations[lang].serverTimeLabel;
-      document.querySelector("#bossListPanel .card-header").textContent = translations[lang].bossListHeader;
-      document.querySelector("#nextBoss .boss-name").textContent = translations[lang].nextBossLabel;
-      document.querySelector("#timersPanel .card-header").textContent = translations[lang].activeTimersHeader;
-
-      // Settings modal buttons (safe check with optional chaining)
-      const exportBtn = document.getElementById("exportBtn");
-      if (exportBtn) exportBtn.querySelector(".label").textContent = translations[lang].exportBtn;
-
-      const importBtn = document.getElementById("importBtn");
-      if (importBtn) importBtn.querySelector(".label").textContent = translations[lang].importBtn;
-
-      const resetBtn = document.getElementById("resetBtn");
-      if (resetBtn) resetBtn.querySelector(".label").textContent = translations[lang].resetBtn;
-
-      const syncBtn = document.getElementById("syncBtn");
-      if (syncBtn) syncBtn.querySelector(".label").textContent = translations[lang].syncBtn;
-
-      const discordWebhookBtn = document.getElementById("discordWebhookBtn");
-      if (discordWebhookBtn) discordWebhookBtn.querySelector(".label").textContent = translations[lang].webhookBtn;
-
-      // Modal buttons
-      const cancelTimeBtn = document.getElementById("cancelTimeBtn");
-      if (cancelTimeBtn) cancelTimeBtn.textContent = translations[lang].cancelBtn;
-
-      const saveTimeBtn = document.getElementById("saveTimeBtn");
-      if (saveTimeBtn) saveTimeBtn.textContent = translations[lang].saveBtn;
-
-      const modalSubtitle = document.querySelector(".modal-subtitle");
-      if (modalSubtitle) modalSubtitle.textContent = translations[lang].modalSubtitle;
-
-      // Chat elements
-      document.getElementById("chatInput").placeholder = translations[lang].chatPlaceholder;
-      const chatHeader = document.querySelector(".chat-header");
-      if (chatHeader) {
-        const headerText = chatHeader.childNodes[0];
-        if (headerText) headerText.textContent = translations[lang].serverChat;
-      }
-
-      // Chat send button - update the button text
-      const chatSend = document.getElementById("chatSend");
-      if (chatSend) chatSend.textContent = translations[lang].chatSend;
-
-      // Language toggle button title
-      langToggle.title = translations[lang].toggleLanguage;
-
-      // Translate all boss names in the boss list
-      const bossElements = document.querySelectorAll(".boss[data-id]");
-      bossElements.forEach((el) => {
-        const bossId = el.getAttribute("data-id");
-        const nameEl = el.querySelector(".name");
-        if (nameEl) {
-          nameEl.textContent = getBossName(bossId);
-        }
-      });
-
-      // Translate timer names and labels
-      const timerElements = document.querySelectorAll(".timer[data-id]");
-      timerElements.forEach((el) => {
-        const bossId = el.getAttribute("data-id");
-        const timerNameEl = el.querySelector(".timer-name");
-        const timerSpawnEl = el.querySelector(".timer-spawn");
-        const timerRemainingLabelEl = el.querySelector(".timer-remaining-label");
-        const removeBtn = el.querySelector(".clear-timer-btn");
-
-        if (timerNameEl) timerNameEl.textContent = getBossName(bossId);
-
-        if (timerSpawnEl) {
-          const info = timers[bossId];
-          if (info && info.endTime) {
-            const spawnStr = formatShortDateTime(info.endTime);
-            const spawnTimeLabel = translations[currentLanguage].spawnTime;
-            timerSpawnEl.textContent = `${spawnTimeLabel} (${TIME_ZONE_LABEL}): ${spawnStr}`;
-          }
-        }
-
-        if (timerRemainingLabelEl) {
-          timerRemainingLabelEl.textContent = translations[lang].remainingTime + ":";
-        }
-
-        if (removeBtn) {
-          removeBtn.textContent = translations[lang].remove;
-        }
-      });
-    }
-
-    langToggle.addEventListener("click", () => {
-      currentLanguage = currentLanguage === "en" ? "jp" : "en";
-      localStorage.setItem("language", currentLanguage);
-
-      langToggle.textContent = currentLanguage === "en" ? "EN" : "JP";
-
-      applyTranslations();
-
-      // Rebuild dynamic elements
-      renderBossList();
-      rebuildTimersPanel();
-      computeNextBoss();
-
-      console.log("🌐 Language toggled to:", currentLanguage);
-    });
-
-    // Apply translations on page load
-    applyTranslations();
-
     // === SERVER TIME UPDATE ===
     const serverTimeEl = document.getElementById("serverTime");
     function updateServerTime() {
-      const now = new Date();
       const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: TIME_ZONE,
         month: "short",
@@ -4895,152 +4127,10 @@
         second: "2-digit",
         hour12: true,
       });
-      const parts = formatter.formatToParts(now);
-      const month = parts.find(p => p.type === "month").value;
-      const day = parts.find(p => p.type === "day").value;
-      const hour = parts.find(p => p.type === "hour").value;
-      const minute = parts.find(p => p.type === "minute").value;
-      const second = parts.find(p => p.type === "second").value;
-      const dayPeriod = parts.find(p => p.type === "dayPeriod").value;
-
-      // Translate month and period
-      const monthIndex = now.getMonth();
-      const monthTranslated = getMonthLabel(monthIndex).toUpperCase();
-      const periodTranslated = dayPeriod === "AM"
-        ? translations[currentLanguage].am
-        : translations[currentLanguage].pm;
-      const dayLabel = translations[currentLanguage].day;
-
-      serverTimeEl.textContent = `${monthTranslated} ${day}${dayLabel} ${hour}:${minute}:${second} ${periodTranslated}`;
+      serverTimeEl.textContent = formatter.format(new Date());
     }
     updateServerTime();
     setInterval(updateServerTime, 1000);
-
-    // ✅ Wait until #onlineCount exists (created dynamically by Firebase)
-    function attachChatToggle() {
-      const onlineUsers = document.getElementById("onlineCount");
-      if (!onlineUsers) return setTimeout(attachChatToggle, 300);
-
-      onlineUsers.style.cursor = "pointer";
-
-      // Clicking the online counter toggles chat open/close
-      onlineUsers.addEventListener("click", () => {
-        // If hidden (minimized), show it again
-        if (chatBox.classList.contains("hidden")) {
-          chatBox.classList.remove("hidden");
-          chatBox.classList.add("active");
-          onlineUsers.classList.remove("notify");
-          lastSeenTimestamp = Date.now();
-          return;
-        }
-
-        // If visible, hide it
-        chatBox.classList.add("hidden");
-        chatBox.classList.remove("active");
-      });
-    }
-    attachChatToggle();
-
-    // === Minimize Button Functionality ===
-    if (chatMinimize) {
-      chatMinimize.addEventListener("click", () => {
-        chatBox.classList.add("hidden");
-        chatBox.classList.remove("active");
-      });
-    }
-
-    // Reference to chat messages in Firebase
-    const chatRef = ref(rtdb, "globalChat");
-
-    // ✉️ Send message
-    chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
-
-    function sendMessage() {
-      const text = chatInput.value.trim();
-      if (!text) return;
-
-      push(chatRef, { name: localUserName, text, timestamp: Date.now() });
-      chatInput.value = "";
-
-      // Update last seen when user sends (so they don't get notified of their own)
-      lastSeenTimestamp = Date.now();
-    }
-
-    // 🎨 Generate a consistent glowing color per username
-    function getUserColor(name) {
-      if (name === localUserName) return "hsl(180, 80%, 70%)"; // your color: cyan-blue glow
-      let hash = 0;
-      for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      const hue = Math.abs(hash) % 360;
-      return `hsl(${hue}, 70%, 70%)`; // others: soft rainbow hues
-    }
-
-    // 💬 Detect last message before user loads (to prevent false notifications)
-    get(chatRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        let latest = 0;
-        snapshot.forEach((child) => {
-          const data = child.val();
-          if (data.timestamp > latest) latest = data.timestamp;
-        });
-        lastSeenTimestamp = latest;
-      }
-      initialLoadComplete = true;
-    });
-
-    // 💬 Listen for incoming messages
-    onChildAdded(chatRef, (snapshot) => {
-      const data = snapshot.val();
-      const msgEl = document.createElement("div");
-      msgEl.className = "chat-message";
-
-      const userColor = getUserColor(data.name);
-      const time = `${formatTimeOnly(data.timestamp)} ${TIME_ZONE_LABEL}`;
-
-      msgEl.innerHTML = `
-					<strong style="
-						color: ${userColor};
-						text-shadow: 0 0 8px ${userColor};
-					">${data.name}</strong>
-					<small style="opacity: 0.7;">[${time}]</small>:
-					<span style="
-						color: ${userColor};
-						text-shadow: 0 0 6px ${userColor};
-					">${data.text}</span>
-				`;
-
-      chatMessages.appendChild(msgEl);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      // Ignore notifications before initial load
-      if (!initialLoadComplete) return;
-
-      // Only notify for messages newer than last seen
-      if (data.timestamp <= lastSeenTimestamp) return;
-
-      // 🔔 Show visual notification & tooltip if chat is closed
-      const onlineUsers = document.getElementById("onlineCount");
-      if (onlineUsers && !chatBox.classList.contains("active")) {
-        if (!onlineUsers.classList.contains("notify")) {
-          onlineUsers.classList.add("notify");
-
-          // small bounce animation
-          onlineUsers.animate(
-            [
-              { transform: "translateY(0)" },
-              { transform: "translateY(-4px)" },
-              { transform: "translateY(0)" },
-            ],
-            { duration: 300, easing: "ease-out" }
-          );
-        }
-      }
-    });
 
     // Auto-refresh the page every 5 minutes
     setTimeout(() => {
@@ -5048,20 +4138,6 @@
     }, 300000); // 300,000 ms = 5 minutes
   </script>
 
-  <!-- Chat Box (hidden by default) -->
-  <div id="chatBox" class="chat-box hidden">
-    <div class="chat-header">
-      SERVER CHAT
-      <button id="chatMinimize" class="chat-minimize-btn">−</button>
-    </div>
-
-    <div id="chatMessages" class="chat-messages"></div>
-
-    <div class="chat-input-area">
-      <input id="chatInput" type="text" placeholder="Type a message..." />
-      <button id="chatSend">Send</button>
-    </div>
-  </div>
 </body>
 
 </html>
