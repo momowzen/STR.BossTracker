@@ -2569,7 +2569,7 @@
     // -------------------------
     // Discord send helpers
     // -------------------------
-    async function sendDiscordMessage(message) {
+			async function sendDiscordMessage(message) {
 				const webhook =
 					cachedWebhookUrl ||
 					(webhookInput && webhookInput.value.trim()) ||
@@ -2582,7 +2582,10 @@
 
 				try {
 					const payload = {
-						content: message
+						content: message,
+						allowed_mentions: {
+							parse: ["everyone"]
+						}
 					};
 
 					const res = await fetch(webhook, {
@@ -2603,7 +2606,7 @@
 				} catch (err) {
 					console.error("⚠️ Discord webhook error:", err);
 				}
-			}		
+			}	
 
     // === patched sendDiscordEmbedOnce: normalized key + endTimeMs dedupe ===
     async function sendDiscordEmbedOnce(type, boss) {
