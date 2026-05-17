@@ -2569,44 +2569,41 @@
     // -------------------------
     // Discord send helpers
     // -------------------------
-    async function sendDiscordEmbed(embed) {
-      const webhook =
-        cachedWebhookUrl ||
-        (webhookInput && webhookInput.value.trim()) ||
-        null;
+    async function sendDiscordMessage(message) {
+				const webhook =
+					cachedWebhookUrl ||
+					(webhookInput && webhookInput.value.trim()) ||
+					null;
 
-      if (!webhook) {
-        console.warn("⚠️  No Discord webhook configured.");
-        return;
-      }
+				if (!webhook) {
+					console.warn("⚠️ No Discord webhook configured.");
+					return;
+				}
 
-      const mentionTarget = "@everyone"; // no @everyone by default
+				try {
+					const payload = {
+						content: message
+					};
 
-      try {
-        const payload = {
-          content: mentionTarget,
-          embeds: [embed],
-        };
+					const res = await fetch(webhook, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(payload),
+					});
 
-        const res = await fetch(webhook, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          console.error(
-            "❌ Discord webhook failed:",
-            res.status,
-            await res.text()
-          );
-        } else {
-          console.log("✅ Discord embed sent successfully.");
-        }
-      } catch (err) {
-        console.error("⚠️  Discord webhook error:", err);
-      }
-    }
+					if (!res.ok) {
+						console.error(
+							"❌ Discord webhook failed:",
+							res.status,
+							await res.text()
+						);
+					} else {
+						console.log("✅ Discord message sent successfully.");
+					}
+				} catch (err) {
+					console.error("⚠️ Discord webhook error:", err);
+				}
+			}		
 
     // === patched sendDiscordEmbedOnce: normalized key + endTimeMs dedupe ===
     async function sendDiscordEmbedOnce(type, boss) {
@@ -2696,51 +2693,43 @@
         );
 
         // 🔔 Build appropriate embed
-        let embed;
-        switch (type) {
-          case "killed":
-            embed = buildEmbed(
-              `💀 ${boss.name} has been defeated!`,
-              `Next respawn (${TIME_ZONE_LABEL}):\n${formattedTime}`,
-              0xff3333,
-              boss
-            );
-            break;
+				let message = "";
 
-          case "soon":
-            embed = buildEmbed(
-              `⚠️ ${boss.name} will respawn soon!`,
-              `Spawn expected in 5 minutes.\nSpawn Time (${TIME_ZONE_LABEL}):\n${formattedTime}`,
-              0xffcc00,
-              boss
-            );
-            break;
+				switch (type) {
+					case "killed":
+						message =
+							`**${boss.name}** has been defeated.\n` +
+							`Next respawn: ${formattedTime}\n` +
+							`@everyone`;
+						break;
 
-          case "spawn":
-            embed = buildEmbed(
-              `⚔️ ${boss.name} has spawned!`,
-              `It’s time to hunt!`,
-              0xb266ff,
-              boss
-            );
-            break;
+					case "soon":
+						message =
+							`**${boss.name}** will respawn soon!\n` +
+							`Respawn time: ${formattedTime}\n` +
+							`@everyone`;
+						break;
 
-          case "manual":
-            embed = buildEmbed(
-              `⏰ ${boss.name} manual time set.`,
-              `Next respawn (${TIME_ZONE_LABEL}):\n${formattedTime}`,
-              0x3399ff,
-              boss
-            );
-            break;
+					case "spawn":
+						message =
+							`**${boss.name}** has respawned!\n` +
+							`It's time to hunt!\n` +
+							`@everyone`;
+						break;
 
-          default:
-            console.warn(`⚠️ Unknown notification type: ${type}`);
-            return;
-        }
+					case "manual":
+						message =
+							`**${boss.name}** timer manually updated.\n` +
+							`Next respawn: ${formattedTime}\n` +
+							`@everyone`;
+						break;
 
-        // 🔔 Final Discord send
-        await sendDiscordEmbed(embed);
+					default:
+						console.warn(`⚠️ Unknown notification type: ${type}`);
+						return;
+				}
+				
+					await sendDiscordMessage(message);
         console.log(`✅ Sent ${type} notification for ${boss.name}`);
       } catch (e) {
         if (e?.code === "ABORTED") {
@@ -2750,28 +2739,7 @@
         console.warn("⚠️  sendDiscordEmbedOnce error:", e);
         delete localNotifCache[key]; // allow retry if failed
       }
-    }
-
-    function buildEmbed(title, description, colorHex, boss) {
-      const embed = {
-        title,
-        description,
-        color: colorHex,
-        footer: { text: "Lordnine Tracker" },
-        timestamp: new Date().toISOString(),
-      };
-
-      // Add boss image if boss object is provided
-      if (boss && boss.id) {
-        embed.thumbnail = {
-          url: `https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${boss.id}.png`,
-          height: 300,
-          width: 300,
-        };
-      }
-
-      return embed;
-    }
+    }    
 
     async function testWebhook() {
       if (!cachedWebhookUrl && !webhookInput.value.trim()) {
@@ -2781,14 +2749,11 @@
       if (!cachedWebhookUrl) cachedWebhookUrl = webhookInput.value.trim();
       // Use the first boss for test image
       const testBoss = BOSSES[0] || null;
-      await sendDiscordEmbed(
-        buildEmbed(
-          "🧪 Webhook test successful!",
-          "This is a test message from Lord Nine Tracker.",
-          0x00ff99,
-          testBoss
-        )
-      );
+      await sendDiscordMessage(
+			"Webhook test successful!\n" +
+			"Tracker notifications are working.\n" +
+			"@everyone"
+		);
       alert("Test sent (check your Discord).");
     }
 
