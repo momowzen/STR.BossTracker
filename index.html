@@ -3035,32 +3035,52 @@
     // Render functions
     // -------------------------
     function renderBossList() {
-      bossListEl.innerHTML = "";
-      const q = (searchInput.value || "").toLowerCase().trim();
+			bossListEl.innerHTML = "";
+			const q = (searchInput.value || "").toLowerCase().trim();
+			const now = Date.now();
 
-      for (const b of BOSSES) {
-        const isWeekly = !!b.weeklyRespawns;
-        const isActive = timers[b.id] && timers[b.id].endTime > Date.now();
-        if (q && !b.name.toLowerCase().includes(q)) continue;
+			const sortedBosses = [...BOSSES].sort((a, b) => {
+				function getRemainingTime(boss) {
+					// Active timer
+					if (timers[boss.id] && timers[boss.id].endTime) {
+						return Math.max(0, timers[boss.id].endTime - now);
+					}
 
-        const subText = isWeekly
-          ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")} ${TIME_ZONE_LABEL}`
-          : b.respawn / 3600 + " hr";
+					// Weekly respawn boss
+					if (boss.weeklyRespawns) {
+						const nextTime = getNextWeeklyRespawnTime(boss);
+						if (nextTime) return Math.max(0, nextTime - now);
+					}
 
-        const node = document.createElement("div");
-        node.className = isActive ? "boss is-dead" : "boss is-alive";
-        node.setAttribute("data-id", b.id);
+					// No timer = bottom of list
+					return Number.MAX_SAFE_INTEGER;
+				}
 
-        const nameClass = isActive ? "name dead" : "name";
+				return getRemainingTime(a) - getRemainingTime(b);
+			});
 
-        const manualSetTooltip = "Set date and time manually";
-        const markDeadTooltip = "Mark Dead";
+			for (const b of sortedBosses) {
+				const isWeekly = !!b.weeklyRespawns;
+				const isActive = timers[b.id] && timers[b.id].endTime > Date.now();
+				if (q && !b.name.toLowerCase().includes(q)) continue;
 
-        node.innerHTML = `
+				const subText = isWeekly
+					? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")} ${TIME_ZONE_LABEL}`
+					: b.respawn / 3600 + " hr";
+
+				const node = document.createElement("div");
+				node.className = isActive ? "boss is-dead" : "boss is-alive";
+				node.setAttribute("data-id", b.id);
+
+				const nameClass = isActive ? "name dead" : "name";
+
+				const manualSetTooltip = "Set date and time manually";
+				const markDeadTooltip = "Mark Dead";
+
+				node.innerHTML = `
 					<div class="meta">
 						<div class="portrait-meta">
-							<img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id
-          }.png" alt="${b.name}">
+							<img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
 							<div class="info">
 								<div class="${nameClass}">${b.name}</div>
 								<div class="sub">${subText}</div>
@@ -3068,34 +3088,32 @@
 						</div>
 					</div>
 					<div class="actions">
-					<div class="action-btn ${isWeekly ? "hidden" : ""}">
-					<button class="kbtn icon-btn" title="${manualSetTooltip}" data-action="set" data-id="${b.id
-          }">
-					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-					 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="12" cy="12" r="10"></circle>
-					<polyline points="12 6 12 12 16 14"></polyline>
-					</svg>
-					</button>
-					</div>
+						<div class="action-btn ${isWeekly ? "hidden" : ""}">
+							<button class="kbtn icon-btn" title="${manualSetTooltip}" data-action="set" data-id="${b.id}">
+								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="10"></circle>
+									<polyline points="12 6 12 12 16 14"></polyline>
+								</svg>
+							</button>
+						</div>
 
-					<div class="action-btn">
-					 <button class="kbtn icon-btn" title="${markDeadTooltip}" data-action="mark" data-id="${b.id
-          }">
-					 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-					 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"></path>
-					<circle cx="9" cy="11" r="1"></circle>
-					<circle cx="15" cy="11" r="1"></circle>
-					</svg>
-					</button>
+						<div class="action-btn">
+							<button class="kbtn icon-btn" title="${markDeadTooltip}" data-action="mark" data-id="${b.id}">
+								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"></path>
+									<circle cx="9" cy="11" r="1"></circle>
+									<circle cx="15" cy="11" r="1"></circle>
+								</svg>
+							</button>
+						</div>
 					</div>
-					</div>
-					`;
+				`;
 
-        bossListEl.appendChild(node);
-      }
-    }
+				bossListEl.appendChild(node);
+			}
+		}
 
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
