@@ -2980,13 +2980,6 @@
         renderBossList();
 
         // ✅ Send Discord notification (manual entry always sends)
-        const formattedTime = formatShortDateTime(endTime);
-        const embed = buildEmbed(
-          `⏰ ${boss.name} manual time set`,
-          `Next respawn (${TIME_ZONE_LABEL}): ${formattedTime}`,
-          0x3399ff,
-          boss
-        );
         await sendDiscordEmbedOnce("manual", boss);
 
         console.log(`ðŸ“¡ Discord notification sent for ${boss.name}.`);
