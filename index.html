@@ -2604,13 +2604,19 @@
       location.reload();
     });
 
-    // ✅ Safe Firestore write helper â€” ensures reliable merges
+    // ✅ Safe Firestore write helper — dot-path updates only (never replace whole timers map)
     async function safeWrite(ref, payload) {
       try {
         await updateDoc(ref, payload);
       } catch (err) {
-        console.warn("⚠️  updateDoc failed, retrying with setDoc merge", err);
-        await setDoc(ref, payload, { merge: true });
+        const code = err?.code || "";
+        if (code === "not-found") {
+          await setDoc(ref, { timers: {} }, { merge: true });
+          await updateDoc(ref, payload);
+          return;
+        }
+        console.warn("⚠️  safeWrite failed", err);
+        throw err;
       }
     }
 
@@ -2892,18 +2898,49 @@
       }
     }
 
+    // Apply Firestore timers to local state and refresh UI (real-time sync)
+    function applyTimersFromSnapshot(remoteTimersRaw) {
+      const now = Date.now();
+      const remoteTimers = JSON.parse(
+        JSON.stringify(remoteTimersRaw || {})
+      );
+
+      for (const [id, remoteInfo] of Object.entries(remoteTimers)) {
+        const localInfo = timers[id] || {};
+        const boss = BOSSES.find((b) => b.id === id);
+        if (!boss) continue;
+
+        // Keep active local cooldown; otherwise remote wins
+        if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
+          remoteTimers[id] = {
+            ...remoteInfo,
+            cooldownUntil: localInfo.cooldownUntil,
+          };
+        }
+
+        lastWriteCache[id] = JSON.stringify(remoteTimers[id] || {});
+      }
+
+      timers = remoteTimers;
+      rebuildTimersPanel();
+      renderBossList();
+      computeNextBoss();
+      updateTimersAuthUI();
+    }
+
     // Save or update a single boss timer in Firestore safely, with dedupe
     async function saveTimerToFirestoreOnce(bossId) {
       try {
         const ref = doc(db, "timers", "global");
         const data = timers[bossId];
-        const json = JSON.stringify(data || {});
+        if (!data) return;
+        const json = JSON.stringify(data);
         if (lastWriteCache[bossId] === json) {
-          console.log(`â„¹ Skipping redundant write for ${bossId}`);
+          console.log(`ℹ Skipping redundant write for ${bossId}`);
           return;
         }
-        lastWriteCache[bossId] = json;
         await safeWrite(ref, { [`timers.${bossId}`]: data });
+        lastWriteCache[bossId] = json;
         console.log(`✅ saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
       } catch (e) {
         console.warn("saveTimerToFirestoreOnce err", e);
@@ -3079,14 +3116,8 @@
         // ✅ Ensure webhook is loaded before use
         if (!cachedWebhookUrl) await autoLoadWebhook();
 
-        const ref = doc(db, "timers", "global");
-
-        // ✅ Correct Firestore structure
-        await setDoc(
-          ref,
-          { timers: { [boss.id]: timers[boss.id] } },
-          { merge: true }
-        );
+        // Per-boss field update (syncs to all clients via onSnapshot)
+        await saveTimerToFirestoreOnce(boss.id);
 
         console.log(`✅ Firestore updated: ${boss.name} manual time saved.`);
 
@@ -3832,8 +3863,8 @@
     // ✅ Firestore document for lock management
     const deadLockRef = doc(db, "meta", "deadLocks");
     onSnapshot(deadLockRef, (snapshot) => {
-      const data = snapshot.data() || {};
-      deadLocks = data;
+      if (snapshot.metadata?.hasPendingWrites) return;
+      deadLocks = snapshot.data() || {};
       const now = Date.now();
 
       document
@@ -3844,6 +3875,7 @@
           btn.disabled = now < lockedUntil;
         });
 
+      if (firebaseLoaded) renderBossList();
       console.log("🔔 deadLocks updated from Firestore:", deadLocks);
     });
 
@@ -3907,49 +3939,18 @@
         // ✅ Firestore real-time listener (safe merge that respects cooldowns)
         const docRef = doc(db, "timers", "global");
         onSnapshot(docRef, async (snap) => {
-          // ✅ Auto-create if the timers document doesnâ€™t exist
           if (!snap.exists()) {
             console.log(
-              "â„¹ No Firestore timers document found. Creating empty one..."
+              "ℹ No Firestore timers document found. Creating empty one..."
             );
             await setDoc(docRef, { timers: {} }, { merge: true });
             return;
           }
 
-          const remoteTimers = snap.data().timers || {};
-          const now = Date.now();
+          if (snap.metadata?.hasPendingWrites) return;
 
-          // 🔒 Merge remote timers into local safely
-          for (const [id, remoteInfo] of Object.entries(remoteTimers)) {
-            const localInfo = timers[id] || {};
-            const boss = BOSSES.find((b) => b.id === id);
-            if (!boss) continue;
-
-            // ✅ If local cooldown is active, keep it â€” donâ€™t overwrite
-            if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
-              console.log(
-                `⏸️ ${boss.name} in local cooldown â€” preserving local timer.`
-              );
-              remoteTimers[id] = {
-                ...remoteInfo,
-                cooldownUntil: localInfo.cooldownUntil,
-              };
-              continue;
-            }
-
-            // ✅ If remote has cooldown, preserve it too
-            if (remoteInfo.cooldownUntil && remoteInfo.cooldownUntil > now) {
-              console.log(`💾 ${boss.name} cooldown synced from Firestore.`);
-            }
-          }
-
-          timers = remoteTimers;
-
-          rebuildTimersPanel();
-          renderBossList();
-          computeNextBoss();
-
-          console.log("ðŸ”„ Timers merged from Firestore:", timers);
+          applyTimersFromSnapshot(snap.data().timers || {});
+          console.log("🔄 Timers synced from Firestore:", timers);
         });
       } catch (e) {
         console.warn("Firestore load failed", e);
