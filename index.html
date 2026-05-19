@@ -333,13 +333,7 @@
     }
 
     #timersPanel {
-      order: 3;
-      flex: 0 0 auto;
-      max-height: min(32vh, 240px);
-      min-height: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: none;
     }
 
     #timers {
@@ -841,7 +835,12 @@
       }
 
       #timersPanel {
+        display: flex;
+        flex-direction: column;
         flex: 1 1 auto;
+        max-height: none;
+        min-height: 0;
+        overflow: hidden;
       }
 
       .boss {
@@ -2701,30 +2700,30 @@
 				switch (type) {
 					case "killed":
 						message =
-							`${boss.name} has been defeated.\n` +
+							`**${boss.name}** has been defeated.\n` +
 							`Next respawn: ${formattedTime}\n` +
-							`@everyone\n\n`;
+							`@everyone`;
 						break;
 
 					case "soon":
 						message =
-							`${boss.name} will respawn soon!\n` +
+							`**${boss.name}** will respawn soon!\n` +
 							`Respawn time: ${formattedTime}\n` +
-							`@everyone\n\n`;
+							`@everyone`;
 						break;
 
 					case "spawn":
 						message =
-							`${boss.name} has respawned!\n` +
+							`**${boss.name}** has respawned!\n` +
 							`It's time to hunt!\n` +
-							`@everyone\n\n`;
+							`@everyone`;
 						break;
 
 					case "manual":
 						message =
-							`${boss.name} timer manually updated.\n` +
+							`**${boss.name}** timer manually updated.\n` +
 							`Next respawn: ${formattedTime}\n` +
-							`@everyone\n\n`;
+							`@everyone`;
 						break;
 
 					default:
