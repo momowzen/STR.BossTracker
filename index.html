@@ -270,6 +270,42 @@
       background-color: #9aa6b2;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .admin-auth-btn {
+      font-family: Inter, "Segoe UI", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9aa6b2;
+      padding: 8px 12px;
+      min-height: 44px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #1a1a1a;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .admin-auth-btn:hover {
+      background: #222;
+      border-color: #444;
+      color: #00f0ff;
+    }
+
+    .settings.hidden,
+    .admin-auth-btn.hidden {
+      display: none !important;
+    }
+
     .server-time {
       display: flex;
       flex: 1 1 auto;
@@ -315,12 +351,13 @@
     }
 
     .right-column {
-      display: contents;
-    }
-
-    #nextBoss {
       order: 1;
       flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      width: 100%;
     }
 
     #bossListPanel {
@@ -330,6 +367,11 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+    }
+
+    #nextBoss {
+      flex: 0 0 auto;
+      width: 100%;
     }
 
     #timersPanel {
@@ -345,6 +387,7 @@
     #bossList {
       flex: 1 1 auto;
       min-height: 0;
+      overflow-y: auto;
     }
 
     .card {
@@ -362,13 +405,6 @@
 
     .card::before {
       display: none;
-    }
-
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 0;
     }
 
     #bossList,
@@ -787,6 +823,12 @@
         width: auto;
         flex-wrap: nowrap;
         margin-left: auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header-actions {
+        gap: 8px;
       }
 
       .search-wrapper {
@@ -809,6 +851,12 @@
         font-size: 12px;
       }
 
+      .admin-auth-btn {
+        min-height: auto;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
       .logo-img {
         height: 44px;
       }
@@ -825,6 +873,8 @@
         gap: 10px;
         min-height: 0;
         order: unset;
+        flex: 1 1 auto;
+        width: auto;
       }
 
       #nextBoss,
@@ -832,6 +882,13 @@
       #timersPanel {
         order: unset;
         max-height: none;
+        flex: unset;
+      }
+
+      #bossListPanel {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
       }
 
       #timersPanel {
@@ -1728,81 +1785,6 @@
       color: #9aa6b2;
     }
 
-    /* === LOGIN MODAL (Member / Admin) - matches theme === */
-    #loginModalBackdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      background: rgba(0, 0, 0, 0.9);
-    }
-
-    #loginModalBackdrop.active {
-      display: flex;
-    }
-
-    #loginModalBackdrop.hidden {
-      display: none;
-    }
-
-    .login-modal {
-      background: #0f0f0f;
-      border: 1px solid #333;
-      border-radius: 4px;
-      box-shadow: 0 6px 20px rgba(0, 240, 255, 0.04);
-      padding: 24px 16px;
-      width: min(340px, calc(100vw - 24px));
-      max-width: calc(100vw - 24px);
-      color: var(--text);
-      text-align: center;
-    }
-
-    .login-modal h3 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-      color: #cccccc;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .login-modal .login-subtitle {
-      font-size: 12px;
-      color: #888888;
-      margin-bottom: 20px;
-    }
-
-    .login-modal .login-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .login-modal .login-btn {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #cccccc;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 12px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-    }
-
-    .login-modal .login-btn:hover {
-      background: #222;
-      border-color: #444;
-      color: #00f0ff;
-    }
-
-    .login-modal .login-btn.admin-btn:hover {
-      border-color: rgba(0, 240, 255, 0.4);
-    }
-
     /* === ADMIN PASSWORD MODAL === */
     #adminPasswordBackdrop {
       position: fixed;
@@ -1916,20 +1898,8 @@
 </head>
 
 <body>
-  <!-- Login modal: shown only when session is new (browser was closed) -->
-  <div class="modal-backdrop" id="loginModalBackdrop">
-    <div class="login-modal" role="dialog" aria-labelledby="loginModalTitle">
-      <h3 id="loginModalTitle">Select Mode</h3>
-      <div class="login-subtitle">Choose how you want to use the tracker</div>
-      <div class="login-buttons">
-        <button type="button" class="login-btn" id="loginMemberBtn">Member</button>
-        <button type="button" class="login-btn admin-btn" id="loginAdminBtn">Admin</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin password modal: shown when admin mode is selected -->
-  <div class="modal-backdrop" id="adminPasswordBackdrop">
+  <!-- Admin password modal -->
+  <div class="modal-backdrop hidden" id="adminPasswordBackdrop">
     <div class="admin-password-modal" role="dialog" aria-labelledby="adminPasswordTitle">
       <h3 id="adminPasswordTitle">Admin Access</h3>
       <div class="password-subtitle">Enter admin password</div>
@@ -1955,12 +1925,6 @@
             <div class="warning-text">BY STR4NG3RZ</div>
           </div>
         </div>
-        <button aria-label="Settings" class="settings" id="settingsBtn" type="button">
-          <span class="line"></span>
-          <span class="line"></span>
-          <span class="line"></span>
-          <span class="line"></span>
-        </button>
       </div>
       <div class="header-controls">
         <div class="search-wrapper">
@@ -1970,6 +1934,15 @@
         <div class="server-time" id="serverTimeBox">
           <span id="serverTimeLabel">SERVER TIME:</span>
           <span id="serverTime">-- : -- : --</span>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="admin-auth-btn" id="adminAuthBtn">Admin</button>
+          <button aria-label="Settings" class="settings hidden" id="settingsBtn" type="button">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+          </button>
         </div>
       </div>
     </header>
@@ -2267,6 +2240,7 @@
     const saveTimeBtn = document.getElementById("saveTimeBtn");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const settingsBtn = document.getElementById("settingsBtn");
+    const adminAuthBtn = document.getElementById("adminAuthBtn");
     const settingsDropdown = document.getElementById("settingsDropdown");
     const discordWebhookBtn = document.getElementById("discordWebhookBtn");
     const webhookBackdrop = document.getElementById("webhookModalBackdrop");
@@ -2289,6 +2263,7 @@
     // State
     // -------------------------
     let firebaseLoaded = false;
+    let appInitialized = false;
     let cachedWebhookUrl = null;
     let timers = {}; // { bossId: { endTime, startedAt, weekly?, notifiedSoon?, spawnAnnounced? } }
     let currentBossForTime = null;
@@ -3194,6 +3169,13 @@
         if (remainingValueEl) remainingValueEl.textContent = remainingTimeStr;
         if (remainingSec === 0) existing.classList.add("ready");
         else existing.classList.remove("ready");
+        const clearBtn = existing.querySelector(".clear-timer-btn");
+        if (clearBtn) {
+          clearBtn.classList.toggle(
+            "hidden",
+            sessionStorage.getItem("userMode") === "member"
+          );
+        }
       } else {
         const node = document.createElement("div");
         node.className = "timer";
@@ -3252,6 +3234,13 @@
         .sort((a, b) => a.info.endTime - b.info.endTime);
       for (const e of entries) addOrUpdateTimerElement(e.id);
       console.log("🔁 rebuildTimersPanel: timers rendered.");
+    }
+
+    function updateTimersAuthUI() {
+      const hideRemove = sessionStorage.getItem("userMode") === "member";
+      timersEl.querySelectorAll(".clear-timer-btn").forEach((btn) => {
+        btn.classList.toggle("hidden", hideRemove);
+      });
     }
 
     // -------------------------
@@ -3751,6 +3740,7 @@
     // Init sequence
     // -------------------------
     async function init() {
+      if (appInitialized) return;
       loadingOverlay.style.display = "flex";
 
       // ✅ Wait until the DOM is fully loaded
@@ -3890,57 +3880,85 @@
       rebuildTimersPanel();
       computeNextBoss();
       loadingOverlay.style.display = "none";
+      appInitialized = true;
 
       console.log("✅ init completed successfully.");
     }
 
-    // === LOGIN MODAL: show only when browser was closed (sessionStorage empty) ===
-    const loginModalBackdrop = document.getElementById("loginModalBackdrop");
-    const loginMemberBtn = document.getElementById("loginMemberBtn");
-    const loginAdminBtn = document.getElementById("loginAdminBtn");
+    // === AUTH: member by default, admin via password ===
     const adminPasswordBackdrop = document.getElementById("adminPasswordBackdrop");
     const adminPasswordInput = document.getElementById("adminPasswordInput");
     const adminPasswordBtn = document.getElementById("adminPasswordBtn");
     const adminPasswordCancelBtn = document.getElementById("adminPasswordCancelBtn");
     const passwordError = document.getElementById("passwordError");
-    const ADMIN_PASSWORD = "masasarap69"; // Admin password
-    const needsLogin = !sessionStorage.getItem("userMode");
+    const ADMIN_PASSWORD = "masasarap69";
 
-    function selectUserMode(mode) {
-      if (mode === "admin") {
-        // Show admin password modal instead of immediately setting mode
-        if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("active");
-        if (adminPasswordInput) adminPasswordInput.value = "";
-        if (passwordError) passwordError.classList.remove("show");
-        if (adminPasswordInput) adminPasswordInput.focus();
-      } else {
-        // Member mode - proceed directly
-        sessionStorage.setItem("userMode", mode);
-        if (loginModalBackdrop) loginModalBackdrop.classList.add("hidden");
-        init();
-      }
+    if (!sessionStorage.getItem("userMode")) {
+      sessionStorage.setItem("userMode", "member");
     }
 
-    // Admin password handling
+    function updateAuthUI() {
+      const isAdmin = sessionStorage.getItem("userMode") === "admin";
+      if (adminAuthBtn) {
+        adminAuthBtn.textContent = isAdmin ? "Logout" : "Admin";
+        adminAuthBtn.setAttribute("aria-label", isAdmin ? "Log out of admin" : "Log in as admin");
+      }
+      if (settingsBtn) {
+        settingsBtn.classList.toggle("hidden", !isAdmin);
+      }
+      if (!isAdmin) {
+        settingsDropdown.classList.add("hidden");
+      }
+      updateTimersAuthUI();
+    }
+
+    function openAdminPasswordModal() {
+      if (adminPasswordBackdrop) {
+        adminPasswordBackdrop.classList.remove("hidden");
+        adminPasswordBackdrop.classList.add("active");
+      }
+      if (adminPasswordInput) adminPasswordInput.value = "";
+      if (passwordError) passwordError.classList.remove("show");
+      if (adminPasswordInput) adminPasswordInput.focus();
+    }
+
+    function closeAdminPasswordModal() {
+      if (adminPasswordBackdrop) {
+        adminPasswordBackdrop.classList.remove("active");
+        adminPasswordBackdrop.classList.add("hidden");
+      }
+      if (adminPasswordInput) adminPasswordInput.value = "";
+      if (passwordError) passwordError.classList.remove("show");
+    }
+
+    if (adminAuthBtn) {
+      adminAuthBtn.addEventListener("click", () => {
+        if (sessionStorage.getItem("userMode") === "admin") {
+          sessionStorage.setItem("userMode", "member");
+          updateAuthUI();
+          if (firebaseLoaded) renderBossList();
+        } else {
+          openAdminPasswordModal();
+        }
+      });
+    }
+
     if (adminPasswordBtn) {
       adminPasswordBtn.addEventListener("click", () => {
         const inputPassword = adminPasswordInput ? adminPasswordInput.value : "";
         if (inputPassword === ADMIN_PASSWORD) {
-          // Correct password
           sessionStorage.setItem("userMode", "admin");
-          if (adminPasswordBackdrop) adminPasswordBackdrop.classList.remove("active");
-          if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
-          if (loginModalBackdrop) loginModalBackdrop.classList.add("hidden");
-          if (passwordError) passwordError.classList.remove("show");
-          init();
+          closeAdminPasswordModal();
+          updateAuthUI();
+          if (firebaseLoaded) renderBossList();
         } else {
-          // Wrong password
           if (passwordError) passwordError.classList.add("show");
-          if (adminPasswordInput) adminPasswordInput.value = "";
-          if (adminPasswordInput) adminPasswordInput.focus();
+          if (adminPasswordInput) {
+            adminPasswordInput.value = "";
+            adminPasswordInput.focus();
+          }
         }
       });
-      // Allow Enter key to submit
       if (adminPasswordInput) {
         adminPasswordInput.addEventListener("keypress", (e) => {
           if (e.key === "Enter") adminPasswordBtn.click();
@@ -3948,26 +3966,13 @@
       }
     }
 
-    // Cancel admin password modal
     if (adminPasswordCancelBtn) {
-      adminPasswordCancelBtn.addEventListener("click", () => {
-        if (adminPasswordBackdrop) adminPasswordBackdrop.classList.remove("active");
-        if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
-        if (adminPasswordInput) adminPasswordInput.value = "";
-        if (passwordError) passwordError.classList.remove("show");
-      });
+      adminPasswordCancelBtn.addEventListener("click", closeAdminPasswordModal);
     }
 
-    if (needsLogin && loginModalBackdrop) {
-      loginModalBackdrop.classList.add("active");
-      if (loadingOverlay) loadingOverlay.style.display = "none";
-      if (loginMemberBtn) loginMemberBtn.addEventListener("click", () => selectUserMode("member"));
-      if (loginAdminBtn) loginAdminBtn.addEventListener("click", () => selectUserMode("admin"));
-    } else {
-      if (loginModalBackdrop) loginModalBackdrop.classList.add("hidden");
-      if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
-      window.addEventListener("load", () => init());
-    }
+    updateAuthUI();
+    if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
+    window.addEventListener("load", () => init());
 
     // === SERVER TIME UPDATE ===
     const serverTimeEl = document.getElementById("serverTime");
