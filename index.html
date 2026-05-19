@@ -413,10 +413,81 @@
       display: none;
     }
 
+    @media (max-width: 900px) {
+      #nextBoss {
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: rgba(0, 240, 255, 0.12);
+      }
+
+      #nextBoss:active {
+        filter: brightness(1.08);
+      }
+
+      body.mobile-show-timers #bossListPanel {
+        display: none !important;
+      }
+
+      body.mobile-show-timers .right-column {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      body.mobile-show-timers #timersPanel {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* Timer cards: match desktop hover layout (full info, no squashing) */
+      body.mobile-show-timers #timers .timer {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 100%;
+        min-height: 70px;
+        height: auto;
+        overflow: visible;
+      }
+
+      body.mobile-show-timers #timers .timer-content {
+        align-items: center;
+        padding: 8px 10px;
+      }
+
+      body.mobile-show-timers #timers .timer-left {
+        min-width: 0;
+      }
+
+      body.mobile-show-timers #timers .timer .timer-spawn {
+        white-space: normal;
+        line-height: 1.35;
+      }
+
+      body.mobile-show-timers #timers .timer-expanded {
+        display: flex;
+        height: auto;
+        min-height: 20px;
+        overflow: visible;
+        opacity: 1;
+        padding: 4px 10px 8px;
+      }
+
+      body.mobile-show-timers #timers .timer-actions {
+        flex-shrink: 0;
+      }
+    }
+
     #timers {
       flex: 1 1 auto;
       min-height: 0;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #timers .timer {
+      flex-shrink: 0;
     }
 
     #bossList {
@@ -2263,8 +2334,44 @@
 
     const bossListEl = document.getElementById("bossList");
     const timersEl = document.getElementById("timers");
+    const nextBossPanel = document.getElementById("nextBoss");
     const nextBossNameEl = document.querySelector("#nextBoss .boss-name");
     const nextTimeEl = document.getElementById("nextTime");
+    const MOBILE_LAYOUT_MAX = 900;
+
+    function isMobileLayout() {
+      return window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX}px)`).matches;
+    }
+
+    function syncMobilePanelToggle() {
+      if (!nextBossPanel) return;
+      if (!isMobileLayout()) {
+        document.body.classList.remove("mobile-show-timers");
+        nextBossPanel.removeAttribute("role");
+        nextBossPanel.removeAttribute("aria-expanded");
+        nextBossPanel.removeAttribute("aria-label");
+        return;
+      }
+      const showingTimers = document.body.classList.contains("mobile-show-timers");
+      nextBossPanel.setAttribute("role", "button");
+      nextBossPanel.setAttribute(
+        "aria-label",
+        showingTimers ? "Show boss list" : "Show active timers"
+      );
+      nextBossPanel.setAttribute("aria-expanded", showingTimers ? "true" : "false");
+    }
+
+    if (nextBossPanel) {
+      nextBossPanel.addEventListener("click", () => {
+        if (!isMobileLayout()) return;
+        document.body.classList.toggle("mobile-show-timers");
+        syncMobilePanelToggle();
+      });
+    }
+
+    window.addEventListener("resize", syncMobilePanelToggle);
+    syncMobilePanelToggle();
+
     const searchInput = document.getElementById("bossSearch");
     const clearSearch = document.getElementById("clearSearch");
     const searchWrapper = document.querySelector(".search-wrapper");
