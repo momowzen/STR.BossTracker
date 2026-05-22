@@ -312,28 +312,46 @@
       flex-shrink: 0;
     }
 
-    .admin-auth-btn {
-      font-family: Inter, "Segoe UI", sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #9aa6b2;
-      padding: 8px 12px;
+    .admin-auth-btn,
+    .alarm-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
       min-height: 44px;
+      padding: 0;
       border: 1px solid #333;
       border-radius: 4px;
       background: #1a1a1a;
+      color: #9aa6b2;
       cursor: pointer;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
       flex-shrink: 0;
     }
 
-    .admin-auth-btn:hover {
+    .admin-auth-btn:hover,
+    .alarm-btn:hover {
       background: #222;
       border-color: #444;
       color: #00f0ff;
+    }
+
+    .admin-auth-btn .btn-icon,
+    .alarm-btn .btn-icon {
+      width: 20px;
+      height: 20px;
+      display: block;
+      pointer-events: none;
+    }
+
+    .alarm-btn.on,
+    .admin-auth-btn.on {
+      color: #00f0ff;
+      border-color: #00f0ff;
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
     }
 
     .settings.hidden,
@@ -957,10 +975,18 @@
         font-size: 12px;
       }
 
-      .admin-auth-btn {
-        min-height: auto;
-        padding: 6px 12px;
-        font-size: 12px;
+      .admin-auth-btn,
+      .alarm-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+      }
+
+      .admin-auth-btn .btn-icon,
+      .alarm-btn .btn-icon {
+        width: 18px;
+        height: 18px;
       }
 
       .logo-img {
@@ -2042,7 +2068,21 @@
           <span id="serverTime">-- : -- : --</span>
         </div>
         <div class="header-actions">
-          <button type="button" class="admin-auth-btn" id="adminAuthBtn">Admin</button>
+          <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
+            aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
+            title="Admin">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </button>
           <button aria-label="Settings" class="settings hidden" id="settingsBtn" type="button">
             <span class="line"></span>
             <span class="line"></span>
@@ -2382,6 +2422,7 @@
     const saveTimeBtn = document.getElementById("saveTimeBtn");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const settingsBtn = document.getElementById("settingsBtn");
+    const alarmBtn = document.getElementById("alarmBtn");
     const adminAuthBtn = document.getElementById("adminAuthBtn");
     const settingsDropdown = document.getElementById("settingsDropdown");
     const discordWebhookBtn = document.getElementById("discordWebhookBtn");
@@ -2414,6 +2455,116 @@
     // Dedup caches
     const lastWriteCache = {}; // { bossId: lastJson }
     const localNotifCache = {}; // { `${bossId}_${type}`: timestamp(ms) }
+
+    const ALARM_STORAGE_KEY = "bossTrackerAlarmEnabled";
+    let alarmEnabled = localStorage.getItem(ALARM_STORAGE_KEY) === "true";
+    let alarmAudioCtx = null;
+
+    function updateAlarmButton() {
+      if (!alarmBtn) return;
+      alarmBtn.classList.toggle("on", alarmEnabled);
+      alarmBtn.setAttribute("aria-pressed", alarmEnabled ? "true" : "false");
+      alarmBtn.setAttribute(
+        "aria-label",
+        alarmEnabled
+          ? "Boss respawn alarm enabled"
+          : "Boss respawn alarm disabled"
+      );
+      alarmBtn.title = alarmEnabled
+        ? "Boss respawn alarm on"
+        : "Boss respawn alarm off";
+    }
+
+    async function requestNotificationPermission() {
+      if (!("Notification" in window)) {
+        alert(
+          "This browser does not support desktop notifications. Alarm sound will still work."
+        );
+        return true;
+      }
+      if (Notification.permission === "granted") return true;
+      if (Notification.permission === "denied") {
+        alert(
+          "Notifications are blocked. Enable them in your browser site settings to receive tray alerts."
+        );
+        return false;
+      }
+      const result = await Notification.requestPermission();
+      return result === "granted";
+    }
+
+    function playAlarmSound() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!alarmAudioCtx) alarmAudioCtx = new Ctx();
+        const ctx = alarmAudioCtx;
+        if (ctx.state === "suspended") ctx.resume();
+
+        const playBeep = (freq, start, duration) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = "square";
+          const t0 = ctx.currentTime + start;
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+          osc.start(t0);
+          osc.stop(t0 + duration);
+        };
+
+        for (let i = 0; i < 8; i++) {
+          playBeep(i % 2 === 0 ? 880 : 660, i * 0.38, 0.28);
+        }
+      } catch (e) {
+        console.warn("Alarm sound failed:", e);
+      }
+    }
+
+    function showBossTrayNotification(boss, endTimeMs) {
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        return;
+      }
+      const formattedTime = formatShortDateTime(
+        endTimeMs || timers[boss.id]?.endTime || Date.now()
+      );
+      const iconUrl =
+        "https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png";
+      try {
+        new Notification(`${boss.name} — respawns in 5 minutes`, {
+          body: `Respawn time: ${formattedTime}`,
+          icon: iconUrl,
+          tag: `boss-alarm-${boss.id}`,
+        });
+      } catch (e) {
+        console.warn("Tray notification failed:", e);
+      }
+    }
+
+    function triggerBossAlarm(boss) {
+      if (!alarmEnabled || !boss) return;
+      playAlarmSound();
+      showBossTrayNotification(boss, timers[boss.id]?.endTime);
+      console.log(`🔔 Local alarm triggered for ${boss.name}`);
+    }
+
+    updateAlarmButton();
+
+    if (alarmBtn) {
+      alarmBtn.addEventListener("click", async () => {
+        if (!alarmEnabled) {
+          await requestNotificationPermission();
+          alarmEnabled = true;
+        } else {
+          alarmEnabled = false;
+        }
+        localStorage.setItem(ALARM_STORAGE_KEY, alarmEnabled ? "true" : "false");
+        updateAlarmButton();
+      });
+    }
 
     // -------------------------
     // Settings Dropdown Positioning
@@ -3594,6 +3745,7 @@
         ) {
           console.log(`⚠️  soon: ${id} within 5min, preparing notification`);
           info.notifiedSoon = true;
+          triggerBossAlarm(boss);
           savePromises.push(saveTimerToFirestoreOnce(id));
           savePromises.push(
             (async () => await sendDiscordEmbedOnce("soon", boss))()
@@ -4043,8 +4195,12 @@
     function updateAuthUI() {
       const isAdmin = sessionStorage.getItem("userMode") === "admin";
       if (adminAuthBtn) {
-        adminAuthBtn.textContent = isAdmin ? "Logout" : "Admin";
-        adminAuthBtn.setAttribute("aria-label", isAdmin ? "Log out of admin" : "Log in as admin");
+        adminAuthBtn.classList.toggle("on", isAdmin);
+        adminAuthBtn.setAttribute(
+          "aria-label",
+          isAdmin ? "Log out of admin" : "Log in as admin"
+        );
+        adminAuthBtn.title = isAdmin ? "Log out of admin" : "Admin login";
       }
       if (settingsBtn) {
         settingsBtn.classList.toggle("hidden", !isAdmin);
