@@ -246,65 +246,6 @@
       color: rgba(154, 166, 178, 0.6);
     }
 
-    .settings {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
-      min-height: 44px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #1a1a1a;
-      color: #9aa6b2;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 4px;
-      transition: none;
-      position: relative;
-      z-index: 10001;
-      padding: 0;
-      flex-shrink: 0;
-    }
-
-    .settings::before,
-    .settings::after {
-      display: none;
-    }
-
-    .settings::before {
-      display: none;
-    }
-
-    .settings .line {
-      width: 24px;
-      height: 2px;
-      background-color: #9aa6b2;
-      border-radius: 1px;
-      transition: background-color 0.3s ease;
-    }
-
-    .settings:hover {
-      color: #00f0ff;
-    }
-
-    .settings:hover .line {
-      background-color: #00f0ff;
-    }
-
-    .settings:active {
-      color: #9aa6b2;
-    }
-
-    .settings.active {
-      color: #9aa6b2;
-    }
-
-    .settings.active .line {
-      background-color: #9aa6b2;
-    }
-
     .header-actions {
       display: flex;
       align-items: center;
@@ -313,7 +254,8 @@
     }
 
     .admin-auth-btn,
-    .alarm-btn {
+    .alarm-btn,
+    .settings-btn {
       width: 44px;
       height: 44px;
       min-width: 44px;
@@ -332,14 +274,16 @@
     }
 
     .admin-auth-btn:hover,
-    .alarm-btn:hover {
+    .alarm-btn:hover,
+    .settings-btn:hover {
       background: #222;
       border-color: #444;
       color: #00f0ff;
     }
 
     .admin-auth-btn .btn-icon,
-    .alarm-btn .btn-icon {
+    .alarm-btn .btn-icon,
+    .settings-btn .btn-icon {
       width: 20px;
       height: 20px;
       display: block;
@@ -354,7 +298,12 @@
       box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
     }
 
-    .settings.hidden,
+    .settings-btn {
+      position: relative;
+      z-index: 10001;
+    }
+
+    .settings-btn.hidden,
     .admin-auth-btn.hidden {
       display: none !important;
     }
@@ -976,7 +925,8 @@
       }
 
       .admin-auth-btn,
-      .alarm-btn {
+      .alarm-btn,
+      .settings-btn {
         width: 36px;
         height: 36px;
         min-width: 36px;
@@ -984,7 +934,8 @@
       }
 
       .admin-auth-btn .btn-icon,
-      .alarm-btn .btn-icon {
+      .alarm-btn .btn-icon,
+      .settings-btn .btn-icon {
         width: 18px;
         height: 18px;
       }
@@ -1070,14 +1021,6 @@
         font-size: 11px;
       }
 
-      .settings {
-        width: auto;
-        height: auto;
-        min-width: 0;
-        min-height: 0;
-        border: none;
-        background: transparent;
-      }
     }
 
     /* === SETTINGS DROPDOWN === */
@@ -2083,11 +2026,14 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </button>
-          <button aria-label="Settings" class="settings hidden" id="settingsBtn" type="button">
-            <span class="line"></span>
-            <span class="line"></span>
-            <span class="line"></span>
-            <span class="line"></span>
+          <button type="button" class="settings-btn hidden" id="settingsBtn" aria-label="Settings"
+            title="Settings">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </button>
         </div>
       </div>
