@@ -2997,7 +2997,7 @@
 				if (q && !b.name.toLowerCase().includes(q)) return null;
 
 				const subText = isWeekly
-					? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")} ${TIME_ZONE_LABEL}`
+					? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")}`
 					: b.respawn / 3600 + " hr";
 
 				let remainingText = "";
@@ -3005,13 +3005,13 @@
 				if (timers[b.id] && timers[b.id].endTime) {
 					const sec = Math.max(0, Math.round((timers[b.id].endTime - now) / 1000));
 					remainingText = sec === 0 ? "SPAWNED" : "Respawning in " + formatSec(sec);
-					spawnTimeText = `Spawn Time (${TIME_ZONE_LABEL}): ${formatShortDateTime(timers[b.id].endTime)}`;
+					spawnTimeText = `Spawn Time: ${formatShortDateTime(timers[b.id].endTime)}`;
 				} else if (b.weeklyRespawns) {
 					const nextTime = getNextWeeklyRespawnTime(b);
 					if (nextTime) {
 						const sec = Math.max(0, Math.round((nextTime - now) / 1000));
 						remainingText = "Respawning in " + formatSec(sec);
-						spawnTimeText = `Spawn Time (${TIME_ZONE_LABEL}): ${formatShortDateTime(nextTime)}`;
+						spawnTimeText = `Spawn Time: ${formatShortDateTime(nextTime)}`;
 					}
 				}
 
@@ -3477,7 +3477,7 @@
         }
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
-          spawnEl.textContent = `Spawn Time (${TIME_ZONE_LABEL}): ${formatShortDateTime(info.endTime)}`;
+          spawnEl.textContent = `Spawn Time: ${formatShortDateTime(info.endTime)}`;
           spawnEl.dataset.spawnSet = "1";
         }
       }
@@ -3495,7 +3495,7 @@
         if (timeEl) timeEl.textContent = "Respawning in " + formatSec(remainingSec);
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
-          spawnEl.textContent = `Spawn Time (${TIME_ZONE_LABEL}): ${formatShortDateTime(nextTime)}`;
+          spawnEl.textContent = `Spawn Time: ${formatShortDateTime(nextTime)}`;
           spawnEl.dataset.spawnSet = "1";
         }
       }
