@@ -443,6 +443,21 @@
       scroll-behavior: smooth;
     }
 
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeSlideRight {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeSlideLeft {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
     @media (max-width: 900px) {
       .view-toggle {
         display: inline-block;
@@ -452,12 +467,34 @@
         display: none;
       }
 
+      .boss-column:first-child {
+        animation: fadeSlideRight 0.3s ease;
+      }
+
       #bossListPanel.view-weekly .boss-column:last-child {
         display: flex;
+        animation: fadeSlideLeft 0.3s ease;
       }
 
       #bossListPanel.view-weekly .boss-column:first-child {
         display: none;
+      }
+
+      .top-panels-row #worldBoss {
+        display: none;
+      }
+
+      .top-panels-row #nextBoss {
+        animation: fadeSlideIn 0.3s ease;
+      }
+
+      .top-panels-row.show-world #nextBoss {
+        display: none;
+      }
+
+      .top-panels-row.show-world #worldBoss {
+        display: flex;
+        animation: fadeSlideIn 0.3s ease;
       }
     }
 
@@ -3568,6 +3605,16 @@
     if (viewToggle) {
       viewToggle.addEventListener("click", () => {
         bossListPanel.classList.toggle("view-weekly");
+      });
+    }
+
+    // === TOP PANELS TOGGLE (mobile: tap to switch between Next Boss and World Boss) ===
+    const topPanelsRow = document.querySelector(".top-panels-row");
+    if (topPanelsRow) {
+      topPanelsRow.addEventListener("click", () => {
+        if (window.innerWidth <= 900) {
+          topPanelsRow.classList.toggle("show-world");
+        }
       });
     }
 
