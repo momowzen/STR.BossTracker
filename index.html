@@ -3209,7 +3209,6 @@
     const panelsTrack = document.getElementById("panelsTrack");
     const panelsDots = document.getElementById("panelsDots");
     let currentPanel = 0;
-    let autoRotateTimer = null;
     const panelCount = 2;
     let touchStartX = 0;
     let touchDiff = 0;
@@ -3221,36 +3220,12 @@
       panelsTrack.style.transform = `translateX(-${index * 50}%)`;
       const dots = panelsDots.querySelectorAll(".dot");
       dots.forEach((d, i) => d.classList.toggle("active", i === index));
-      resetAutoRotate();
-    }
-
-    function resetAutoRotate() {
-      if (autoRotateTimer) clearInterval(autoRotateTimer);
-      if (window.innerWidth <= 900) {
-        autoRotateTimer = setInterval(() => {
-          goToPanel((currentPanel + 1) % panelCount);
-        }, 10000);
-      }
-    }
-
-    function startAutoRotate() {
-      if (window.innerWidth <= 900) {
-        resetAutoRotate();
-      }
-    }
-
-    function stopAutoRotate() {
-      if (autoRotateTimer) {
-        clearInterval(autoRotateTimer);
-        autoRotateTimer = null;
-      }
     }
 
     if (panelsTrack && panelsDots) {
       panelsTrack.addEventListener("touchstart", (e) => {
         touchStartX = e.changedTouches[0].screenX;
         isDragging = true;
-        stopAutoRotate();
       }, { passive: true });
 
       panelsTrack.addEventListener("touchmove", (e) => {
@@ -3273,18 +3248,13 @@
       }, { passive: true });
 
       window.addEventListener("resize", () => {
-        if (window.innerWidth <= 900) {
-          startAutoRotate();
-        } else {
-          stopAutoRotate();
+        if (window.innerWidth > 900) {
           panelsTrack.style.transform = "translateX(0)";
           currentPanel = 0;
           const dots = panelsDots.querySelectorAll(".dot");
           dots.forEach((d, i) => d.classList.toggle("active", i === 0));
         }
       });
-
-      startAutoRotate();
     }
 
     // === SETTINGS BUTTON + MODAL TOGGLE ===
