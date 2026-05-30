@@ -116,8 +116,19 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--text-primary);
       line-height: 1.2;
+      background: linear-gradient(90deg, var(--accent-blue), var(--text-primary), var(--accent-blue));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+      100% { background-position: 0% center; }
     }
 
     .warning-text {
@@ -284,9 +295,48 @@
       flex-shrink: 0;
     }
 
+    .panels-slider {
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+    }
 
+    .panels-track {
+      display: flex;
+      transition: transform 0.3s ease;
+      width: 200%;
+    }
 
+    .panels-track .stat-card {
+      flex: 0 0 50%;
+      min-width: 0;
+    }
 
+    .panels-dots {
+      display: none;
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      gap: 4px;
+      z-index: 2;
+    }
+
+    .panels-dots .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .panels-dots .dot.active {
+      opacity: 1;
+      background: var(--accent-blue);
+    }
 
     .stat-card {
       flex: 1 1 0%;
@@ -348,7 +398,7 @@
     }
 
     .stat-count {
-      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-size: clamp(2rem, 5vw, 2.7rem);
       font-weight: 700;
       font-family: var(--font-mono);
       color: var(--accent-blue);
@@ -492,15 +542,7 @@
         min-width: 0;
       }
 
-      .top-panels-row #worldBoss {
-        display: none;
-      }
-
-      .top-panels-row.show-world #nextBoss {
-        display: none;
-      }
-
-      .top-panels-row.show-world #worldBoss {
+      .panels-dots {
         display: flex;
       }
 
@@ -684,6 +726,25 @@
       .top-panels-row {
         flex-direction: row;
         gap: 10px;
+      }
+
+      .panels-slider {
+        overflow: visible;
+        flex: 2;
+      }
+
+      .panels-track {
+        width: auto;
+        transition: none;
+        gap: 10px;
+      }
+
+      .panels-track .stat-card {
+        flex: 1;
+      }
+
+      .panels-dots {
+        display: none !important;
       }
 
       .stat-card {
@@ -1271,15 +1332,23 @@
     </header>
     <main class="main">
       <div class="top-panels-row">
-        <div class="stat-card" id="nextBoss">
-          <div class="stat-label">NEXT BOSS</div>
-          <div class="boss-name">---</div>
-          <div class="time-remaining" id="nextTime">--</div>
-        </div>
-        <div class="stat-card" id="worldBoss">
-          <div class="stat-label">WORLD BOSS</div>
-          <div class="boss-name">---</div>
-          <div class="time-remaining" id="worldBossTime">--</div>
+        <div class="panels-slider" id="panelsSlider">
+          <div class="panels-track" id="panelsTrack">
+            <div class="stat-card" id="nextBoss">
+              <div class="stat-label">NEXT BOSS</div>
+              <div class="boss-name">---</div>
+              <div class="time-remaining" id="nextTime">--</div>
+            </div>
+            <div class="stat-card" id="worldBoss">
+              <div class="stat-label">WORLD BOSS</div>
+              <div class="boss-name">---</div>
+              <div class="time-remaining" id="worldBossTime">--</div>
+            </div>
+          </div>
+          <div class="panels-dots" id="panelsDots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+          </div>
         </div>
         <div class="stat-card" id="activeStatCard">
           <div class="stat-label">Active Timers</div>
@@ -1289,7 +1358,12 @@
       <section class="card" id="bossListPanel">
         <h4 class="card-header">
           FIELD BOSS LIST
-          <button class="view-toggle" id="viewToggle">SWITCH VIEW</button>
+          <button class="view-toggle" id="viewToggle">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4L1 8L4 12"/>
+              <path d="M12 4L15 8L12 12"/>
+            </svg>
+          </button>
         </h4>
         <div id="bossList">
           <div class="boss-column">
@@ -2980,14 +3054,86 @@
       });
     }
 
-    // === TOP PANELS TOGGLE (mobile: tap to switch between Next Boss and World Boss) ===
-    const topPanelsRow = document.querySelector(".top-panels-row");
-    if (topPanelsRow) {
-      topPanelsRow.addEventListener("click", () => {
+    // === PANELS SLIDER (mobile: swipe left/right, auto-rotate every 3s) ===
+    const panelsTrack = document.getElementById("panelsTrack");
+    const panelsDots = document.getElementById("panelsDots");
+    let currentPanel = 0;
+    let autoRotateTimer = null;
+    const panelCount = 2;
+    let touchStartX = 0;
+    let touchDiff = 0;
+    let isDragging = false;
+
+    function goToPanel(index) {
+      if (index < 0 || index >= panelCount) return;
+      currentPanel = index;
+      panelsTrack.style.transform = `translateX(-${index * 50}%)`;
+      const dots = panelsDots.querySelectorAll(".dot");
+      dots.forEach((d, i) => d.classList.toggle("active", i === index));
+      resetAutoRotate();
+    }
+
+    function resetAutoRotate() {
+      if (autoRotateTimer) clearInterval(autoRotateTimer);
+      if (window.innerWidth <= 900) {
+        autoRotateTimer = setInterval(() => {
+          goToPanel((currentPanel + 1) % panelCount);
+        }, 10000);
+      }
+    }
+
+    function startAutoRotate() {
+      if (window.innerWidth <= 900) {
+        resetAutoRotate();
+      }
+    }
+
+    function stopAutoRotate() {
+      if (autoRotateTimer) {
+        clearInterval(autoRotateTimer);
+        autoRotateTimer = null;
+      }
+    }
+
+    if (panelsTrack && panelsDots) {
+      panelsTrack.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        isDragging = true;
+        stopAutoRotate();
+      }, { passive: true });
+
+      panelsTrack.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        touchDiff = e.changedTouches[0].screenX - touchStartX;
+      }, { passive: true });
+
+      panelsTrack.addEventListener("touchend", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        const threshold = 30;
+        if (touchDiff < -threshold && currentPanel < panelCount - 1) {
+          goToPanel(currentPanel + 1);
+        } else if (touchDiff > threshold && currentPanel > 0) {
+          goToPanel(currentPanel - 1);
+        } else {
+          goToPanel(currentPanel);
+        }
+        touchDiff = 0;
+      }, { passive: true });
+
+      window.addEventListener("resize", () => {
         if (window.innerWidth <= 900) {
-          topPanelsRow.classList.toggle("show-world");
+          startAutoRotate();
+        } else {
+          stopAutoRotate();
+          panelsTrack.style.transform = "translateX(0)";
+          currentPanel = 0;
+          const dots = panelsDots.querySelectorAll(".dot");
+          dots.forEach((d, i) => d.classList.toggle("active", i === 0));
         }
       });
+
+      startAutoRotate();
     }
 
     // === SETTINGS BUTTON + MODAL TOGGLE ===
