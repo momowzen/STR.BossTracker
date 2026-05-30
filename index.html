@@ -2091,8 +2091,9 @@
           return;
         }
 
+        const wbSpawn = boss.id === "__world_boss__" ? getNextWorldBossTime() : 0;
         const formattedTime = formatShortDateTime(
-          txResult.endTimeMs || timers[boss.id]?.endTime || Date.now()
+          wbSpawn || txResult.endTimeMs || timers[boss.id]?.endTime || Date.now()
         );
 
         // 🔔 Build appropriate embed
