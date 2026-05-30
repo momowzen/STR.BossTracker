@@ -2238,12 +2238,13 @@
 
     // === patched sendDiscordEmbedOnce: normalized key + endTimeMs dedupe ===
     async function sendDiscordEmbedOnce(type, boss) {
+      let key = "";
       try {
         if (!boss || !type) return;
 
         // 🔔 Normalize Firestore key (handles spaces, punctuation)
         const safeId = encodeURIComponent(boss.id.trim());
-        const key = `${safeId}_${type}`;
+        key = `${safeId}_${type}`;
 
         const now = Date.now();
         const localWindow = 2 * 60 * 1000; // 2 min client dedupe
@@ -2266,53 +2267,55 @@
         const ref = doc(db, "notifications", key);
         const thresholdMs = 2 * 60 * 1000; // server dedupe window
 
-        const txResult = await runTransaction(db, async (tx) => {
-          const snap = await tx.get(ref);
-          const data = snap.exists() ? snap.data() : {};
+        let txResult;
+        try {
+          txResult = await runTransaction(db, async (tx) => {
+            const snap = await tx.get(ref);
+            const data = snap.exists() ? snap.data() : {};
 
-          // Normalize timestamp formats
-          let lastSentMs = 0;
-          if (data.lastSent && typeof data.lastSent.toMillis === "function") {
-            lastSentMs = data.lastSent.toMillis();
-          } else if (typeof data.lastSent === "number") {
-            lastSentMs = data.lastSent;
-          } else if (typeof data.lastSent === "string") {
-            const parsed = Date.parse(data.lastSent);
-            if (!isNaN(parsed)) lastSentMs = parsed;
-          }
+            let lastSentMs = 0;
+            if (data.lastSent && typeof data.lastSent.toMillis === "function") {
+              lastSentMs = data.lastSent.toMillis();
+            } else if (typeof data.lastSent === "number") {
+              lastSentMs = data.lastSent;
+            } else if (typeof data.lastSent === "string") {
+              const parsed = Date.parse(data.lastSent);
+              if (!isNaN(parsed)) lastSentMs = parsed;
+            }
 
-          const lastEndTimeMs = data.lastEndTimeMs || 0;
-          const thisEndTimeMs = timers[boss.id]?.endTime || 0;
-          const nowMs = Date.now();
+            const lastEndTimeMs = data.lastEndTimeMs || 0;
+            const thisEndTimeMs = timers[boss.id]?.endTime || 0;
+            const nowMs = Date.now();
 
-          // 🔔 Only skip if (a) last send < 2min ago AND (b) same spawn cycle
-          const recentlySent =
-            nowMs - lastSentMs < thresholdMs &&
-            lastEndTimeMs === thisEndTimeMs;
+            const recentlySent =
+              nowMs - lastSentMs < thresholdMs &&
+              lastEndTimeMs === thisEndTimeMs;
 
-          if (recentlySent) {
-            console.log(
-              `⏸️ Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
+            if (recentlySent) {
+              console.log(
+                `⏸️ Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
+              );
+              return false;
+            }
+
+            tx.set(
+              ref,
+              {
+                lastSent: serverTimestamp(),
+                lastEndTimeMs: thisEndTimeMs,
+                bossId: boss.id,
+                type,
+              },
+              { merge: true }
             );
-            return false;
-          }
 
-          // 🔔 Write both lastSent + lastEndTimeMs atomically
-          tx.set(
-            ref,
-            {
-              lastSent: serverTimestamp(),
-              lastEndTimeMs: thisEndTimeMs,
-              bossId: boss.id,
-              type,
-            },
-            { merge: true }
-          );
+            return { endTimeMs: thisEndTimeMs };
+          });
+        } catch (txErr) {
+          console.warn(`⚠️ Transaction failed for ${key}, using local dedupe only:`, txErr.message);
+        }
 
-          return { endTimeMs: thisEndTimeMs };
-        });
-
-        if (!txResult) {
+        if (txResult === false) {
           console.log(
             `⏹️ sendDiscordEmbedOnce: server dedupe prevented sending ${type} for ${boss.name}`
           );
@@ -2320,8 +2323,9 @@
         }
 
         const wbSpawn = boss.id === "__world_boss__" ? getNextWorldBossTime() : 0;
+        const endTimeMs = txResult?.endTimeMs || timers[boss.id]?.endTime || 0;
         const formattedTime = formatShortDateTime(
-          wbSpawn || txResult.endTimeMs || timers[boss.id]?.endTime || Date.now()
+          wbSpawn || endTimeMs || Date.now()
         );
 
         // 🔔 Build appropriate embed
