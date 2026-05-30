@@ -65,6 +65,7 @@
       max-width: 100%;
       margin: 0 auto;
       gap: 6px;
+      position: relative;
     }
 
     /* === HEADER === */
@@ -547,6 +548,14 @@
       }
 
       #activeStatCard {
+        display: none !important;
+      }
+
+      #scheduleBtn {
+        display: none;
+      }
+
+      #schedulePanel {
         display: none !important;
       }
     }
@@ -1033,49 +1042,147 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       z-index: 10002;
-      width: auto;
+      min-width: 180px;
       display: block;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
     }
 
     .settings-dropdown.hidden { display: none; }
 
-    .settings-modal {
-      padding: 0 !important;
-      width: auto !important;
-      max-width: none !important;
-      border: none !important;
-      border-radius: var(--radius-md) !important;
+    .schedule-panel {
+      position: fixed;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      z-index: 10002;
+      min-width: 280px;
+      max-width: 360px;
+      max-height: min(500px, calc(100vh - 60px));
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      overflow-y: auto;
+    }
+
+    .schedule-panel.hidden { display: none; }
+
+    .schedule-section {
+      padding: 10px 14px;
+    }
+
+    .schedule-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .schedule-item .boss-label {
+      font-weight: 500;
+    }
+
+    .schedule-item .time-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .schedule-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 4px 0;
+    }
+
+    .schedule-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
     }
 
     .settings-list {
       display: flex;
       flex-direction: column;
       gap: 0;
-      padding: 4px 0;
+      padding: 0 0 4px;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-header-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+
+    .settings-header-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-secondary);
     }
 
     .settings-item {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      padding: 8px 14px;
+      gap: 10px;
+      padding: 7px 14px;
       background: transparent;
       border: none;
-      border-bottom: 1px solid var(--border);
       cursor: pointer;
       font-family: var(--font-sans);
       font-size: 12px;
       white-space: nowrap;
       color: var(--text-muted);
-      transition: color var(--transition), background var(--transition);
+      transition: background var(--transition), color var(--transition);
+      width: 100%;
+      text-align: left;
     }
-
-    .settings-item:last-child { border-bottom: none; }
 
     .settings-item:hover {
       background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .settings-item:active {
+      background: var(--border);
+    }
+
+    .settings-item-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+
+    .settings-item:hover .settings-item-icon {
       color: var(--text-primary);
     }
 
@@ -1311,6 +1418,16 @@
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
           </button>
+          <button type="button" class="alarm-btn" id="scheduleBtn" aria-label="Schedule"
+            title="Spawn schedule">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </button>
           <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
             title="Admin">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1330,6 +1447,12 @@
         </div>
       </div>
     </header>
+    <div class="schedule-panel hidden" id="schedulePanel">
+      <div class="schedule-section">
+        <div class="schedule-section-title">TODAY</div>
+        <div class="schedule-list" id="scheduleToday"></div>
+      </div>
+    </div>
     <main class="main">
       <div class="top-panels-row">
         <div class="panels-slider" id="panelsSlider">
@@ -1407,24 +1530,52 @@
   </div>
 
   <div class="settings-dropdown hidden" id="settingsDropdown">
-    <div aria-labelledby="settingsTitle" aria-modal="true" class="modal cyber-modal settings-modal" role="dialog">
-      <div class="settings-list">
-        <button class="settings-item" id="exportBtn">
-          <span class="label">Export JSON</span>
-        </button>
-        <button class="settings-item" id="importBtn">
-          <span class="label">Import JSON</span>
-        </button>
-        <button class="settings-item" id="resetBtn">
-          <span class="label">Reset Timers</span>
-        </button>
-        <button class="settings-item" id="syncBtn">
-          <span class="label">Sync Users</span>
-        </button>
-        <button class="settings-item" id="discordWebhookBtn">
-          <span class="label">Webhook URL</span>
-        </button>
-      </div>
+    <div class="settings-header">
+      <svg class="settings-header-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1.5v1.5M8 13v1.5M3.4 3.4l1.06 1.06M11.54 11.54l1.06 1.06M1.5 8H3M13 8h1.5M3.4 12.6l1.06-1.06M11.54 4.46l1.06-1.06"/>
+      </svg>
+      <span class="settings-header-title">Settings</span>
+    </div>
+    <div class="settings-list">
+      <button class="settings-item" id="exportBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 1.5v9M4.5 7L8 10.5 11.5 7"/>
+          <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
+        </svg>
+        <span class="label">Export JSON</span>
+      </button>
+      <button class="settings-item" id="importBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 10.5v-9M4.5 5L8 1.5 11.5 5"/>
+          <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
+        </svg>
+        <span class="label">Import JSON</span>
+      </button>
+      <button class="settings-item" id="resetBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 8a6 6 0 0 1 11.4-2.8"/>
+          <path d="M14 8a6 6 0 0 1-11.4 2.8"/>
+          <path d="M13.5 1.5v3.7H9.8"/>
+          <path d="M2.5 14.5v-3.7h3.7"/>
+        </svg>
+        <span class="label">Reset Timers</span>
+      </button>
+      <button class="settings-item" id="syncBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.5"/>
+          <path d="M8 4.5V8l2 1.5"/>
+        </svg>
+        <span class="label">Sync Users</span>
+      </button>
+      <button class="settings-item" id="discordWebhookBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6.5 3a3.5 3.5 0 0 0-3.5 3.5v1A3.5 3.5 0 0 0 6.5 11h.5"/>
+          <path d="M9.5 3a3.5 3.5 0 0 1 3.5 3.5v1a3.5 3.5 0 0 1-3.5 3.5h-.5"/>
+          <path d="M6 8.5h4"/>
+        </svg>
+        <span class="label">Webhook URL</span>
+      </button>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
@@ -3139,6 +3290,7 @@
     // === SETTINGS BUTTON + MODAL TOGGLE ===
     settingsBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
+      schedulePanel.classList.add("hidden");
       const userMode = sessionStorage.getItem("userMode");
       // Keep settings hidden for member mode
       if (userMode === "member") {
@@ -3166,6 +3318,129 @@
     window.addEventListener("resize", () => {
       if (!settingsDropdown.classList.contains("hidden")) {
         positionSettingsDropdown();
+      }
+    });
+
+    // === SCHEDULE PANEL ===
+    const scheduleBtn = document.getElementById("scheduleBtn");
+    const schedulePanel = document.getElementById("schedulePanel");
+    const scheduleToday = document.getElementById("scheduleToday");
+
+    function positionSchedulePanel() {
+      const btnRect = scheduleBtn.getBoundingClientRect();
+      schedulePanel.style.top = (btnRect.bottom + 4) + "px";
+      schedulePanel.style.right = (window.innerWidth - btnRect.right) + "px";
+    }
+
+    function getJSTStartOfDay(daysFromNow = 0) {
+      const now = Date.now();
+      const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
+      const day = new Date(jstNow);
+      day.setUTCDate(day.getUTCDate() + daysFromNow);
+      day.setUTCHours(0, 0, 0, 0);
+      return day.getTime() - TIME_ZONE_OFFSET_MS;
+    }
+
+    function getJSTEndOfDay(daysFromNow = 0) {
+      const now = Date.now();
+      const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
+      const day = new Date(jstNow);
+      day.setUTCDate(day.getUTCDate() + daysFromNow);
+      day.setUTCHours(23, 59, 59, 999);
+      return day.getTime() - TIME_ZONE_OFFSET_MS;
+    }
+
+    function getSpawnTimeForBoss(boss) {
+      const info = timers[boss.id];
+      if (info?.endTime) return info.endTime;
+      if (boss.weeklyRespawns) return getNextWeeklyRespawnTime(boss);
+      return null;
+    }
+
+    function getSpawnsInRange(boss, start, end) {
+      const spawns = [];
+      if (boss.weeklyRespawns) {
+        for (let offset = 0; offset <= 14; offset++) {
+          const day = new Date(Date.now() + TIME_ZONE_OFFSET_MS);
+          day.setUTCDate(day.getUTCDate() + offset);
+          const dayStart = new Date(day);
+          dayStart.setUTCHours(0, 0, 0, 0);
+          const dayEnd = new Date(day);
+          dayEnd.setUTCHours(23, 59, 59, 999);
+          const dayStartMs = dayStart.getTime() - TIME_ZONE_OFFSET_MS;
+          const dayEndMs = dayEnd.getTime() - TIME_ZONE_OFFSET_MS;
+          if (dayEndMs < start) continue;
+          if (dayStartMs > end) break;
+          for (const slot of boss.weeklyRespawns) {
+            const slotDate = new Date(day);
+            const delta = (slot.day - day.getUTCDay() + 7) % 7;
+            slotDate.setUTCDate(slotDate.getUTCDate() + delta);
+            slotDate.setUTCHours(slot.hour, slot.minute, 0, 0);
+            const ms = slotDate.getTime() - TIME_ZONE_OFFSET_MS;
+            if (ms >= start && ms <= end) {
+              spawns.push({ boss, time: ms });
+            }
+          }
+        }
+      } else {
+        const time = getSpawnTimeForBoss(boss);
+        if (time && time >= start && time <= end) {
+          spawns.push({ boss, time });
+        }
+      }
+      return spawns;
+    }
+
+    function renderSchedule() {
+      const now = Date.now();
+      const todayStart = getJSTStartOfDay(0);
+      const todayEnd = getJSTEndOfDay(0);
+
+      const spawns = [];
+
+      for (const boss of BOSSES) {
+        const bossSpawns = getSpawnsInRange(boss, todayStart, todayEnd);
+        spawns.push(...bossSpawns);
+      }
+
+      const filtered = spawns.filter(s => s.time > now + 60000);
+      filtered.sort((a, b) => a.time - b.time);
+
+      if (filtered.length === 0) {
+        scheduleToday.innerHTML = '<div class="schedule-empty">No spawns today</div>';
+        return;
+      }
+      scheduleToday.innerHTML = filtered.map(s =>
+        `<div class="schedule-item">
+          <span class="boss-label">${s.boss.name}</span>
+          <span class="time-label">${formatTimeOnly(s.time)}</span>
+        </div>`
+      ).join("");
+    }
+
+    scheduleBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      settingsDropdown.classList.add("hidden");
+      const isOpen = !schedulePanel.classList.contains("hidden");
+      schedulePanel.classList.toggle("hidden");
+      if (!isOpen) {
+        positionSchedulePanel();
+        renderSchedule();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (!schedulePanel.classList.contains("hidden")) {
+        positionSchedulePanel();
+      }
+    });
+
+    document.addEventListener("click", (ev) => {
+      if (
+        !scheduleBtn.contains(ev.target) &&
+        !schedulePanel.contains(ev.target)
+      ) {
+        schedulePanel.classList.add("hidden");
       }
     });
 
@@ -3522,6 +3797,12 @@
       }
       if (settingsBtn) {
         settingsBtn.classList.toggle("hidden", !isAdmin);
+        if (isAdmin && scheduleBtn) {
+          const parent = settingsBtn.parentNode;
+          if (parent && scheduleBtn.nextElementSibling !== settingsBtn) {
+            parent.insertBefore(settingsBtn, scheduleBtn.nextElementSibling);
+          }
+        }
       }
       if (!isAdmin) {
         settingsDropdown.classList.add("hidden");
