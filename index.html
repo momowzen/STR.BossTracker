@@ -1818,12 +1818,15 @@
       doc,
       setDoc,
       getDoc,
+      getDocs,
       updateDoc,
       deleteDoc,
       deleteField,
       runTransaction,
       onSnapshot,
       collection,
+      query,
+      where,
       serverTimestamp,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
@@ -3150,10 +3153,26 @@
     let heartbeatInterval = null;
 
     function startHeartbeat() {
-      setDoc(SESSION_REF, { lastSeen: serverTimestamp() });
+      setDoc(SESSION_REF, { lastSeen: Date.now() });
       heartbeatInterval = setInterval(() => {
-        setDoc(SESSION_REF, { lastSeen: serverTimestamp() });
+        setDoc(SESSION_REF, { lastSeen: Date.now() });
+        cleanupStaleSessions();
       }, 30000);
+    }
+
+    async function cleanupStaleSessions() {
+      try {
+        const cutoff = Date.now() - 60000;
+        const q = query(
+          collection(db, "sessions"),
+          where("lastSeen", "<", cutoff)
+        );
+        const snap = await getDocs(q);
+        const deletions = snap.docs.map(d => deleteDoc(d.ref));
+        await Promise.all(deletions);
+      } catch (e) {
+        // ignore cleanup errors
+      }
     }
 
     function stopHeartbeat() {
@@ -3184,7 +3203,13 @@
       if (!onlineCountEl) return;
       const q = collection(db, "sessions");
       onSnapshot(q, (snapshot) => {
-        onlineCountEl.textContent = snapshot.size;
+        const cutoff = Date.now() - 60000;
+        let count = 0;
+        snapshot.forEach(doc => {
+          const lastSeen = doc.data().lastSeen;
+          if (typeof lastSeen === "number" && lastSeen > cutoff) count++;
+        });
+        onlineCountEl.textContent = count;
       });
       const onlineBtn = document.getElementById("onlineBtn");
       if (onlineBtn) {
