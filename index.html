@@ -11,18 +11,24 @@
     rel="icon" sizes="64x64" type="image/png" />
   <style>
     :root {
-      --image-base: https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images;
-      --bg: #050508;
-      --bg-image: url("https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/bg.jpg");
-      --panel-bg: #0f0f0f;
-      --muted: #9aa6b2;
-      --accent: #00f0ff;
-      --accent-2: #7dd3fc;
-      --glass: rgba(255, 255, 255, 0.03);
-      --radius: 10px;
-      --shadow: 0 6px 20px rgba(0, 240, 255, 0.04);
-      --glass-border: rgba(0, 240, 255, 0.08);
-      --text: #dff7ff;
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border: #30363d;
+      --border-hover: #484f58;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+      --font-mono: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      --transition: 0.15s ease;
     }
 
     * {
@@ -41,40 +47,13 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: -24px;
-      z-index: -2;
-      background-image: var(--bg-image);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      filter: blur(6px) brightness(0.58) saturate(0.9);
-      transform: scale(1.02);
-      pointer-events: none;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background: linear-gradient(
-        165deg,
-        rgba(0, 0, 0, 0.5) 0%,
-        rgba(0, 0, 0, 0.62) 50%,
-        rgba(0, 0, 0, 0.7) 100%
-      );
-      pointer-events: none;
     }
 
     .container {
@@ -85,29 +64,27 @@
       padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
       max-width: 100%;
       margin: 0 auto;
-      gap: 8px;
+      gap: 6px;
     }
 
-    /* === HEADER (mobile-first) === */
+    /* === HEADER === */
     header.app-header {
       flex: 0 0 auto;
       display: flex;
       flex-wrap: wrap;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 8px;
-      background: #0a0a0a;
-      border: 1px solid #2a2a2a;
-      padding: 8px 10px;
-      border-radius: 4px;
-      box-sizing: border-box;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: var(--radius-md);
       position: relative;
-      overflow: visible;
     }
 
     .header-top {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 8px;
       flex: 1 1 100%;
@@ -115,94 +92,40 @@
       min-width: 0;
     }
 
-    .header-top .app-title {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    /* Animated scan line across header */
-    header.app-header::before {
-      display: none;
-    }
-
-    /* Corner accents */
-    header.app-header::after {
-      display: none;
-    }
-
-    /* === APP TITLE GROUP (logo + text) === */
     .app-title {
       display: flex;
       align-items: center;
-      /* centers logo + text vertically */
-      gap: 10px;
-      font-weight: 700;
-      color: #cccccc;
+      gap: 8px;
+      font-weight: 600;
     }
 
-    /* === LOGO WRAPPER === */
     .logo {
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
     }
 
-    /* === LOGO IMAGE === */
     .logo-img {
-      height: 36px;
+      height: 28px;
       width: auto;
       display: block;
       object-fit: contain;
-      margin: 0;
-      animation: none;
     }
 
     .main-title {
-      font-size: clamp(11px, 3.8vw, 20px);
-      font-family: Inter, "Segoe UI", sans-serif;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 1.3px;
-      color: #cccccc;
-      background: none;
-      text-shadow: none;
-      animation: none;
-      position: relative;
-      display: block;
-      margin-left: 1px;
-      line-height: 1.1;
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    /* Continuous underline scan line (non-looping bounce) */
-    .main-title::after {
-      content: "";
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      height: 2px;
-      width: 100%;
-      background: none;
-      animation: none;
-      border-radius: 1px;
-      opacity: 0;
-      display: none;
-    }
-
-    /* === WARNING TEXT (aligned, modern subtle glow gradient) === */
-    .warning-text {
-      font-size: clamp(9px, 2.5vw, 11px);
+      font-size: clamp(12px, 3vw, 16px);
       font-weight: 700;
-      background: none;
-      color: #888888;
-      animation: none;
-      text-shadow: none;
-      margin-left: 1px;
-      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .warning-text {
+      font-size: clamp(8px, 2vw, 10px);
+      font-weight: 500;
+      color: var(--text-muted);
       line-height: 1.1;
-      vertical-align: middle;
+      letter-spacing: 0.5px;
     }
 
     .header-controls {
@@ -211,93 +134,107 @@
       width: 100%;
       flex-wrap: wrap;
       gap: 6px;
-      align-items: stretch;
+      align-items: center;
       position: relative;
       z-index: 2;
       margin-left: 0;
     }
 
+    @media (max-width: 900px) {
+      .header-controls {
+        flex-wrap: nowrap;
+      }
+    }
+
     .search-wrapper {
-      flex: 1 1 100%;
+      flex: 1;
       min-width: 0;
       position: relative;
-      order: 3;
     }
 
     .search {
       width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      padding: 10px 32px 10px 10px;
-      border-radius: 4px;
-      color: var(--text);
-      font-size: 16px;
-      min-height: 44px;
-      box-shadow: none;
-      transition: none;
+      height: 36px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 4px 30px 4px 8px;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color var(--transition);
     }
 
     .search:focus {
-      outline: none;
-      border-color: #333;
-      box-shadow: none;
+      border-color: var(--accent-blue);
     }
 
     .search::placeholder {
-      color: rgba(154, 166, 178, 0.6);
+      color: var(--text-muted);
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       flex-shrink: 0;
       order: 2;
+      margin-left: auto;
     }
 
     .admin-auth-btn,
     .alarm-btn,
     .settings-btn {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
-      min-height: 44px;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
       padding: 0;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #1a1a1a;
-      color: #9aa6b2;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+      transition: border-color var(--transition), color var(--transition);
       flex-shrink: 0;
     }
 
     .admin-auth-btn:hover,
     .alarm-btn:hover,
     .settings-btn:hover {
-      background: #222;
-      border-color: #444;
-      color: #00f0ff;
+      border-color: var(--border-hover);
+      color: var(--text-primary);
     }
 
     .admin-auth-btn .btn-icon,
     .alarm-btn .btn-icon,
     .settings-btn .btn-icon {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       display: block;
       pointer-events: none;
     }
 
     .alarm-btn.on,
     .admin-auth-btn.on {
-      color: #00f0ff;
-      border-color: #00f0ff;
-      background: rgba(0, 240, 255, 0.08);
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .online-btn {
+      cursor: default !important;
+    }
+
+    .btn-count {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-green);
+      line-height: 1;
     }
 
     .settings-btn {
@@ -312,93 +249,150 @@
 
     .server-time {
       display: flex;
-      flex: 1 1 auto;
       align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
       gap: 4px;
-      order: 1;
-      font-weight: 600;
-      color: #9aa6b2;
-      padding: 8px 4px;
-      min-height: 44px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #1a1a1a;
-      text-shadow: none;
-      min-width: 0;
+      font-weight: 500;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
-      overflow: hidden;
-    }
-
-    #serverTimeLabel {
-      color: #888888;
-      font-size: clamp(10px, 3.5vw, 16px);
-      margin-right: 4px;
-      flex-shrink: 0;
+      min-width: 0;
+      color: var(--text-secondary);
     }
 
     #serverTime {
-      flex: 1 1 auto;
       text-align: center;
       min-width: 0;
-      font-size: clamp(10px, 3.5vw, 16px);
+      font-size: clamp(10px, 2.5vw, 12px);
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
     }
 
-    /* === MAIN LAYOUT (mobile: single column) === */
+    /* === MAIN LAYOUT === */
     .main {
       flex: 1 1 auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       min-height: 0;
       overflow: hidden;
     }
 
+    /* === DASHBOARD STATS === */
     .top-panels-row {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
-    #nextBoss { order: 2; }
-    #worldBoss { order: 1; }
 
+
+
+
+    .stat-card {
+      flex: 1 1 0%;
+      min-width: 0;
+      min-height: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2px;
+      padding: 10px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    #nextBoss,
+    #worldBoss {
+      flex: 1 1 0%;
+    }
+
+    .stat-card .stat-label {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .stat-card .boss-name {
+      font-size: clamp(0.9rem, 3vw, 1.3rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    #nextBoss .boss-name {
+      color: var(--accent-orange);
+      font-weight: 800;
+    }
+    #worldBoss .boss-name {
+      color: var(--accent-red);
+    }
+
+    .stat-card .time-remaining {
+      font-size: clamp(0.65rem, 2vw, 0.8rem);
+      font-weight: 500;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .stat-count {
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
+      line-height: 1;
+    }
+
+    #activeStatCard {
+      display: flex;
+    }
+
+    /* === BOSS LIST PANEL === */
     #bossListPanel {
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-    }
-
-    #nextBoss,
-    #worldBoss {
-      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
     }
 
     .view-toggle {
       display: none;
-      background: none;
-      border: 1px solid #444;
-      color: #888;
-      font-size: 9px;
-      font-weight: 700;
+      height: 26px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 4px 8px;
-      border-radius: 3px;
       cursor: pointer;
       flex-shrink: 0;
       margin-left: auto;
-      transition: background 0.2s, color 0.2s;
+      transition: border-color var(--transition), color var(--transition);
+      font-family: var(--font-sans);
     }
 
     .view-toggle:hover {
-      background: #222;
-      color: var(--text);
+      border-color: var(--border-hover);
+      color: var(--text-primary);
     }
 
     #bossList {
@@ -407,7 +401,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: row;
-      gap: 6px;
+      gap: 0;
     }
 
     .boss-column {
@@ -419,16 +413,33 @@
       overflow: hidden;
     }
 
+    .boss-column:first-child {
+      border-right: 1px solid var(--border);
+    }
+
     .column-label {
       font-size: 9px;
-      font-weight: 700;
-      color: #666;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       text-align: left;
-      padding: 2px 4px 4px;
+      padding: 6px 10px 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
       flex-shrink: 0;
     }
+
+    .label-dot.active { background: var(--accent-blue); }
+    .label-dot.weekly { background: var(--accent-purple); }
 
     .boss-column .scrollable {
       flex: 1;
@@ -437,30 +448,26 @@
       min-height: 0;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 2px;
+      align-items: stretch;
+      gap: 3px;
+      padding: 6px;
       scroll-behavior: smooth;
     }
 
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @keyframes fadeSlideRight {
-      from { opacity: 0; transform: translateX(-10px); }
+      from { opacity: 0; transform: translateX(-8px); }
       to { opacity: 1; transform: translateX(0); }
     }
 
     @keyframes fadeSlideLeft {
-      from { opacity: 0; transform: translateX(10px); }
+      from { opacity: 0; transform: translateX(8px); }
       to { opacity: 1; transform: translateX(0); }
     }
 
     @media (max-width: 900px) {
       .view-toggle {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
       }
 
       .boss-column:last-child {
@@ -468,24 +475,25 @@
       }
 
       .boss-column:first-child {
-        animation: fadeSlideRight 0.3s ease;
+        border-right: none;
+        animation: fadeSlideRight 0.25s ease;
       }
 
       #bossListPanel.view-weekly .boss-column:last-child {
         display: flex;
-        animation: fadeSlideLeft 0.3s ease;
+        animation: fadeSlideLeft 0.25s ease;
       }
 
       #bossListPanel.view-weekly .boss-column:first-child {
         display: none;
       }
 
-      .top-panels-row #worldBoss {
-        display: none;
+      .top-panels-row .stat-card {
+        min-width: 0;
       }
 
-      .top-panels-row #nextBoss {
-        animation: fadeSlideIn 0.3s ease;
+      .top-panels-row #worldBoss {
+        display: none;
       }
 
       .top-panels-row.show-world #nextBoss {
@@ -494,239 +502,117 @@
 
       .top-panels-row.show-world #worldBoss {
         display: flex;
-        animation: fadeSlideIn 0.3s ease;
+      }
+
+      #activeStatCard {
+        display: none !important;
       }
     }
 
     .card {
-      background: var(--panel-bg);
-      border: 1px solid #222;
-      border-radius: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       padding: 10px;
-      box-shadow: none;
       display: flex;
       flex-direction: column;
       min-height: 0;
       position: relative;
-      overflow: visible;
     }
 
-    .card::before {
-      display: none;
-    }
-
-    /* === BOSS LIST === */
+    /* === BOSS LIST ITEMS === */
     .boss {
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      max-width: 100%;
-      padding: 6px 8px;
-      border-radius: 2px;
-      background: var(--panel-bg);
-      border: 1px solid #222;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
       font-size: 12px;
-      box-shadow: none;
-      transition: background 0.35s ease-in-out, border-color 0.35s ease-in-out,
-        transform 0.35s ease-in-out, box-shadow 0.35s ease-in-out;
+      transition: border-color var(--transition), box-shadow var(--transition);
       box-sizing: border-box;
       position: relative;
     }
 
-    .boss::after {
-      display: none;
+    .boss:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
     }
 
-    .boss:active {
-      background: #1a1a1a;
-      border-color: #333;
-    }
-
-    .boss:hover::after {
-      display: none;
-    }
-
-    /* Red accent for dead boss */
     .boss.is-dead {
-      border-left: 4px solid rgba(239, 68, 68, 0.8) !important;
-      padding-left: 4px !important;
+      border-left: 3px solid var(--accent-red) !important;
+      padding-left: 7px !important;
     }
 
-    /* Blue accent for alive boss */
     .boss.is-alive {
-      border-left: 4px solid rgba(59, 130, 246, 0.8) !important;
-      padding-left: 4px !important;
+      border-left: 3px solid var(--accent-blue) !important;
+      padding-left: 7px !important;
     }
 
-    /* Red hover effect when boss is dead */
     .boss.is-dead:hover {
-      background: rgba(239, 68, 68, 0.15) !important;
-      border-color: rgba(239, 68, 68, 0.5) !important;
+      border-color: rgba(248, 81, 73, 0.4) !important;
+      box-shadow: 0 1px 8px rgba(248, 81, 73, 0.12) !important;
     }
 
-    /* Blue hover effect when boss is alive */
     .boss.is-alive:hover {
-      background: rgba(59, 130, 246, 0.15) !important;
-      border-color: rgba(59, 130, 246, 0.5) !important;
+      border-color: rgba(88, 166, 255, 0.4) !important;
+      box-shadow: 0 1px 8px rgba(88, 166, 255, 0.12) !important;
     }
 
     .boss .meta {
+      display: contents;
+    }
+
+    .portrait-meta {
       display: flex;
-      flex-direction: column;
-      gap: 1px;
+      align-items: center;
+      gap: 10px;
       flex: 1 1 auto;
       min-width: 0;
     }
 
-    /* Normal (alive / cooldown) */
     .boss .name {
-      font-family: Inter, "Segoe UI", sans-serif;
-      color: #ffffff;
-      font-weight: 900;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
       text-transform: uppercase;
-      text-shadow: none;
-      transition: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      position: relative;
+      color: var(--text-primary);
     }
 
     .boss .sub {
       font-size: 10px;
-      color: var(--muted);
+      color: var(--text-muted);
     }
 
     .boss .time-remaining {
-      font-size: 10px;
-      color: var(--accent);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
       font-weight: 600;
       font-variant-numeric: tabular-nums;
+      margin-top: 1px;
     }
 
     .kbtn {
-      padding: 8px 10px;
-      min-height: 44px;
-      min-width: 44px;
-      border-radius: 4px;
-      border: 1px solid #333;
-      background: #1a1a1a;
-      color: var(--text);
+      height: 32px;
+      min-width: 32px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-muted);
       cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-      transition: none;
+      font-size: 11px;
+      font-weight: 500;
+      transition: border-color var(--transition), color var(--transition);
+      font-family: var(--font-sans);
     }
 
     .kbtn:hover {
-      background: #222;
-      border-color: #333;
-      color: var(--text);
-    }
-
-    /* === NEXT BOSS & WORLD BOSS PANELS === */
-    #nextBoss,
-    #worldBoss {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 4px;
-      padding: 8px 12px;
-      margin: 0;
-      min-height: 72px;
-      border-radius: 4px;
-      border: 1px solid #222;
-      background: var(--panel-bg);
-      box-shadow: none;
-      font-family: Inter, "Segoe UI", sans-serif;
-      text-transform: none;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: visible;
-    }
-
-    #nextBoss::before,
-    #worldBoss::before {
-      content: "";
-      position: absolute;
-      top: -2px;
-      left: -100%;
-      width: 100%;
-      height: 4px;
-      background: none;
-      animation: none;
-      display: none;
-    }
-
-    #nextBoss::after,
-    #worldBoss::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
-      padding: 2px;
-      background: none;
-      -webkit-mask: none;
-      mask: none;
-      -webkit-mask-composite: unset;
-      mask-composite: unset;
-      animation: none;
-      pointer-events: none;
-      display: none;
-    }
-
-    /* === PANEL NAMES === */
-    #nextBoss .boss-name,
-    #worldBoss .boss-name {
-      font-size: clamp(1.1rem, 5vw, 1.8rem);
-      white-space: normal;
-      text-align: center;
-      max-width: 100%;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      display: inline-flex;
-      align-items: center;
-      position: relative;
-      text-shadow: none;
-      animation: none;
-      z-index: 1;
-      flex-shrink: 1;
-    }
-
-    #nextBoss .boss-name {
-      color: #ff9500;
-    }
-
-    #worldBoss .boss-name {
-      color: #ff4444;
-    }
-
-    .boss .spawn-time {
-      font-size: 9px;
-      color: #777;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      line-height: 1.2;
-    }
-
-    #nextBoss .time-remaining,
-    #worldBoss .time-remaining {
-      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
-      font-weight: 700;
-      color: #999999;
-      text-shadow: none;
-      margin-top: 0;
-      animation: none;
-      z-index: 1;
-      white-space: nowrap;
-      flex-shrink: 1;
-      min-width: 0;
+      border-color: var(--border-hover);
+      color: var(--text-primary);
     }
 
     /* === DESKTOP (wider screens) === */
@@ -734,18 +620,18 @@
       .container {
         max-width: 1200px;
         padding: 12px;
-        gap: 12px;
+        gap: 10px;
       }
 
       header.app-header {
         flex-wrap: nowrap;
-        align-items: center;
-        padding: 10px 16px;
+        padding: 8px 14px;
       }
 
       .header-top {
         flex: 1 1 auto;
         width: auto;
+        align-items: center;
       }
 
       .header-controls {
@@ -758,78 +644,50 @@
       }
 
       .header-actions {
-        gap: 8px;
-        order: 0;
+        margin-left: 0;
       }
 
       .search-wrapper {
         flex: 0 0 auto;
-        order: 0;
       }
 
       .search {
         width: 200px;
-        min-height: auto;
-        padding: 6px 10px;
+        height: 32px;
         font-size: 13px;
       }
 
       .server-time {
-        min-width: 220px;
-        white-space: nowrap;
-        flex: 0 0 auto;
-        min-height: auto;
-        padding: 6px 10px;
+        flex: 0 1 auto;
+        height: 32px;
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg-primary);
         font-size: 12px;
-        order: 0;
       }
 
-      #serverTimeLabel {
-        font-size: 10px;
+      .admin-auth-btn,
+      .alarm-btn,
+      .settings-btn,
+      .online-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
       }
 
       #serverTime {
         font-size: inherit;
       }
 
-      .admin-auth-btn,
-      .alarm-btn,
-      .settings-btn {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-        min-height: 36px;
-      }
-
-      .admin-auth-btn .btn-icon,
-      .alarm-btn .btn-icon,
-      .settings-btn .btn-icon {
-        width: 18px;
-        height: 18px;
-      }
-
-      .logo-img {
-        height: 44px;
-      }
-
-      .main {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
       .top-panels-row {
         flex-direction: row;
-        gap: 12px;
-        flex-shrink: 0;
+        gap: 10px;
       }
 
-      #nextBoss { order: 0; }
-      #worldBoss { order: 0; }
-
-      .top-panels-row .card {
-        flex: 1;
-        min-width: 0;
+      .stat-card {
+        min-height: 72px;
       }
 
       .column-label {
@@ -842,856 +700,177 @@
         overflow: hidden;
       }
 
-      #nextBoss,
-      #worldBoss {
+      .boss {
         width: 100%;
       }
-
-      .boss {
-        width: 95%;
-      }
-
-      .boss:hover {
-        transform: scale(1.02);
-        box-shadow: 0 8px 24px rgba(0, 240, 255, 0.15);
-      }
-
-      .kbtn {
-        min-height: auto;
-        min-width: auto;
-        padding: 4px 6px;
-        font-size: 11px;
-      }
-
     }
 
-    /* === SETTINGS DROPDOWN === */
-    .settings-dropdown {
-      position: fixed;
-      background: var(--panel-bg);
-      border: 1px solid #222;
-      border-radius: 4px;
-      z-index: 10000;
-      width: auto;
-      display: block;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .settings-dropdown.hidden {
-      display: none;
-    }
-
-    .settings-modal {
-      padding: 0 !important;
-      width: auto !important;
-      max-width: none !important;
-    }
-
-    .settings-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin: 0;
-      border: none;
-      border-radius: 0;
-      overflow: hidden;
-      background: transparent;
-      padding: 4px 0;
-    }
-
-    .settings-item {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      padding: 7px 12px;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #1a1a1a;
-      cursor: pointer;
-      transition: background 0.15s ease;
-      font-family: Inter, "Segoe UI", sans-serif;
-      font-size: 12px;
-      white-space: nowrap;
-      color: #888888;
-      position: relative;
-    }
-
-    .settings-item:last-child {
-      border-bottom: none;
-    }
-
-    .settings-item:hover {
-      background: #1a1a1a;
-      color: #cccccc;
-    }
-
-    .settings-item .icon {
-      font-size: 20px;
-      flex-shrink: 0;
-      filter: none;
-      position: relative;
-      z-index: 1;
-      transition: none;
-    }
-
-    .settings-item:hover .icon {
-      filter: none;
-    }
-
-    .settings-item .label {
-      font-size: 11px;
-      font-weight: 400;
-      color: inherit;
-      flex: 1;
-    }
-
-    .settings-item:active {
-      background: #1a1a1a;
-    }
-
-    /* --- Compact Cyber Modal (Webhook window) --- */
+    /* === MODALS & OVERLAYS === */
     .modal-backdrop {
       position: fixed;
       inset: 0;
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 2000;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: none;
-      animation: none;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.7);
     }
 
-    .modal-backdrop.active {
-      display: flex;
-    }
-
-    @keyframes cyberFadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
+    .modal-backdrop.active { display: flex; }
+    .modal-backdrop.hidden { display: none; }
 
     .modal {
-      background: #0f0f0f;
-      border: 1px solid #222;
-      border-radius: 2px;
-      box-shadow: none;
-      padding: 22px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
       width: min(340px, calc(100vw - 24px));
       max-width: calc(100vw - 24px);
-      color: var(--text);
       text-align: center;
-      transform: none;
-      opacity: 1;
-      animation: none;
-      backdrop-filter: none;
-    }
-
-    @keyframes cyberModalIn {
-      0% {
-        opacity: 0;
-        transform: translateY(30px) scale(0.96);
-        box-shadow: none;
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
     }
 
     .modal h3 {
-      margin: 0 0 10px 0;
-      font-size: 16px;
-      color: #cccccc;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-shadow: none;
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
     }
 
-    /* --- Webhook Input --- */
-    #webhookInput {
-      width: 100%;
-      margin: 16px 0 18px 0;
-      padding: 10px 12px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 2px;
-      color: var(--text);
-      font-family: Consolas, monospace;
+    .modal .small {
       font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .modal input {
+      width: 100%;
+      margin: 14px 0;
+      padding: 8px 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: var(--font-mono);
       text-align: center;
       outline: none;
-      transition: none;
-      box-shadow: none;
+      transition: border-color var(--transition);
     }
 
-    #webhookInput::placeholder {
-      color: #555;
-      font-style: italic;
-    }
+    .modal input:focus { border-color: var(--accent-blue); }
 
-    #webhookInput:focus {
-      border-color: #333;
-      box-shadow: none;
-      background: #1a1a1a;
-      color: var(--text);
-      animation: none;
-    }
+    .modal input::placeholder { color: var(--text-muted); }
 
-    @keyframes inputPulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 10px rgba(0, 240, 255, 0.4),
-          inset 0 0 6px rgba(0, 240, 255, 0.2);
-      }
-
-      50% {
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.8),
-          inset 0 0 10px rgba(0, 240, 255, 0.35);
-      }
-    }
-
-    /* --- Webhook Modal Buttons (SAVE, TEST, CLEAR) --- */
-    #webhookModalBackdrop .modal-actions {
+    .modal-actions {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       margin-top: 8px;
     }
 
-    #webhookSave,
-    #webhookTest,
-    #webhookClear {
+    .modal .kbtn {
       flex: 1;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #888888;
-      font-weight: 700;
+      height: 34px;
+      padding: 0 12px;
       font-size: 12px;
-      padding: 8px 10px;
-      border-radius: 2px;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      transition: none;
-      box-shadow: none;
-      backdrop-filter: none;
-    }
-
-    /* --- SAVE button --- */
-    #webhookSave:hover {
-      background: #222;
-      color: #cccccc;
-      border-color: #333;
-    }
-
-    #webhookSave:active {
-      background: #1a1a1a;
-    }
-
-    /* --- TEST button --- */
-    #webhookTest {
-      border-color: #333;
-      color: #888888;
-      background: #1a1a1a;
-    }
-
-    #webhookTest:hover {
-      background: #222;
-      color: #cccccc;
-    }
-
-    /* --- CLEAR button --- */
-    #webhookClear {
-      border-color: #333;
-      color: #888888;
-      background: #1a1a1a;
-    }
-
-    #webhookClear:hover {
-      background: #222;
-      color: #cccccc;
-    }
-
-    #webhookClear:active {
-      background: #1a1a1a;
-    }
-
-    .small {
-      font-size: 12px;
-      color: #888888;
-    }
-
-    /* === LOADING OVERLAY === */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      background: #000;
-    }
-
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .loading-hexagon {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hex-spinner {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-
-    .hex-layer {
-      display: none;
-    }
-
-    .hex-1,
-    .hex-2,
-    .hex-3 {
-      display: none;
-    }
-
-    .loading-core {
-      position: relative;
-      width: 60px;
-      height: 60px;
-      z-index: 1;
-    }
-
-    .core-icon {
-      width: 100%;
-      height: 100%;
-      animation: spinCore 1.5s linear infinite;
-    }
-
-    .core-ring {
-      fill: none;
-      stroke: #00f0ff;
-      stroke-width: 2;
-      opacity: 0.7;
-    }
-
-    .core-pulse {
-      fill: none;
-      stroke: #00f0ff;
-      stroke-width: 1;
-      opacity: 0.4;
-    }
-
-    .core-center {
-      fill: #00f0ff;
-    }
-
-    @keyframes spinCore {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loader-text {
-      font-family: Inter, "Segoe UI", sans-serif;
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #00f0ff;
-    }
-
-    .loading-word {
-      color: #00f0ff;
-    }
-
-    .loading-dots {
-      display: flex;
-      gap: 3px;
-    }
-
-    .loading-dots span {
-      color: #00f0ff;
-      animation: dotPulse 1s infinite;
-    }
-
-    .loading-dots span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .loading-dots span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-
-    @keyframes dotPulse {
-
-      0%,
-      100% {
-        opacity: 0.3;
-      }
-
-      50% {
-        opacity: 1;
-      }
-    }
-
-    .loading-subtitle {
-      font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 1px;
-      color: #888888;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition);
+      font-family: var(--font-sans);
     }
 
-    /* === CYBER POPUP: Set Time Modal === */
+    .modal .kbtn:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    /* === TIME MODAL === */
     #timeModal {
       position: fixed;
       inset: 0;
       display: none;
-      /* JS toggles this */
       align-items: center;
       justify-content: center;
       z-index: 5000;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: none;
+      background: rgba(0, 0, 0, 0.7);
     }
 
     #timeModal .modal-content {
-      background: #0f0f0f;
-      border: 1px solid #222;
-      border-radius: 2px;
-      box-shadow: none;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       padding: 20px 16px;
       width: min(340px, calc(100vw - 24px));
       max-width: calc(100vw - 24px);
-      color: var(--text);
       text-align: center;
-      animation: none;
-      transform: none;
-      font-family: Inter, "Segoe UI", sans-serif;
-    }
-
-    @keyframes popupRise {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.98);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
     }
 
     #timeModal h3 {
-      font-size: 16px;
-      color: #9aa6b2;
-      margin: 0 0 10px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-shadow: none;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 6px;
+      letter-spacing: 0.3px;
     }
 
     #timeModal .modal-subtitle {
       font-size: 12px;
-      color: #9aa6b2;
-      margin-bottom: 14px;
-      letter-spacing: 0.5px;
-      text-transform: none;
-      font-family: "Inter", sans-serif;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
     #killTimeInput {
       width: 100%;
-      margin-bottom: 14px;
-      padding: 10px 12px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 2px;
-      color: var(--text);
-      font-family: Consolas, monospace;
-      font-size: 13px;
+      margin-bottom: 12px;
+      padding: 8px 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 14px;
       text-align: center;
       outline: none;
-      box-shadow: none;
-      transition: all 0.2s ease;
+      min-height: 36px;
+      transition: border-color var(--transition);
     }
 
-    #killTimeInput:focus {
-      border-color: #333;
-      box-shadow: none;
-      background: #1a1a1a;
-      color: var(--text);
-    }
+    #killTimeInput:focus { border-color: var(--accent-blue); }
 
     #timeModal .actions {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-top: 12px;
+      gap: 8px;
+      margin-top: 8px;
     }
 
     #timeModal .kbtn {
       flex: 1;
+      height: 34px;
+      padding: 0 12px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 2px;
-      color: #9aa6b2;
-      padding: 8px 10px;
+      letter-spacing: 0.5px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
       cursor: pointer;
-      transition: none;
-      box-shadow: none;
+      transition: border-color var(--transition), color var(--transition);
+      font-family: var(--font-sans);
     }
 
     #timeModal .kbtn:hover {
-      background: #222;
-      border-color: #333;
-      color: #9aa6b2;
-    }
-
-    #timeModal .kbtn:active {
-      background: #1a1a1a;
-    }
-
-    #killTimeInput {
-      font-size: 16px;
-      min-height: 44px;
-    }
-
-    #webhookInput {
-      font-size: 16px;
-      min-height: 44px;
-    }
-
-    .boss.shake {
-      animation: none;
-      z-index: 10;
-      position: relative;
-    }
-
-    /* === DEAD BOSS === */
-    /* Entire boss card gets different styling when dead */
-    .boss:has(.name.dead) {
-      background: #1a1a1a;
-      border-color: #222;
-      box-shadow: none;
-      animation: none;
-    }
-
-    .boss:has(.name.dead)::after {
-      display: none;
-    }
-
-    @keyframes deadCardPulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 20px rgba(255, 68, 68, 0.15),
-          inset 0 0 30px rgba(255, 68, 68, 0.05);
-      }
-
-      50% {
-        box-shadow: 0 0 30px rgba(255, 68, 68, 0.25),
-          inset 0 0 40px rgba(255, 68, 68, 0.1);
-      }
-    }
-
-    .boss:has(.name.dead):hover {
-      background: #1a1a1a;
-      border-color: #222;
-      box-shadow: none;
-    }
-
-    /* Dead boss portrait */
-    .boss:has(.name.dead) .boss-portrait {
-      border-color: #222;
-      filter: none;
-      box-shadow: none;
-    }
-
-    /* Dead boss name styling */
-    .boss .name.dead {
-      font-family: Inter, "Segoe UI", sans-serif;
-      color: #888888;
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow: none;
-      transition: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-
-    /* Status badge */
-    .boss .name.dead::before {
-      display: none;
-    }
-
-    @keyframes badgeBlink {
-
-      0%,
-      100% {
-        opacity: 0.8;
-      }
-
-      50% {
-        opacity: 1;
-      }
-    }
-
-    /* === CLEAN HEADERS: BOSS LIST & ACTIVE TIMERS (Responsive + Centered) === */
-    .card-header {
-      font-family: Inter, "Segoe UI", sans-serif;
-      font-size: clamp(14px, 2.5vw, 18px);
-      color: #cccccc;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 40px;
-      position: relative;
-      overflow: visible;
-      border-bottom: 1px solid #333;
-      padding: 8px 4px;
-      text-align: center;
-      text-shadow: none;
-      box-sizing: border-box;
-      margin: 0;
-      width: 100%;
-      /* no overflow */
-    }
-
-    .clear-icon {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      display: none;
-      color: #9aa6b2;
-      font-size: 14px;
-      line-height: 1;
-      transition: color 0.2s;
-      user-select: none;
-    }
-
-    .clear-icon:hover {
-      color: #9aa6b2;
-    }
-
-    /* === Custom Scrollbars for Boss List === */
-    #bossList::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    #bossList::-webkit-scrollbar-track {
-      background: rgba(0, 20, 30, 0.3);
-      border-radius: 10px;
-      border: 1px solid rgba(0, 240, 255, 0.1);
-    }
-
-    #bossList::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 4px;
-      box-shadow: none;
-      transition: none;
-    }
-
-    #bossList::-webkit-scrollbar-thumb:hover {
-      background: #444;
-      box-shadow: none;
-    }
-
-    /* Firefox scrollbar customization */
-    #bossList {
-      scrollbar-width: thin;
-      scrollbar-color: #333 #1a1a1a;
-    }
-
-    .name-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .portrait-meta {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-    }
-
-    .boss-portrait {
-      width: 40px;
-      height: 52px;
-      flex-shrink: 0;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .boss-portrait:hover {
-      transform: none;
-      box-shadow: none;
-    }
-
-    .info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-width: 0;
-      flex: 1 1 auto;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: auto auto;
-      align-items: center;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    /* === ACTION BUTTONS - CYBER THEME === */
-    .action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      flex: 0 0 auto;
-    }
-
-    .action-btn.hidden {
-      visibility: hidden;
-    }
-
-    .icon-btn {
-      position: relative;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 10px;
-      min-width: 44px;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #9aa6b2;
-      transition: none;
-      box-shadow: none;
-      overflow: hidden;
-    }
-
-    .icon-btn::before {
-      display: none;
-    }
-
-    .icon-btn:hover::before {
-      display: none;
-    }
-
-    .icon-btn:hover {
-      transform: none;
-      border-color: #333;
-      box-shadow: none;
-      color: #9aa6b2;
-    }
-
-    .icon-btn:active {
-      transform: none;
-      box-shadow: none;
-      background: #1a1a1a;
-    }
-
-    .icon-btn svg {
-      position: relative;
-      z-index: 1;
-      filter: none;
-    }
-
-    .icon-btn:hover svg {
-      filter: none;
-    }
-
-    /* Mark Dead Button - Minimal style */
-    .icon-btn[data-action="mark"]:hover {
-      border-color: #fbbf24;
-      box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
-      color: #fbbf24;
-    }
-
-    .icon-btn[data-action="mark"]:hover svg {
-      filter: none;
-    }
-
-    .icon-btn[data-action="mark"]::before {
-      display: none;
-    }
-
-    /* Set Timer Button - Minimal style */
-    .icon-btn[data-action="set"]:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
-      color: #22c55e;
-    }
-
-    .icon-btn[data-action="set"]:hover svg {
-      filter: none;
-    }
-
-    .icon-btn[data-action="set"]::before {
-      display: none;
-    }
-
-    .icon-label {
-      font-family: "Courier New", monospace;
-      font-size: 9px;
-      font-weight: 400;
-      opacity: 0.8;
-      text-transform: none;
-      letter-spacing: 0.8px;
-      color: #9aa6b2;
-      text-shadow: none;
-      transition: none;
-    }
-
-    .action-btn:hover .icon-label {
-      opacity: 0.8;
-      text-shadow: none;
-      color: #9aa6b2;
+      border-color: var(--border-hover);
+      color: var(--text-primary);
     }
 
     /* === ADMIN PASSWORD MODAL === */
@@ -1702,106 +881,322 @@
       align-items: center;
       justify-content: center;
       z-index: 10001;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.7);
     }
 
-    #adminPasswordBackdrop.active {
-      display: flex;
-    }
-
-    #adminPasswordBackdrop.hidden {
-      display: none;
-    }
+    #adminPasswordBackdrop.active { display: flex; }
+    #adminPasswordBackdrop.hidden { display: none; }
 
     .admin-password-modal {
-      background: #0f0f0f;
-      border: 1px solid #333;
-      border-radius: 4px;
-      box-shadow: 0 6px 20px rgba(0, 240, 255, 0.04);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       padding: 24px 16px;
       width: min(340px, calc(100vw - 24px));
       max-width: calc(100vw - 24px);
-      color: var(--text);
       text-align: center;
     }
 
     .admin-password-modal h3 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-      color: #cccccc;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
     }
 
     .admin-password-modal .password-subtitle {
       font-size: 12px;
-      color: #888888;
-      margin-bottom: 20px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
     }
 
     .admin-password-modal .password-input {
       width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #cccccc;
-      font-weight: 400;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
       font-size: 14px;
-      padding: 12px 20px;
-      border-radius: 4px;
-      box-sizing: border-box;
-      margin-bottom: 12px;
-      transition: border-color 0.2s;
-    }
-
-    .admin-password-modal .password-input:focus {
       outline: none;
-      border-color: #00f0ff;
+      margin-bottom: 12px;
+      transition: border-color var(--transition);
     }
 
-    .admin-password-modal .password-input::placeholder {
-      color: #666666;
-    }
+    .admin-password-modal .password-input:focus { border-color: var(--accent-blue); }
+    .admin-password-modal .password-input::placeholder { color: var(--text-muted); }
 
     .admin-password-modal .password-buttons {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .admin-password-modal .password-btn {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #cccccc;
+      height: 36px;
+      padding: 0 16px;
+      font-size: 13px;
       font-weight: 600;
-      font-size: 14px;
-      padding: 12px 20px;
-      border-radius: 4px;
-      cursor: pointer;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition);
+      font-family: var(--font-sans);
     }
 
     .admin-password-modal .password-btn:hover {
-      background: #222;
-      border-color: #444;
-      color: #00f0ff;
+      border-color: var(--border-hover);
+      color: var(--text-primary);
     }
 
-    .admin-password-modal .password-btn.cancel-btn {
-      background: #1a1a1a;
-      border-color: #333;
-    }
+    .admin-password-modal .password-btn.cancel-btn { background: var(--bg-primary); }
 
     .admin-password-modal .password-error {
-      color: #ff3333;
+      color: var(--accent-red);
       font-size: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: none;
     }
 
-    .admin-password-modal .password-error.show {
+    .admin-password-modal .password-error.show { display: block; }
+
+    /* === SETTINGS DROPDOWN === */
+    .settings-dropdown {
+      position: fixed;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      z-index: 10002;
+      width: auto;
       display: block;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .settings-dropdown.hidden { display: none; }
+
+    .settings-modal {
+      padding: 0 !important;
+      width: auto !important;
+      max-width: none !important;
+      border: none !important;
+      border-radius: var(--radius-md) !important;
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 4px 0;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 8px 14px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      white-space: nowrap;
+      color: var(--text-muted);
+      transition: color var(--transition), background var(--transition);
+    }
+
+    .settings-item:last-child { border-bottom: none; }
+
+    .settings-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .settings-item .label {
+      font-size: 12px;
+      font-weight: 500;
+      color: inherit;
+      flex: 1;
+    }
+
+    /* === LOADING OVERLAY === */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      background: var(--bg-primary);
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-word {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .loading-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .boss.shake {
+      animation: none;
+      z-index: 10;
+      position: relative;
+    }
+
+    .boss .name.dead {
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: clamp(11px, 2.5vw, 14px);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: center;
+      box-sizing: border-box;
+      min-height: 36px;
+      width: 100%;
+    }
+
+    .clear-icon {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      display: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .clear-icon:hover {
+      color: var(--text-secondary);
+    }
+
+    .boss-portrait {
+      width: 50px;
+      height: 66px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .spawn-time {
+      font-size: 9px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 0 0 auto;
+    }
+
+    .action-btn.hidden {
+      visibility: hidden;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      padding: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: border-color var(--transition), color var(--transition);
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    .icon-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .icon-btn[data-action="mark"]:hover {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+
+    .icon-btn[data-action="set"]:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
     }
   </style>
 </head>
@@ -1834,17 +1229,19 @@
             <div class="warning-text">BY STR4NG3RZ</div>
           </div>
         </div>
+        <div class="server-time">
+          <span id="serverTime">-- : -- : --</span>
+        </div>
       </div>
       <div class="header-controls">
         <div class="search-wrapper">
           <input class="search" id="bossSearch" placeholder="Search boss..." autocomplete="off" />
           <span class="clear-icon" id="clearSearch">✕</span>
         </div>
-        <div class="server-time" id="serverTimeBox">
-          <span id="serverTimeLabel">SERVER TIME:</span>
-          <span id="serverTime">-- : -- : --</span>
-        </div>
         <div class="header-actions">
+          <button type="button" class="alarm-btn online-btn" id="onlineBtn" title="Online viewers">
+            <span class="btn-count" id="onlineCount">0</span>
+          </button>
           <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
             aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1874,13 +1271,19 @@
     </header>
     <main class="main">
       <div class="top-panels-row">
-        <div class="card" id="nextBoss">
-          <div class="boss-name">Next Boss</div>
+        <div class="stat-card" id="nextBoss">
+          <div class="stat-label">NEXT BOSS</div>
+          <div class="boss-name">---</div>
           <div class="time-remaining" id="nextTime">--</div>
         </div>
-        <div class="card" id="worldBoss">
-          <div class="boss-name">WORLD BOSS</div>
+        <div class="stat-card" id="worldBoss">
+          <div class="stat-label">WORLD BOSS</div>
+          <div class="boss-name">---</div>
           <div class="time-remaining" id="worldBossTime">--</div>
+        </div>
+        <div class="stat-card" id="activeStatCard">
+          <div class="stat-label">Active Timers</div>
+          <div class="stat-count" id="activeCount">0</div>
         </div>
       </div>
       <section class="card" id="bossListPanel">
@@ -1888,13 +1291,13 @@
           FIELD BOSS LIST
           <button class="view-toggle" id="viewToggle">SWITCH VIEW</button>
         </h4>
-        <div class="boss-columns" id="bossList">
+        <div id="bossList">
           <div class="boss-column">
-            <div class="column-label">FIXED INTERVAL</div>
+            <div class="column-label"><span class="label-dot active"></span> FIXED INTERVAL</div>
             <div class="scrollable" id="timerBossList"></div>
           </div>
           <div class="boss-column">
-            <div class="column-label">FIXED SCHEDULE</div>
+            <div class="column-label"><span class="label-dot weekly"></span> FIXED SCHEDULE</div>
             <div class="scrollable" id="weeklyBossList"></div>
           </div>
         </div>
@@ -1917,14 +1320,14 @@
   </div>
   <!-- Webhook modal â€” compact cyber panel -->
   <div class="modal-backdrop" id="webhookModalBackdrop">
-    <div aria-labelledby="webhookTitle" aria-modal="true" class="modal cyber-modal" role="dialog">
+    <div aria-labelledby="webhookTitle" aria-modal="true" class="modal" role="dialog">
       <h3 id="webhookTitle">💬 Discord Webhook</h3>
       <div class="small">Paste your Discord webhook URL below.</div>
-      <input class="webhook-input" id="webhookInput" placeholder="Paste your Discord Webhook URL here." type="text" />
+      <input id="webhookInput" placeholder="Paste your Discord Webhook URL here." type="text" />
       <div class="modal-actions">
-        <button class="cyber-btn" id="webhookSave">SAVE</button>
-        <button class="cyber-btn" id="webhookTest">TEST</button>
-        <button class="cyber-btn danger" id="webhookClear">CLEAR</button>
+        <button class="kbtn" id="webhookSave">SAVE</button>
+        <button class="kbtn" id="webhookTest">TEST</button>
+        <button class="kbtn" id="webhookClear">CLEAR</button>
       </div>
     </div>
   </div>
@@ -1952,26 +1355,8 @@
   </div>
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-container">
-      <div class="loading-hexagon">
-        <div class="hex-spinner">
-          <div class="hex-layer hex-1"></div>
-          <div class="hex-layer hex-2"></div>
-          <div class="hex-layer hex-3"></div>
-        </div>
-        <div class="loading-core">
-          <svg viewBox="0 0 100 100" class="core-icon">
-            <circle cx="50" cy="50" r="35" class="core-ring" />
-            <circle cx="50" cy="50" r="25" class="core-pulse" />
-            <circle cx="50" cy="50" r="15" class="core-center" />
-          </svg>
-        </div>
-      </div>
-      <div class="loader-text">
-        <span class="loading-word">LOADING</span>
-        <span class="loading-dots">
-          <span>.</span><span>.</span><span>.</span>
-        </span>
-      </div>
+      <div class="loading-spinner"></div>
+      <div class="loading-word">LOADING</div>
       <div class="loading-subtitle">Initializing Tracker</div>
     </div>
   </div>
@@ -2169,6 +1554,7 @@
     const timerBossListEl = document.getElementById("timerBossList");
     const nextBossNameEl = document.querySelector("#nextBoss .boss-name");
     const nextTimeEl = document.getElementById("nextTime");
+    const worldBossNameEl = document.querySelector("#worldBoss .boss-name");
     const worldBossTimeEl = document.getElementById("worldBossTime");
     const searchInput = document.getElementById("bossSearch");
     const clearSearch = document.getElementById("clearSearch");
@@ -2213,6 +1599,11 @@
     // Dedup caches
     const lastWriteCache = {}; // { bossId: lastJson }
     const localNotifCache = {}; // { `${bossId}_${type}`: timestamp(ms) }
+
+    // World boss notification state
+    let worldBossSoonNotified = false;
+    let worldBossSpawnAnnounced = false;
+    let lastWorldBossSpawn = 0;
 
     const ALARM_STORAGE_KEY = "bossTrackerAlarmEnabled";
     let alarmEnabled = localStorage.getItem(ALARM_STORAGE_KEY) === "true";
@@ -2432,7 +1823,8 @@
       deleteField,
       runTransaction,
       onSnapshot,
-      serverTimestamp, // ✅ Firestore FieldValue server timestamp (used in dedupe transaction)
+      collection,
+      serverTimestamp,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
     // ✅ Initialize Firebase app
@@ -2728,12 +2120,26 @@
 							`@everyone`;
 						break;
 
-					case "manual":
-						message =
-							`**${boss.name}** timer manually updated.\n` +
-							`Next respawn: ${formattedTime}\n` +
-							`@everyone`;
-						break;
+				case "manual":
+					message =
+						`**${boss.name}** timer manually updated.\n` +
+						`Next respawn: ${formattedTime}\n` +
+						`@everyone`;
+					break;
+
+				case "world_soon":
+					message =
+						`**WORLD BOSS IS ABOUT TO SPAWN!**\n` +
+						`Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
+						`@everyone`;
+					break;
+
+				case "world_spawn":
+					message =
+						`**WORLD BOSS HAS SPAWNED!**\n` +
+						`Ratan · Parto · Nedra are now ready to fight!\n` +
+						`@everyone`;
+					break;
 
 					default:
 						console.warn(`⚠️ Unknown notification type: ${type}`);
@@ -2878,44 +2284,6 @@
 
       // send killed embed (deduped)
       await sendDiscordEmbedOnce("killed", boss);
-    }
-
-    async function clearTimer(bossId) {
-      const boss = BOSSES.find((b) => b.id === bossId);
-      const ref = doc(db, "timers", "global");
-
-      if (!timers[bossId]) {
-        console.log(`â„¹ No timer to clear for ${boss?.name || bossId}.`);
-        return;
-      }
-
-      delete timers[bossId]; // remove locally
-
-      try {
-        // Ensure the document exists first
-        const snap = await getDoc(ref);
-        if (!snap.exists()) {
-          console.warn(
-            "⚠️  timers/global did not exist. Creating it first..."
-          );
-          await setDoc(ref, { timers: {} }, { merge: true });
-        }
-
-        // ✅ Delete nested key with updateDoc and field path
-        await updateDoc(ref, { [`timers.${bossId}`]: deleteField() });
-
-        console.log(`✅ clearTimer: removed ${bossId} from Firestore.`);
-      } catch (err) {
-        console.error("❌ Firestore delete failed for", bossId, err);
-        alert("Failed to clear timer in Firestore. Please retry.");
-      }
-
-      // Update UI
-      renderBossList();
-
-      console.log(
-        `ðŸ§¹ Cleared timer for ${boss?.name || bossId} locally and remotely.`
-      );
     }
 
     async function resetAll() {
@@ -3118,6 +2486,13 @@
 				const node = buildBossCard(bb);
 				if (node) timerBossListEl.appendChild(node);
 			}
+
+			const activeCountEl = document.getElementById("activeCount");
+			if (activeCountEl) {
+				const now2 = Date.now();
+				const count = BOSSES.filter(b => timers[b.id] && timers[b.id].endTime > now2).length;
+				activeCountEl.textContent = count;
+			}
 		}
 
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
@@ -3244,6 +2619,8 @@
       return nextRespawnTime ? nextRespawnTime.getTime() : null;
     }
 
+    const WORLD_BOSS_NAMES = ["Ratan", "Parto", "Nedra"];
+
     function getNextWorldBossTime() {
       const now = Date.now();
       const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
@@ -3262,6 +2639,11 @@
       next12.setUTCDate(next12.getUTCDate() + 1);
       next12.setUTCHours(12, 0, 0, 0);
       return next12.getTime() - TIME_ZONE_OFFSET_MS;
+    }
+
+    function updateWorldBossName() {
+      if (!worldBossNameEl) return;
+      worldBossNameEl.textContent = WORLD_BOSS_NAMES.join(" \u00B7 ");
     }
 
     function computeNextBoss() {
@@ -3322,45 +2704,6 @@
         ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
       }
 
-      // Auto-resize next boss name if it overflows
-      adjustNextBossNameSize();
-    }
-
-    function adjustNextBossNameSize() {
-      const nextBoss = document.getElementById("nextBoss");
-      if (!nextBoss) return;
-
-      const nameEl = nextBoss.querySelector(".boss-name");
-      if (!nameEl) return;
-
-      // Reset to default size
-      nameEl.style.fontSize = "1.8rem";
-      nameEl.style.letterSpacing = "1.5px";
-
-      let fontSize = 1.8;
-      const minFontSize = 0.9;
-      const step = 0.1;
-
-      // Reduce font size until text fits within the next boss panel
-      while (fontSize > minFontSize) {
-        nameEl.style.fontSize = fontSize + "rem";
-
-        // Check if name is overflowing
-        if (nameEl.scrollWidth <= nextBoss.clientWidth - 40) {
-          // 40px padding buffer
-          break;
-        }
-
-        fontSize -= step;
-      }
-
-      // If still overflowing, reduce letter-spacing
-      if (
-        fontSize <= minFontSize &&
-        nameEl.scrollWidth > nextBoss.clientWidth - 40
-      ) {
-        nameEl.style.letterSpacing = "0.5px";
-      }
     }
 
     // == MAIN TICKUPDATE == //
@@ -3480,6 +2823,34 @@
         }
       }
 
+      // --- (8) World boss notifications ---
+      const wbTime = getNextWorldBossTime();
+      const wbRemaining = wbTime - now;
+
+      if (wbTime !== lastWorldBossSpawn) {
+        worldBossSoonNotified = false;
+        worldBossSpawnAnnounced = false;
+        lastWorldBossSpawn = wbTime;
+      }
+
+      if (wbRemaining <= 5 * 60 * 1000 && wbRemaining > 0 && !worldBossSoonNotified) {
+        console.log(`⚠️ world boss within 5min, preparing notification`);
+        worldBossSoonNotified = true;
+        const wbBoss = { id: "__world_boss__", name: "World Boss" };
+        savePromises.push(
+          (async () => await sendDiscordEmbedOnce("world_soon", wbBoss))()
+        );
+      }
+
+      if (wbRemaining <= 0 && !worldBossSpawnAnnounced) {
+        console.log(`🎉 world boss spawned, announcing`);
+        worldBossSpawnAnnounced = true;
+        const wbBoss = { id: "__world_boss__", name: "World Boss" };
+        savePromises.push(
+          (async () => await sendDiscordEmbedOnce("world_spawn", wbBoss))()
+        );
+      }
+
       // --- (6) Commit pending Firestore writes ---
       if (savePromises.length) {
         try {
@@ -3538,6 +2909,7 @@
       }
 
       // Update world boss
+      updateWorldBossName();
       if (worldBossTimeEl) {
         const wbTime = getNextWorldBossTime();
         const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
@@ -3570,9 +2942,6 @@
     const updateClearButtonVisibility = () => {
       const hasText = !!searchInput.value;
       clearSearch.style.display = hasText ? "inline" : "none";
-      document
-        .querySelector(".search-wrapper")
-        ?.classList.toggle("has-text", hasText);
     };
 
     searchInput.addEventListener("input", () => {
@@ -3591,7 +2960,6 @@
 
     clearSearch.addEventListener("click", () => {
       searchInput.value = "";
-      document.querySelector(".search-wrapper")?.classList.remove("has-text");
       updateClearButtonVisibility();
       renderBossList();
     });
@@ -3774,6 +3142,60 @@
     });
 
     // -------------------------
+    // Online presence tracking
+    // -------------------------
+    const SESSION_ID = "session_" + Math.random().toString(36).slice(2) + Date.now();
+    const SESSION_REF = doc(db, "sessions", SESSION_ID);
+    let heartbeatInterval = null;
+
+    function startHeartbeat() {
+      setDoc(SESSION_REF, { lastSeen: serverTimestamp() });
+      heartbeatInterval = setInterval(() => {
+        setDoc(SESSION_REF, { lastSeen: serverTimestamp() });
+      }, 30000);
+    }
+
+    function stopHeartbeat() {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+      }
+      deleteDoc(SESSION_REF).catch(() => {});
+    }
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      startHeartbeat();
+    } else {
+      document.addEventListener("DOMContentLoaded", startHeartbeat);
+    }
+
+    window.addEventListener("beforeunload", stopHeartbeat);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopHeartbeat();
+      } else {
+        startHeartbeat();
+      }
+    });
+
+    function listenOnlineCount() {
+      const onlineCountEl = document.getElementById("onlineCount");
+      if (!onlineCountEl) return;
+      const q = collection(db, "sessions");
+      onSnapshot(q, (snapshot) => {
+        onlineCountEl.textContent = snapshot.size;
+      });
+      const onlineBtn = document.getElementById("onlineBtn");
+      if (onlineBtn) {
+        const show = window.innerWidth > 900;
+        onlineBtn.style.display = show ? "flex" : "none";
+        window.addEventListener("resize", () => {
+          onlineBtn.style.display = window.innerWidth > 900 ? "flex" : "none";
+        });
+      }
+    }
+
+    // -------------------------
     // Init sequence
     // -------------------------
     async function init() {
@@ -3884,6 +3306,8 @@
       firebaseLoaded = true;
       renderBossList();
       computeNextBoss();
+      updateWorldBossName();
+      listenOnlineCount();
       if (worldBossTimeEl) {
         const wbTime = getNextWorldBossTime();
         const wbSec = Math.max(0, Math.round((wbTime - Date.now()) / 1000));
