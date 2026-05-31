@@ -2414,42 +2414,42 @@
 				switch (type) {
 					case "killed":
 						message =
-							`**${boss.name}** has been defeated.\n` +
+							`${boss.name} has been defeated.\n` +
 							`Next respawn: ${formattedTime}\n` +
 							`@everyone`;
 						break;
 
 					case "soon":
 						message =
-							`**${boss.name}** will respawn soon!\n` +
+							`${boss.name} will respawn soon!\n` +
 							`Respawn time: ${formattedTime}\n` +
 							`@everyone`;
 						break;
 
 					case "spawn":
 						message =
-							`**${boss.name}** has respawned!\n` +
+							`${boss.name} has respawned!\n` +
 							`It's time to hunt!\n` +
 							`@everyone`;
 						break;
 
 				case "manual":
 					message =
-						`**${boss.name}** timer manually updated.\n` +
+						`${boss.name} timer manually updated.\n` +
 						`Next respawn: ${formattedTime}\n` +
 						`@everyone`;
 					break;
 
 				case "world_soon":
 					message =
-						`**WORLD BOSS IS ABOUT TO SPAWN!**\n` +
+						`WORLD BOSS IS ABOUT TO SPAWN!\n` +
 						`Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
 						`@everyone`;
 					break;
 
 				case "world_spawn":
 					message =
-						`**WORLD BOSS HAS SPAWNED!**\n` +
+						`WORLD BOSS HAS SPAWNED!\n` +
 						`Ratan · Parto · Nedra are now ready to fight!\n` +
 						`@everyone`;
 					break;
@@ -2481,8 +2481,7 @@
       const testBoss = BOSSES[0] || null;
       await sendDiscordMessage(
 			"Webhook test successful!\n" +
-			"Tracker notifications are working.\n" +
-			"@everyone"
+			"Tracker notifications are working."
 		);
       alert("Test sent (check your Discord).");
     }
