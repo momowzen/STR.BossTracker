@@ -2514,8 +2514,8 @@
         ).toISOString()}`
       );
 
-      // send killed embed (deduped)
-      await sendDiscordEmbedOnce("killed", boss);
+      // send killed embed (deduped) — fire-and-forget, has own error handling
+      sendDiscordEmbedOnce("killed", boss);
       scheduleTimerNotifications(bossId);
     }
 
@@ -2608,8 +2608,8 @@
         closeTimeModal();
         renderBossList();
 
-        // ✅ Send Discord notification (manual entry always sends)
-        await sendDiscordEmbedOnce("manual", boss);
+        // ✅ Send Discord notification (manual entry always sends) — fire-and-forget
+        sendDiscordEmbedOnce("manual", boss);
 
         console.log(`ðŸ“¡ Discord notification sent for ${boss.name}.`);
         scheduleTimerNotifications(boss.id);
