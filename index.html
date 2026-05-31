@@ -1407,9 +1407,7 @@
           <span class="clear-icon" id="clearSearch">✕</span>
         </div>
         <div class="header-actions">
-          <button type="button" class="alarm-btn online-btn" id="onlineBtn" title="Online viewers">
-            <span class="btn-count" id="onlineCount">0</span>
-          </button>
+
           <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
             aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -3539,82 +3537,6 @@
     });
 
     // -------------------------
-    // Online presence tracking
-    // -------------------------
-    const SESSION_ID = "session_" + Math.random().toString(36).slice(2) + Date.now();
-    const SESSION_REF = doc(db, "sessions", SESSION_ID);
-    let heartbeatInterval = null;
-
-    function startHeartbeat() {
-      setDoc(SESSION_REF, { lastSeen: Date.now() });
-      heartbeatInterval = setInterval(() => {
-        setDoc(SESSION_REF, { lastSeen: Date.now() });
-        cleanupStaleSessions();
-      }, 30000);
-    }
-
-    async function cleanupStaleSessions() {
-      try {
-        const cutoff = Date.now() - 60000;
-        const q = query(
-          collection(db, "sessions"),
-          where("lastSeen", "<", cutoff)
-        );
-        const snap = await getDocs(q);
-        const deletions = snap.docs.map(d => deleteDoc(d.ref));
-        await Promise.all(deletions);
-      } catch (e) {
-        // ignore cleanup errors
-      }
-    }
-
-    function stopHeartbeat() {
-      if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-      }
-      deleteDoc(SESSION_REF).catch(() => {});
-    }
-
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-      startHeartbeat();
-    } else {
-      document.addEventListener("DOMContentLoaded", startHeartbeat);
-    }
-
-    window.addEventListener("beforeunload", stopHeartbeat);
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        stopHeartbeat();
-      } else {
-        startHeartbeat();
-      }
-    });
-
-    function listenOnlineCount() {
-      const onlineCountEl = document.getElementById("onlineCount");
-      if (!onlineCountEl) return;
-      const q = collection(db, "sessions");
-      onSnapshot(q, (snapshot) => {
-        const cutoff = Date.now() - 60000;
-        let count = 0;
-        snapshot.forEach(doc => {
-          const lastSeen = doc.data().lastSeen;
-          if (typeof lastSeen === "number" && lastSeen > cutoff) count++;
-        });
-        onlineCountEl.textContent = count;
-      });
-      const onlineBtn = document.getElementById("onlineBtn");
-      if (onlineBtn) {
-        const show = window.innerWidth > 900;
-        onlineBtn.style.display = show ? "flex" : "none";
-        window.addEventListener("resize", () => {
-          onlineBtn.style.display = window.innerWidth > 900 ? "flex" : "none";
-        });
-      }
-    }
-
-    // -------------------------
     // Init sequence
     // -------------------------
     async function init() {
@@ -3728,7 +3650,6 @@
       renderBossList();
       computeNextBoss();
       updateWorldBossName();
-      listenOnlineCount();
       if (worldBossTimeEl) {
         const wbTime = getNextWorldBossTime();
         const wbSec = Math.max(0, Math.round((wbTime - Date.now()) / 1000));
