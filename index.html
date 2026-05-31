@@ -2548,7 +2548,7 @@
 
       renderBossList();
       computeNextBoss();
-      scheduleAllNotifications();
+      scheduleWorldBoss();
     }
 
     // Save or update a single boss timer in Firestore safely, with dedupe
@@ -2620,12 +2620,10 @@
 
       // send killed embed (deduped) — fire-and-forget, has own error handling
       sendDiscordEmbedOnce("killed", boss);
-      scheduleTimerNotifications(bossId);
     }
 
     async function resetAll() {
       if (!confirm("Clear all non-weekly timers?")) return;
-      clearAllTimerTimeouts();
       const preserved = {};
       for (const [id, info] of Object.entries(timers)) {
         const boss = BOSSES.find((b) => b.id === id);
@@ -2716,7 +2714,6 @@
         sendDiscordEmbedOnce("manual", boss);
 
         console.log(`ðŸ“¡ Discord notification sent for ${boss.name}.`);
-        scheduleTimerNotifications(boss.id);
         alert(`✅ Manual time saved and synced for ${boss.name}.`);
       } catch (err) {
         console.error("❌ Failed to record manual time:", err);
@@ -3045,121 +3042,95 @@
 
     }
 
-    // == MAIN TICKUPDATE == //
-    // --- Timeout-based notification system (no periodic Firestore sync) ---
-    const timerTimeouts = {};
+    // == MAIN TICKUPDATE (polling loop, no setTimeout races) == //
     let wbTimeout = null;
 
-    function scheduleTimerNotifications(timerId) {
-      if (timerTimeouts[timerId]) { clearTimeout(timerTimeouts[timerId]); delete timerTimeouts[timerId]; }
-      if (timerTimeouts[timerId + "_soon"]) { clearTimeout(timerTimeouts[timerId + "_soon"]); delete timerTimeouts[timerId + "_soon"]; }
-      if (timerTimeouts[timerId + "_cooldown"]) { clearTimeout(timerTimeouts[timerId + "_cooldown"]); delete timerTimeouts[timerId + "_cooldown"]; }
-
-      const info = timers[timerId];
-      if (!info) return;
-      const boss = BOSSES.find(b => b.id === timerId);
-      if (!boss) return;
+    async function tickUpdate() {
       const now = Date.now();
+      const savePromises = [];
 
-      if (info.cooldownUntil) {
-        if (now >= info.cooldownUntil) {
-          timerTimeouts[timerId + "_cooldown"] = setTimeout(() => handleCooldownEnd(timerId), 0);
-        } else {
-          timerTimeouts[timerId + "_cooldown"] = setTimeout(() => handleCooldownEnd(timerId), info.cooldownUntil - now);
+      for (const [id, info] of Object.entries(timers)) {
+        const boss = BOSSES.find((b) => b.id === id);
+        if (!boss) continue;
+
+        const activeEndTime = info.cooldownUntil || info.endTime;
+        const remainingMs = activeEndTime - now;
+        const nameElem = document.querySelector(`.boss[data-id="${id}"] .name`);
+
+        // (0) Cooldown active — skip further processing
+        if (info.cooldownUntil && now < info.cooldownUntil) {
+          if (nameElem && nameElem.classList.contains("dead")) {
+            nameElem.classList.remove("dead");
+          }
+          continue;
         }
-        return;
-      }
 
-      const endTime = info.endTime;
-      if (!endTime) return;
-      if (endTime <= now) {
-        if (!info.spawnAnnounced) {
-          timerTimeouts[timerId] = setTimeout(() => handleSpawnEvent(timerId), 0);
+        // (1) Apply .dead when timer is running (not in cooldown)
+        if (remainingMs > 0 && !info.cooldownUntil) {
+          if (nameElem && !nameElem.classList.contains("dead")) {
+            nameElem.classList.add("dead");
+          }
         }
-        return;
-      }
 
-      const untilSpawn = endTime - now;
-      const soonDelay = untilSpawn - 5 * 60 * 1000;
+        // (2) Soon warning (5 min before spawn)
+        if (remainingMs <= 5 * 60 * 1000 && remainingMs > 0 && !info.notifiedSoon && !info.cooldownUntil) {
+          info.notifiedSoon = true;
+          triggerBossAlarm(boss);
+          savePromises.push(saveTimerToFirestoreOnce(id));
+          savePromises.push(sendDiscordEmbedOnce("soon", boss));
+        }
 
-      if (!info.notifiedSoon) {
-        if (soonDelay > 0) {
-          timerTimeouts[timerId + "_soon"] = setTimeout(() => handleSoonNotification(timerId), soonDelay);
-        } else {
-          handleSoonNotification(timerId);
+        // (3) Spawn announcement when timer reaches 0
+        if (remainingMs <= 0 && !info.spawnAnnounced && !info.cooldownUntil) {
+          info.spawnAnnounced = true;
+          savePromises.push(saveTimerToFirestoreOnce(id));
+          savePromises.push(sendDiscordEmbedOnce("spawn", boss));
+        }
+
+        // (4) Start 3-min cooldown when reaching 0
+        if (remainingMs <= 0 && !info.cooldownUntil) {
+          info.cooldownUntil = now + 3 * 60 * 1000;
+          if (nameElem) nameElem.classList.remove("dead");
+          savePromises.push(saveTimerToFirestoreOnce(id));
+          continue;
+        }
+
+        // (5) Cooldown ended — restart timer automatically
+        if (info.cooldownUntil && now >= info.cooldownUntil) {
+          const nowLater = Date.now();
+          let nextTime;
+          if (boss.weeklyRespawns) {
+            nextTime = getNextWeeklyRespawn(boss.weeklyRespawns, nowLater + 1);
+            while (nextTime <= nowLater) nextTime += 7 * 24 * 60 * 60 * 1000;
+          } else {
+            nextTime = nowLater + boss.respawn * 1000;
+          }
+
+          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null };
+
+          if (nameElem && !nameElem.classList.contains("dead")) {
+            nameElem.classList.add("dead");
+          }
+
+          await saveTimerToFirestoreOnce(id);
+          renderBossList();
+          continue;
         }
       }
 
-      timerTimeouts[timerId] = setTimeout(() => handleSpawnEvent(timerId), untilSpawn);
-    }
-
-    function scheduleAllNotifications() {
-      for (const id of Object.keys(timers)) scheduleTimerNotifications(id);
-      scheduleWorldBoss();
-    }
-
-    function clearAllTimerTimeouts() {
-      for (const key of Object.keys(timerTimeouts)) { clearTimeout(timerTimeouts[key]); delete timerTimeouts[key]; }
-    }
-
-    async function handleSoonNotification(timerId) {
-      const info = timers[timerId];
-      if (!info || info.notifiedSoon) return;
-      info.notifiedSoon = true;
-      const boss = BOSSES.find(b => b.id === timerId);
-      if (!boss) return;
-      console.log(`⚠️ soon: ${timerId} within 5min, sending notification`);
-      triggerBossAlarm(boss);
-      await Promise.all([saveTimerToFirestoreOnce(timerId), sendDiscordEmbedOnce("soon", boss)]);
-    }
-
-    async function handleSpawnEvent(timerId) {
-      const info = timers[timerId];
-      if (!info || info.spawnAnnounced || info.cooldownUntil) return;
-      const boss = BOSSES.find(b => b.id === timerId);
-      if (!boss) return;
-
-      info.spawnAnnounced = true;
-      info.cooldownUntil = Date.now() + 3 * 60 * 1000;
-      console.log(`🎉 spawn: ${timerId} reached spawn, announcing`);
-      console.log(`⏳ ${boss.name} entering 3-min cooldown until ${formatTimeOnly(info.cooldownUntil)} ${TIME_ZONE_LABEL}`);
-
-      const nameElem = document.querySelector(`.boss[data-id="${timerId}"] .name`);
-      if (nameElem) nameElem.classList.remove("dead");
-
-      await Promise.all([saveTimerToFirestoreOnce(timerId), sendDiscordEmbedOnce("spawn", boss)]);
-      timerTimeouts[timerId + "_cooldown"] = setTimeout(() => handleCooldownEnd(timerId), 3 * 60 * 1000);
-    }
-
-    async function handleCooldownEnd(timerId) {
-      const info = timers[timerId];
-      if (!info || !info.cooldownUntil) return;
-      const boss = BOSSES.find(b => b.id === timerId);
-      if (!boss) return;
-
-      console.log(`✅ ${boss.name} cooldown ended — restarting cycle...`);
-      const nowLater = Date.now();
-      let nextTime;
-
-      if (boss.weeklyRespawns) {
-        nextTime = getNextWeeklyRespawn(boss.weeklyRespawns, nowLater + 1);
-        while (nextTime <= nowLater) nextTime += 7 * 24 * 60 * 60 * 1000;
-      } else {
-        nextTime = nowLater + boss.respawn * 1000;
+      // (6) Commit pending Firestore writes
+      if (savePromises.length) {
+        try {
+          await Promise.all(savePromises);
+        } catch (e) {
+          console.warn("⚠️ tickUpdate savePromises error", e);
+        }
       }
 
-      timers[timerId] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null };
-
-      const nameElem = document.querySelector(`.boss[data-id="${timerId}"] .name`);
-      if (nameElem && !nameElem.classList.contains("dead")) nameElem.classList.add("dead");
-
-      await saveTimerToFirestoreOnce(timerId);
-      renderBossList();
-      console.log(`🔁 ${boss.name} timer restarted after cooldown.`);
-      scheduleTimerNotifications(timerId);
+      computeNextBoss();
     }
 
-    // World boss
+    // World boss notification (setTimeout-based, not racy since user never manually triggers world boss)
     function scheduleWorldBoss() {
       if (wbTimeout) { clearTimeout(wbTimeout); wbTimeout = null; }
 
@@ -3266,7 +3237,10 @@
     }
 
     // fast visual refresh (every 1s, no Firestore writes)
-    setInterval(updateCountdownDisplay, 1000);
+    setInterval(() => {
+      updateCountdownDisplay();
+      if (firebaseLoaded) tickUpdate();
+    }, 1000);
 
     // -------------------------
     // UI wiring
@@ -3685,8 +3659,6 @@
       nextBossNameEl.textContent = "";
       nextTimeEl.textContent = "";
 
-      clearAllTimerTimeouts(); // clear any stale timeouts on (re)init
-
       try {
         // ✅ Firestore real-time listener (safe merge that respects cooldowns)
         const docRef = doc(db, "timers", "global");
@@ -3788,6 +3760,7 @@
       }
       loadingOverlay.style.display = "none";
       appInitialized = true;
+      scheduleWorldBoss();
 
       console.log("✅ init completed successfully.");
     }
