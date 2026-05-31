@@ -9,6 +9,9 @@
   <link
     href="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png"
     rel="icon" sizes="64x64" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-primary: #0d1117;
@@ -384,11 +387,10 @@
     }
 
     #nextBoss .boss-name {
-      color: var(--accent-orange);
-      font-weight: 800;
+      color: var(--accent-red);
     }
     #worldBoss .boss-name {
-      color: var(--accent-red);
+      color: var(--accent-purple);
     }
 
     .stat-card .time-remaining {
@@ -401,9 +403,10 @@
     .stat-count {
       font-size: clamp(2rem, 5vw, 2.7rem);
       font-weight: 700;
-      font-family: var(--font-mono);
+      font-family: "Rajdhani", var(--font-mono);
       color: var(--accent-blue);
       line-height: 1;
+      letter-spacing: 2px;
     }
 
     #activeStatCard {
@@ -625,11 +628,35 @@
     }
 
     .boss .name {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       font-weight: 700;
       font-size: 0.85rem;
       letter-spacing: 0.3px;
       text-transform: uppercase;
       color: var(--text-primary);
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 14px;
+      padding: 0 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      border-radius: 3px;
+      background: var(--accent-blue);
+      color: #000;
+      line-height: 1;
+    }
+
+    .name.dead .level-badge {
+      background: var(--text-muted);
+      color: #000;
     }
 
     .boss .sub {
@@ -1615,23 +1642,25 @@
     // Data + constants (FULL BOSSES)
     // -------------------------
     const BOSSES = [
-      { id: "Venatus", name: "Venatus", respawn: 60 * 60 * 10 },
-      { id: "Viorent", name: "Viorent", respawn: 60 * 60 * 10 },
-      { id: "Ego", name: "Ego", respawn: 60 * 60 * 21 },
+      { id: "Venatus", name: "Venatus", level: 60, respawn: 60 * 60 * 10 },
+      { id: "Viorent", name: "Viorent", level: 65, respawn: 60 * 60 * 10 },
+      { id: "Ego", name: "Ego", level: 70, respawn: 60 * 60 * 21 },
       {
         id: "Clemantis",
         name: "Clemantis",
+        level: 70,
         weeklyRespawns: [
           { day: 1, hour: 12, minute: 30 },
           { day: 4, hour: 20, minute: 0 },
         ],
       },
-      { id: "Livera", name: "Livera", respawn: 60 * 60 * 24 },
-      { id: "Araneo", name: "Araneo", respawn: 60 * 60 * 24 },
-      { id: "Undomiel", name: "Undomiel", respawn: 60 * 60 * 24 },
+      { id: "Livera", name: "Livera", level: 75, respawn: 60 * 60 * 24 },
+      { id: "Araneo", name: "Araneo", level: 75, respawn: 60 * 60 * 24 },
+      { id: "Undomiel", name: "Undomiel", level: 80, respawn: 60 * 60 * 24 },
       {
         id: "Saphirus",
         name: "Saphirus",
+        level: 80,
         weeklyRespawns: [
           { day: 0, hour: 18, minute: 0 },
           { day: 2, hour: 12, minute: 30 },
@@ -1640,79 +1669,90 @@
       {
         id: "Neutro",
         name: "Neutro",
+        level: 80,
         weeklyRespawns: [
           { day: 2, hour: 20, minute: 0 },
           { day: 4, hour: 12, minute: 30 },
         ],
       },
-      { id: "LadyDalia", name: "Lady Dalia", respawn: 60 * 60 * 18 },
+      { id: "LadyDalia", name: "Lady Dalia", level: 85, respawn: 60 * 60 * 18 },
       {
         id: "GeneralAquleus",
         name: "General Aquleus",
+        level: 85,
         respawn: 60 * 60 * 29,
       },
       {
         id: "Thymele",
         name: "Thymele",
+        level: 85,
         weeklyRespawns: [
           { day: 1, hour: 20, minute: 0 },
           { day: 3, hour: 12, minute: 30 },
         ],
       },
-      { id: "Amentis", name: "Amentis", respawn: 60 * 60 * 29 },
+      { id: "Amentis", name: "Amentis", level: 88, respawn: 60 * 60 * 29 },
       {
         id: "BaronBraudmore",
         name: "Baron Braudmore",
+        level: 88,
         respawn: 60 * 60 * 32,
       },
       {
         id: "Milavy",
         name: "Milavy",
+        level: 90,
         weeklyRespawns: [{ day: 6, hour: 16, minute: 0 }],
       },
-      { id: "Wannitas", name: "Wannitas", respawn: 60 * 60 * 48 },
-      { id: "Metus", name: "Metus", respawn: 60 * 60 * 48 },
-      { id: "Duplican", name: "Duplican", respawn: 60 * 60 * 48 },
-      { id: "Shuliar", name: "Shuliar", respawn: 60 * 60 * 35 },
+      { id: "Wannitas", name: "Wannitas", level: 93, respawn: 60 * 60 * 48 },
+      { id: "Metus", name: "Metus", level: 93, respawn: 60 * 60 * 48 },
+      { id: "Duplican", name: "Duplican", level: 93, respawn: 60 * 60 * 48 },
+      { id: "Shuliar", name: "Shuliar", level: 95, respawn: 60 * 60 * 35 },
       {
         id: "Ringor",
         name: "Ringor",
+        level: 95,
         weeklyRespawns: [{ day: 6, hour: 18, minute: 0 }],
       },
       {
         id: "Roderick",
         name: "Roderick",
+        level: 95,
         weeklyRespawns: [{ day: 5, hour: 20, minute: 0 }],
       },
-      { id: "Gareth", name: "Gareth", respawn: 60 * 60 * 32 },
-      { id: "Titore", name: "Titore", respawn: 60 * 60 * 37 },
-      { id: "Larba", name: "Larba", respawn: 60 * 60 * 35 },
-      { id: "Catena", name: "Catena", respawn: 60 * 60 * 35 },
+      { id: "Gareth", name: "Gareth", level: 98, respawn: 60 * 60 * 32 },
+      { id: "Titore", name: "Titore", level: 98, respawn: 60 * 60 * 37 },
+      { id: "Larba", name: "Larba", level: 98, respawn: 60 * 60 * 35 },
+      { id: "Catena", name: "Catena", level: 100, respawn: 60 * 60 * 35 },
       {
         id: "Auraq",
         name: "Auraq",
+        level: 100,
         weeklyRespawns: [
           { day: 5, hour: 23, minute: 0 },
           { day: 3, hour: 22, minute: 0 },
         ],
       },
-      { id: "Secreta", name: "Secreta", respawn: 60 * 60 * 62 },
-      { id: "Ordo", name: "Ordo", respawn: 60 * 60 * 62 },
-      { id: "Asta", name: "Asta", respawn: 60 * 60 * 62 },
-      { id: "Supore", name: "Supore", respawn: 60 * 60 * 62 },
+      { id: "Secreta", name: "Secreta", level: 100, respawn: 60 * 60 * 62 },
+      { id: "Ordo", name: "Ordo", level: 100, respawn: 60 * 60 * 62 },
+      { id: "Asta", name: "Asta", level: 100, respawn: 60 * 60 * 62 },
+      { id: "Supore", name: "Supore", level: 100, respawn: 60 * 60 * 62 },
       {
         id: "Chaiflock",
         name: "Chaiflock",
+        level: 120,
         weeklyRespawns: [{ day: 0, hour: 16, minute: 0 }],
       },
       {
         id: "Benji",
         name: "Benji",
+        level: 120,
         weeklyRespawns: [{ day: 0, hour: 22, minute: 0 }],
       },
 	  {
         id: "Libitina",
         name: "Libitina",
+        level: 130,
         weeklyRespawns: [
           { day: 1, hour: 22, minute: 0 },
           { day: 6, hour: 22, minute: 0 },
@@ -1721,6 +1761,7 @@
 	  {
         id: "Rakajeth",
         name: "Rakajeth",
+        level: 130,
         weeklyRespawns: [
           { day: 2, hour: 23, minute: 0 },
           { day: 0, hour: 20, minute: 0 },
@@ -1729,6 +1770,7 @@
 	  {
         id: "Icaruthia",
         name: "Icaruthia",
+        level: 135,
         weeklyRespawns: [
           { day: 2, hour: 22, minute: 0 },
           { day: 5, hour: 22, minute: 0 },
@@ -1737,6 +1779,7 @@
 	  {
         id: "Motti",
         name: "Motti",
+        level: 135,
         weeklyRespawns: [
           { day: 3, hour: 20, minute: 0 },
           { day: 6, hour: 20, minute: 0 },
@@ -1745,6 +1788,7 @@
 	  {
         id: "Nevaeh",
         name: "Nevaeh",
+        level: 140,
         weeklyRespawns: [
           { day: 0, hour: 23, minute: 0 },
         ],
@@ -1752,6 +1796,7 @@
 	  {
         id: "Tumier",
         name: "Tumier",
+        level: 140,
         weeklyRespawns: [
           { day: 0, hour: 20, minute: 0 },
         ],
@@ -1759,6 +1804,7 @@
 	  {
         id: "Lucus",
         name: "Lucus",
+        level: 145,
         weeklyRespawns: [
           { day: 6, hour: 23, minute: 0 },
         ],
@@ -2714,7 +2760,7 @@
 						<div class="portrait-meta">
 							<img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
 							<div class="info">
-								<div class="${nameClass}">${b.name}</div>
+								<div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge">${b.level}</span>` : ""}</div>
 								<div class="sub">${subText}</div>
 								<div class="spawn-time">${spawnTimeText}</div>
 								<div class="time-remaining">${remainingText}</div>
