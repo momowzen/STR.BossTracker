@@ -1087,7 +1087,17 @@
       max-width: 360px;
       max-height: min(500px, calc(100vh - 60px));
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .schedule-toggle {
+      flex-shrink: 0;
+    }
+
+    .schedule-section {
       overflow-y: auto;
+      padding: 10px 14px;
     }
 
     .schedule-panel.hidden { display: none; }
