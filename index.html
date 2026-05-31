@@ -1064,20 +1064,42 @@
     }
 
     .schedule-panel.hidden { display: none; }
+    .schedule-list.hidden { display: none; }
+
+    .schedule-toggle {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .schedule-toggle-btn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+
+    .schedule-toggle-btn.active {
+      color: var(--accent-blue);
+      box-shadow: inset 0 -2px 0 var(--accent-blue);
+    }
+
+    .schedule-toggle-btn:hover {
+      color: var(--text-primary);
+    }
 
     .schedule-section {
       padding: 10px 14px;
     }
 
     .schedule-section-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-blue);
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+      display: none;
     }
 
     .schedule-list {
@@ -1446,9 +1468,13 @@
       </div>
     </header>
     <div class="schedule-panel hidden" id="schedulePanel">
+      <div class="schedule-toggle">
+        <button class="schedule-toggle-btn active" data-day="0">Today</button>
+        <button class="schedule-toggle-btn" data-day="1">Tomorrow</button>
+      </div>
       <div class="schedule-section">
-        <div class="schedule-section-title">TODAY</div>
-        <div class="schedule-list" id="scheduleToday"></div>
+        <div class="schedule-list" id="scheduleDay0"></div>
+        <div class="schedule-list hidden" id="scheduleDay1"></div>
       </div>
     </div>
     <main class="main">
@@ -3385,29 +3411,33 @@
 
     function renderSchedule() {
       const now = Date.now();
-      const todayStart = getJSTStartOfDay(0);
-      const todayEnd = getJSTEndOfDay(0);
 
-      const spawns = [];
+      for (let day = 0; day <= 1; day++) {
+        const start = getJSTStartOfDay(day);
+        const end = getJSTEndOfDay(day);
+        const el = document.getElementById("scheduleDay" + day);
+        if (!el) continue;
 
-      for (const boss of BOSSES) {
-        const bossSpawns = getSpawnsInRange(boss, todayStart, todayEnd);
-        spawns.push(...bossSpawns);
+        const spawns = [];
+        for (const boss of BOSSES) {
+          const bossSpawns = getSpawnsInRange(boss, start, end);
+          spawns.push(...bossSpawns);
+        }
+
+        const filtered = spawns.filter(s => s.time > now + 60000);
+        filtered.sort((a, b) => a.time - b.time);
+
+        if (filtered.length === 0) {
+          el.innerHTML = '<div class="schedule-empty">No spawns</div>';
+        } else {
+          el.innerHTML = filtered.map(s =>
+            `<div class="schedule-item">
+              <span class="boss-label">${s.boss.name}</span>
+              <span class="time-label">${formatTimeOnly(s.time)}</span>
+            </div>`
+          ).join("");
+        }
       }
-
-      const filtered = spawns.filter(s => s.time > now + 60000);
-      filtered.sort((a, b) => a.time - b.time);
-
-      if (filtered.length === 0) {
-        scheduleToday.innerHTML = '<div class="schedule-empty">No spawns today</div>';
-        return;
-      }
-      scheduleToday.innerHTML = filtered.map(s =>
-        `<div class="schedule-item">
-          <span class="boss-label">${s.boss.name}</span>
-          <span class="time-label">${formatTimeOnly(s.time)}</span>
-        </div>`
-      ).join("");
     }
 
     scheduleBtn.addEventListener("click", (ev) => {
@@ -3418,6 +3448,11 @@
       if (!isOpen) {
         positionSchedulePanel();
         renderSchedule();
+        // Reset to Today view
+        document.querySelectorAll(".schedule-toggle-btn").forEach(b => b.classList.remove("active"));
+        document.querySelector(".schedule-toggle-btn[data-day='0']").classList.add("active");
+        document.getElementById("scheduleDay0").classList.remove("hidden");
+        document.getElementById("scheduleDay1").classList.add("hidden");
       }
     });
 
@@ -3434,6 +3469,17 @@
       ) {
         schedulePanel.classList.add("hidden");
       }
+    });
+
+    // Schedule day toggle
+    document.querySelectorAll(".schedule-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".schedule-toggle-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const day = btn.getAttribute("data-day");
+        document.getElementById("scheduleDay0").classList.toggle("hidden", day !== "0");
+        document.getElementById("scheduleDay1").classList.toggle("hidden", day !== "1");
+      });
     });
 
     discordWebhookBtn.addEventListener("click", async (e) => {
