@@ -2422,29 +2422,48 @@
     }
 
     // Apply Firestore timers to local state and refresh UI (real-time sync)
+    const localPendingTimers = new Set();
+
     function applyTimersFromSnapshot(remoteTimersRaw) {
       const now = Date.now();
       const remoteTimers = JSON.parse(
         JSON.stringify(remoteTimersRaw || {})
       );
 
+      // Merge remote into local, but preserve local-only timers whose
+      // Firestore write failed (pending) and local notification flags.
       for (const [id, remoteInfo] of Object.entries(remoteTimers)) {
         const localInfo = timers[id] || {};
         const boss = BOSSES.find((b) => b.id === id);
         if (!boss) continue;
 
+        let merged = { ...remoteInfo };
+
         // Keep active local cooldown; otherwise remote wins
         if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
-          remoteTimers[id] = {
-            ...remoteInfo,
-            cooldownUntil: localInfo.cooldownUntil,
-          };
+          merged = { ...merged, cooldownUntil: localInfo.cooldownUntil };
+        }
+        // Preserve local notification flags that failed to persist
+        if (!merged.notifiedSoon && localInfo.notifiedSoon) {
+          merged = { ...merged, notifiedSoon: true };
+        }
+        if (!merged.spawnAnnounced && localInfo.spawnAnnounced) {
+          merged = { ...merged, spawnAnnounced: true };
         }
 
-        lastWriteCache[id] = JSON.stringify(remoteTimers[id] || {});
+        timers[id] = merged;
+        lastWriteCache[id] = JSON.stringify(merged);
       }
 
-      timers = remoteTimers;
+      // Remove local timers that are no longer in Firestore
+      // but only if they were NOT pending (write didn't fail)
+      for (const id of Object.keys(timers)) {
+        if (!remoteTimers[id] && !localPendingTimers.has(id)) {
+          delete timers[id];
+          delete lastWriteCache[id];
+        }
+      }
+
       renderBossList();
       computeNextBoss();
       scheduleAllNotifications();
@@ -2452,17 +2471,20 @@
 
     // Save or update a single boss timer in Firestore safely, with dedupe
     async function saveTimerToFirestoreOnce(bossId) {
+      localPendingTimers.add(bossId);
       try {
         const ref = doc(db, "timers", "global");
         const data = timers[bossId];
-        if (!data) return;
+        if (!data) { localPendingTimers.delete(bossId); return; }
         const json = JSON.stringify(data);
         if (lastWriteCache[bossId] === json) {
+          localPendingTimers.delete(bossId);
           console.log(`ℹ Skipping redundant write for ${bossId}`);
           return;
         }
         await safeWrite(ref, { [`timers.${bossId}`]: data });
         lastWriteCache[bossId] = json;
+        localPendingTimers.delete(bossId);
         console.log(`✅ saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
       } catch (e) {
         console.warn("saveTimerToFirestoreOnce err", e);
