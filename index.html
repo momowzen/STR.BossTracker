@@ -3680,92 +3680,68 @@
           if (snap.metadata?.hasPendingWrites) return;
 
           applyTimersFromSnapshot(snap.data().timers || {});
+
+          // Normalize expired timers so everything is forward-looking
+          const now = Date.now();
+          let timersChanged = false;
+
+          for (const [id, info] of Object.entries(timers)) {
+            const boss = BOSSES.find((b) => b.id === id);
+            if (!boss || !info || !info.endTime) continue;
+
+            if (info.cooldownUntil && info.cooldownUntil > now) continue;
+
+            if (info.endTime <= now) {
+              if (boss.weeklyRespawns) {
+                const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
+                timers[id] = {
+                  endTime: next,
+                  startedAt: now,
+                  weekly: true,
+                  notifiedSoon: false,
+                  spawnAnnounced: false,
+                  cooldownUntil: null,
+                  _updatedAt: now,
+                };
+                timersChanged = true;
+              } else if (boss.respawn) {
+                const respMs = boss.respawn * 1000;
+                const cycles = Math.floor((now - info.endTime) / respMs) + 1;
+                const newEnd = info.endTime + cycles * respMs;
+                timers[id] = {
+                  endTime: newEnd,
+                  startedAt: now,
+                  notifiedSoon: false,
+                  spawnAnnounced: false,
+                  cooldownUntil: null,
+                  _updatedAt: now,
+                };
+                timersChanged = true;
+              }
+            }
+          }
+
+          if (timersChanged) {
+            try { await saveTimers(); } catch (err) {
+              console.error("Failed to save normalized timers:", err);
+            }
+          }
+
           console.log("🔄 Timers synced from Firestore:", timers);
+
+          if (!firebaseLoaded) {
+            firebaseLoaded = true;
+            loadingOverlay.style.display = "none";
+            appInitialized = true;
+          }
         });
       } catch (e) {
         console.warn("Firestore load failed", e);
       }
 
-      // ✅ Normalize expired timers so everything is forward-looking (safe version)
-      const now = Date.now();
-      let timersChanged = false;
-
-      for (const [id, info] of Object.entries(timers)) {
-        const boss = BOSSES.find((b) => b.id === id);
-        if (!boss || !info || !info.endTime) continue;
-
-        // ðŸš« Skip normalization if cooldown is active
-        if (info.cooldownUntil && info.cooldownUntil > now) {
-          console.log(
-            `⏸️ ${boss.name} still in cooldown â€” skipping normalization.`
-          );
-          continue;
-        }
-
-        // ðŸ§­ Normal advance logic for expired timers only
-        if (info.endTime <= now) {
-          if (boss.weeklyRespawns) {
-            const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
-            timers[id] = {
-              endTime: next,
-              startedAt: now,
-              weekly: true,
-              notifiedSoon: false,
-              spawnAnnounced: false,
-              cooldownUntil: null,
-              _updatedAt: now,
-            };
-            timersChanged = true;
-            console.log(`🧭 ${boss.name} normalized to next weekly cycle.`);
-          } else if (boss.respawn) {
-            const respMs = boss.respawn * 1000;
-            const cycles = Math.floor((now - info.endTime) / respMs) + 1;
-            const newEnd = info.endTime + cycles * respMs;
-            timers[id] = {
-              endTime: newEnd,
-              startedAt: now,
-              notifiedSoon: false,
-              spawnAnnounced: false,
-              cooldownUntil: null,
-              _updatedAt: now,
-            };
-            timersChanged = true;
-            console.log(`ðŸ§­ ${boss.name} normalized to next weekly cycle.`);
-          } else if (boss.respawn) {
-            const respMs = boss.respawn * 1000;
-            const cycles = Math.floor((now - info.endTime) / respMs) + 1;
-            const newEnd = info.endTime + cycles * respMs;
-            timers[id] = {
-              endTime: newEnd,
-              startedAt: now,
-              notifiedSoon: false,
-              spawnAnnounced: false,
-              cooldownUntil: null,
-            };
-            timersChanged = true;
-            console.log(
-              `ðŸ§­ ${boss.name} normalized to next respawn cycle.`
-            );
-          }
-        }
-      }
-
-      // ✅ Save normalized timers if any changed
-      if (timersChanged) {
-        try {
-          await saveTimers();
-          console.log("🔁 Timers normalized and saved after init.");
-        } catch (err) {
-          console.error("❌ Failed to save normalized timers:", err);
-        }
-      }
-
       // ✅ Ensure Discord webhook is ready before any future notification
       await autoLoadWebhook();
 
-      firebaseLoaded = true;
-      renderBossList();
-      computeNextBoss();
       updateWorldBossName();
       if (worldBossTimeEl) {
         const wbTime = getNextWorldBossTime();
@@ -3779,8 +3755,6 @@
           worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
         }
       }
-      loadingOverlay.style.display = "none";
-      appInitialized = true;
       scheduleWorldBoss();
 
       console.log("✅ init completed successfully.");
