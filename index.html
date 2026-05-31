@@ -1819,7 +1819,7 @@
           { day: 6, hour: 23, minute: 0 },
         ],
       },
-	  //{ id: "Test Boss", name: "Test Boss", respawn: 60 * 5 + 10 },
+
     ];
     // -------------------------
     // DOM refs
@@ -1863,7 +1863,6 @@
     const worldBossTimeEl = document.getElementById("worldBossTime");
     const searchInput = document.getElementById("bossSearch");
     const clearSearch = document.getElementById("clearSearch");
-    const searchWrapper = document.querySelector(".search-wrapper");
     const modal = document.getElementById("timeModal");
     const modalName = document.getElementById("modalBossName");
     const killTimeInput = document.getElementById("killTimeInput");
@@ -2123,15 +2122,10 @@
       doc,
       setDoc,
       getDoc,
-      getDocs,
       updateDoc,
       deleteDoc,
-      deleteField,
       runTransaction,
       onSnapshot,
-      collection,
-      query,
-      where,
       serverTimestamp,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
@@ -2277,44 +2271,44 @@
     // -------------------------
     // Discord send helpers
     // -------------------------
-			async function sendDiscordMessage(message) {
-				const webhook =
-					cachedWebhookUrl ||
-					(webhookInput && webhookInput.value.trim()) ||
-					null;
+    async function sendDiscordMessage(message) {
+      const webhook =
+        cachedWebhookUrl ||
+        (webhookInput && webhookInput.value.trim()) ||
+        null;
 
-				if (!webhook) {
-					console.warn("⚠️ No Discord webhook configured.");
-					return;
-				}
+      if (!webhook) {
+        console.warn("⚠️ No Discord webhook configured.");
+        return;
+      }
 
-				try {
-					const payload = {
-						content: message,
-						allowed_mentions: {
-							parse: ["everyone"]
-						}
-					};
+      try {
+        const payload = {
+          content: message,
+          allowed_mentions: {
+            parse: ["everyone"]
+          }
+        };
 
-					const res = await fetch(webhook, {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(payload),
-					});
+        const res = await fetch(webhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-					if (!res.ok) {
-						console.error(
-							"❌ Discord webhook failed:",
-							res.status,
-							await res.text()
-						);
-					} else {
-						console.log("✅ Discord message sent successfully.");
-					}
-				} catch (err) {
-					console.error("⚠️ Discord webhook error:", err);
-				}
-			}	
+        if (!res.ok) {
+          console.error(
+            "❌ Discord webhook failed:",
+            res.status,
+            await res.text()
+          );
+        } else {
+          console.log("✅ Discord message sent successfully.");
+        }
+      } catch (err) {
+        console.error("⚠️ Discord webhook error:", err);
+      }
+    }
 
     // === patched sendDiscordEmbedOnce: normalized key + endTimeMs dedupe ===
     async function sendDiscordEmbedOnce(type, boss) {
@@ -2409,57 +2403,57 @@
         );
 
         // 🔔 Build appropriate embed
-				let message = "";
+        let message = "";
 
-				switch (type) {
-					case "killed":
-						message =
-							`${boss.name} has been defeated.\n` +
-							`Next respawn: ${formattedTime}\n` +
-							`@everyone`;
-						break;
+        switch (type) {
+          case "killed":
+            message =
+              `${boss.name} has been defeated.\n` +
+              `Next respawn: ${formattedTime}\n` +
+              `@everyone`;
+            break;
 
-					case "soon":
-						message =
-							`${boss.name} will respawn soon!\n` +
-							`Respawn time: ${formattedTime}\n` +
-							`@everyone`;
-						break;
+          case "soon":
+            message =
+              `${boss.name} will respawn soon!\n` +
+              `Respawn time: ${formattedTime}\n` +
+              `@everyone`;
+            break;
 
-					case "spawn":
-						message =
-							`${boss.name} has respawned!\n` +
-							`It's time to hunt!\n` +
-							`@everyone`;
-						break;
+          case "spawn":
+            message =
+              `${boss.name} has respawned!\n` +
+              `It's time to hunt!\n` +
+              `@everyone`;
+            break;
 
-				case "manual":
-					message =
-						`${boss.name} timer manually updated.\n` +
-						`Next respawn: ${formattedTime}\n` +
-						`@everyone`;
-					break;
+          case "manual":
+            message =
+              `${boss.name} timer manually updated.\n` +
+              `Next respawn: ${formattedTime}\n` +
+              `@everyone`;
+            break;
 
-				case "world_soon":
-					message =
-						`WORLD BOSS IS ABOUT TO SPAWN!\n` +
-						`Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
-						`@everyone`;
-					break;
+          case "world_soon":
+            message =
+              `WORLD BOSS IS ABOUT TO SPAWN!\n` +
+              `Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
+              `@everyone`;
+            break;
 
-				case "world_spawn":
-					message =
-						`WORLD BOSS HAS SPAWNED!\n` +
-						`Ratan · Parto · Nedra are now ready to fight!\n` +
-						`@everyone`;
-					break;
+          case "world_spawn":
+            message =
+              `WORLD BOSS HAS SPAWNED!\n` +
+              `Ratan · Parto · Nedra are now ready to fight!\n` +
+              `@everyone`;
+            break;
 
-					default:
-						console.warn(`⚠️ Unknown notification type: ${type}`);
-						return;
-				}
-				
-					await sendDiscordMessage(message);
+          default:
+            console.warn(`⚠️ Unknown notification type: ${type}`);
+            return;
+        }
+
+        await sendDiscordMessage(message);
         console.log(`✅ Sent ${type} notification for ${boss.name}`);
       } catch (e) {
         if (e?.code === "ABORTED") {
@@ -2477,12 +2471,10 @@
         return;
       }
       if (!cachedWebhookUrl) cachedWebhookUrl = webhookInput.value.trim();
-      // Use the first boss for test image
-      const testBoss = BOSSES[0] || null;
       await sendDiscordMessage(
-			"Webhook test successful!\n" +
-			"Tracker notifications are working."
-		);
+        "Webhook test successful!\n" +
+        "Tracker notifications are working."
+      );
       alert("Test sent (check your Discord).");
     }
 
@@ -2520,16 +2512,31 @@
 
         let merged = { ...remoteInfo };
 
-        // Keep active local cooldown; otherwise remote wins
-        if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
-          merged = { ...merged, cooldownUntil: localInfo.cooldownUntil };
-        }
-        // Preserve local notification flags that failed to persist
-        if (!merged.notifiedSoon && localInfo.notifiedSoon) {
-          merged = { ...merged, notifiedSoon: true };
-        }
-        if (!merged.spawnAnnounced && localInfo.spawnAnnounced) {
-          merged = { ...merged, spawnAnnounced: true };
+        // Prefer local entirely if local has a newer _updatedAt (defense against
+        // stale Firestore writes arriving after a local write like mark-dead).
+        if (localInfo._updatedAt && (!remoteInfo._updatedAt || localInfo._updatedAt > remoteInfo._updatedAt)) {
+          merged = { ...localInfo };
+        } else {
+          // Only preserve local pending flags when remote is the same generation
+          // (same _updatedAt) or neither has timestamps (migration).  If remote
+          // has a strictly newer _updatedAt, it came from another user's write
+          // and old local flags should NOT carry over.
+          const sameGeneration = (!localInfo._updatedAt && !remoteInfo._updatedAt) ||
+            (localInfo._updatedAt && remoteInfo._updatedAt && localInfo._updatedAt === remoteInfo._updatedAt);
+          if (sameGeneration) {
+            // Keep active local cooldown; otherwise remote wins
+            if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
+              merged = { ...merged, cooldownUntil: localInfo.cooldownUntil };
+            }
+            // Preserve local notification flags that failed to persist
+            if (!merged.notifiedSoon && localInfo.notifiedSoon) {
+              merged = { ...merged, notifiedSoon: true };
+            }
+            if (!merged.spawnAnnounced && localInfo.spawnAnnounced) {
+              merged = { ...merged, spawnAnnounced: true };
+            }
+          }
+          // else: remote is from a different/newer write — take remote as-is
         }
 
         timers[id] = merged;
@@ -2596,6 +2603,7 @@
           weekly: true,
           notifiedSoon: false,
           spawnAnnounced: false,
+          _updatedAt: now,
         };
       } else {
         endTime = now + boss.respawn * 1000;
@@ -2604,6 +2612,7 @@
           startedAt: now,
           notifiedSoon: false,
           spawnAnnounced: false,
+          _updatedAt: now,
         };
       }
 
@@ -2685,6 +2694,7 @@
           weekly: true,
           notifiedSoon: false,
           spawnAnnounced: false,
+          _updatedAt: killedAt,
         };
       } else {
         endTime = killedAt + boss.respawn * 1000;
@@ -2693,6 +2703,7 @@
           startedAt: killedAt,
           notifiedSoon: false,
           spawnAnnounced: false,
+          _updatedAt: killedAt,
         };
       }
 
@@ -2726,109 +2737,106 @@
     // Render functions
     // -------------------------
     function renderBossList() {
-			weeklyBossListEl.innerHTML = "";
-			timerBossListEl.innerHTML = "";
-			const q = (searchInput.value || "").toLowerCase().trim();
-			const now = Date.now();
+      weeklyBossListEl.innerHTML = "";
+      timerBossListEl.innerHTML = "";
+      const q = (searchInput.value || "").toLowerCase().trim();
+      const now = Date.now();
 
-			function buildBossCard(b) {
-				const isWeekly = !!b.weeklyRespawns;
-				const isActive = timers[b.id] && timers[b.id].endTime > now;
-				if (q && !b.name.toLowerCase().includes(q)) return null;
+      function buildBossCard(b) {
+        const isWeekly = !!b.weeklyRespawns;
+        const isActive = timers[b.id] && timers[b.id].endTime > now;
+        if (q && !b.name.toLowerCase().includes(q)) return null;
 
-				const subText = isWeekly
-					? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")}`
-					: b.respawn / 3600 + " hr";
+        const subText = isWeekly
+          ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")}`
+          : b.respawn / 3600 + " hr";
 
-				let remainingText = "";
-				let spawnTimeText = "";
-				if (timers[b.id] && timers[b.id].endTime) {
-					const sec = Math.max(0, Math.round((timers[b.id].endTime - now) / 1000));
-					remainingText = sec === 0 ? "SPAWNED" : "Respawning in " + formatSec(sec);
-					spawnTimeText = `Spawn Time: ${formatShortDateTime(timers[b.id].endTime)}`;
-				} else if (b.weeklyRespawns) {
-					const nextTime = getNextWeeklyRespawnTime(b);
-					if (nextTime) {
-						const sec = Math.max(0, Math.round((nextTime - now) / 1000));
-						remainingText = "Respawning in " + formatSec(sec);
-						spawnTimeText = `Spawn Time: ${formatShortDateTime(nextTime)}`;
-					}
-				}
+        let remainingText = "";
+        let spawnTimeText = "";
+        if (timers[b.id] && timers[b.id].endTime) {
+          const sec = Math.max(0, Math.round((timers[b.id].endTime - now) / 1000));
+          remainingText = sec === 0 ? "SPAWNED" : "Respawning in " + formatSec(sec);
+          spawnTimeText = `Spawn Time: ${formatShortDateTime(timers[b.id].endTime)}`;
+        } else if (b.weeklyRespawns) {
+          const nextTime = getNextWeeklyRespawnTime(b);
+          if (nextTime) {
+            const sec = Math.max(0, Math.round((nextTime - now) / 1000));
+            remainingText = "Respawning in " + formatSec(sec);
+            spawnTimeText = `Spawn Time: ${formatShortDateTime(nextTime)}`;
+          }
+        }
 
-				const node = document.createElement("div");
-				node.className = isActive ? "boss is-dead" : "boss is-alive";
-				node.setAttribute("data-id", b.id);
+        const node = document.createElement("div");
+        node.className = isActive ? "boss is-dead" : "boss is-alive";
+        node.setAttribute("data-id", b.id);
 
-				const nameClass = isActive ? "name dead" : "name";
+        const nameClass = isActive ? "name dead" : "name";
 
-				node.innerHTML = `
-					<div class="meta">
-						<div class="portrait-meta">
-							<img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
-							<div class="info">
-								<div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge">${b.level}</span>` : ""}</div>
-								<div class="sub">${subText}</div>
-								<div class="spawn-time">${spawnTimeText}</div>
-								<div class="time-remaining">${remainingText}</div>
-							</div>
-						</div>
-					</div>
-					<div class="actions">
-						<div class="action-btn ${isWeekly ? "hidden" : ""}">
-							<button class="kbtn icon-btn" title="Set date and time manually" data-action="set" data-id="${b.id}">
-								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="12" cy="12" r="10"></circle>
-									<polyline points="12 6 12 12 16 14"></polyline>
-								</svg>
-							</button>
-						</div>
-						<div class="action-btn ${isWeekly ? "hidden" : ""}">
-							<button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
-								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"></path>
-									<circle cx="9" cy="11" r="1"></circle>
-									<circle cx="15" cy="11" r="1"></circle>
-								</svg>
-							</button>
-						</div>
-					</div>
-				`;
-				return node;
-			}
+        node.innerHTML = `
+          <div class="meta">
+            <div class="portrait-meta">
+              <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
+              <div class="info">
+                <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge">${b.level}</span>` : ""}</div>
+                <div class="sub">${subText}</div>
+                <div class="spawn-time">${spawnTimeText}</div>
+                <div class="time-remaining">${remainingText}</div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <div class="action-btn ${isWeekly ? "hidden" : ""}">
+              <button class="kbtn icon-btn" title="Set date and time manually" data-action="set" data-id="${b.id}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="action-btn ${isWeekly ? "hidden" : ""}">
+              <button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"></path>
+                  <circle cx="9" cy="11" r="1"></circle>
+                  <circle cx="15" cy="11" r="1"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+        return node;
+      }
 
-			// Sort helper: closest spawn first
-			const getRemainingMs = (b) => {
-				if (timers[b.id]?.endTime) return timers[b.id].endTime - now;
-				if (b.weeklyRespawns) {
-					const t = getNextWeeklyRespawnTime(b);
-					return t ? t - now : Infinity;
-				}
-				return Infinity;
-			};
+      const getRemainingMs = (b) => {
+        if (timers[b.id]?.endTime) return timers[b.id].endTime - now;
+        if (b.weeklyRespawns) {
+          const t = getNextWeeklyRespawnTime(b);
+          return t ? t - now : Infinity;
+        }
+        return Infinity;
+      };
 
-			// Weekly respawn bosses
-			const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
-			for (const bb of weeklyBosses) {
-				const node = buildBossCard(bb);
-				if (node) weeklyBossListEl.appendChild(node);
-			}
+      const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
+      for (const bb of weeklyBosses) {
+        const node = buildBossCard(bb);
+        if (node) weeklyBossListEl.appendChild(node);
+      }
 
-			// Timer respawn bosses
-			const timerBosses = BOSSES.filter(b => !b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
-			for (const bb of timerBosses) {
-				const node = buildBossCard(bb);
-				if (node) timerBossListEl.appendChild(node);
-			}
+      const timerBosses = BOSSES.filter(b => !b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
+      for (const bb of timerBosses) {
+        const node = buildBossCard(bb);
+        if (node) timerBossListEl.appendChild(node);
+      }
 
-			const activeCountEl = document.getElementById("activeCount");
-			if (activeCountEl) {
-				const now2 = Date.now();
-				const count = BOSSES.filter(b => timers[b.id] && timers[b.id].endTime > now2).length;
-				activeCountEl.textContent = count;
-			}
-		}
+      const activeCountEl = document.getElementById("activeCount");
+      if (activeCountEl) {
+        const now2 = Date.now();
+        const count = BOSSES.filter(b => timers[b.id] && timers[b.id].endTime > now2).length;
+        activeCountEl.textContent = count;
+      }
+    }
 
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
@@ -3105,7 +3113,7 @@
             nextTime = nowLater + boss.respawn * 1000;
           }
 
-          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null };
+          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null, _updatedAt: nowLater };
 
           if (nameElem && !nameElem.classList.contains("dead")) {
             nameElem.classList.add("dead");
@@ -3371,7 +3379,6 @@
     // === SCHEDULE PANEL ===
     const scheduleBtn = document.getElementById("scheduleBtn");
     const schedulePanel = document.getElementById("schedulePanel");
-    const scheduleToday = document.getElementById("scheduleToday");
 
     function positionSchedulePanel() {
       const btnRect = scheduleBtn.getBoundingClientRect();
@@ -3706,6 +3713,21 @@
               notifiedSoon: false,
               spawnAnnounced: false,
               cooldownUntil: null,
+              _updatedAt: now,
+            };
+            timersChanged = true;
+            console.log(`🧭 ${boss.name} normalized to next weekly cycle.`);
+          } else if (boss.respawn) {
+            const respMs = boss.respawn * 1000;
+            const cycles = Math.floor((now - info.endTime) / respMs) + 1;
+            const newEnd = info.endTime + cycles * respMs;
+            timers[id] = {
+              endTime: newEnd,
+              startedAt: now,
+              notifiedSoon: false,
+              spawnAnnounced: false,
+              cooldownUntil: null,
+              _updatedAt: now,
             };
             timersChanged = true;
             console.log(`ðŸ§­ ${boss.name} normalized to next weekly cycle.`);
