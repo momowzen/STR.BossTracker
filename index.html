@@ -2495,63 +2495,29 @@
     }
 
     // Apply Firestore timers to local state and refresh UI (real-time sync)
-    const localPendingTimers = new Set();
-
     function applyTimersFromSnapshot(remoteTimersRaw) {
       const now = Date.now();
       const remoteTimers = JSON.parse(
         JSON.stringify(remoteTimersRaw || {})
       );
 
-      // Merge remote into local, but preserve local-only timers whose
-      // Firestore write failed (pending) and local notification flags.
       for (const [id, remoteInfo] of Object.entries(remoteTimers)) {
-        const localInfo = timers[id] || {};
         const boss = BOSSES.find((b) => b.id === id);
         if (!boss) continue;
 
-        let merged = { ...remoteInfo };
-
-        // Prefer local entirely if local has a newer _updatedAt (defense against
-        // stale Firestore writes arriving after a local write like mark-dead).
-        if (localInfo._updatedAt && (!remoteInfo._updatedAt || localInfo._updatedAt > remoteInfo._updatedAt)) {
-          merged = { ...localInfo };
-        } else {
-          // Only preserve local pending flags when remote is the same generation
-          // (same _updatedAt) or neither has timestamps (migration).  If remote
-          // has a strictly newer _updatedAt, it came from another user's write
-          // and old local flags should NOT carry over.
-          const sameGeneration = (!localInfo._updatedAt && !remoteInfo._updatedAt) ||
-            (localInfo._updatedAt && remoteInfo._updatedAt && localInfo._updatedAt === remoteInfo._updatedAt);
-          if (sameGeneration) {
-            // Keep active local cooldown; otherwise remote wins
-            if (localInfo.cooldownUntil && localInfo.cooldownUntil > now) {
-              merged = { ...merged, cooldownUntil: localInfo.cooldownUntil };
-            }
-            // Preserve local notification flags that failed to persist
-            if (!merged.notifiedSoon && localInfo.notifiedSoon) {
-              merged = { ...merged, notifiedSoon: true };
-            }
-            if (!merged.spawnAnnounced && localInfo.spawnAnnounced) {
-              merged = { ...merged, spawnAnnounced: true };
-            }
-          }
-          // else: remote is from a different/newer write — take remote as-is
+        // Keep active local cooldown; otherwise remote wins
+        const localInfo = timers[id];
+        if (localInfo?.cooldownUntil && localInfo.cooldownUntil > now) {
+          remoteTimers[id] = {
+            ...remoteInfo,
+            cooldownUntil: localInfo.cooldownUntil,
+          };
         }
 
-        timers[id] = merged;
-        lastWriteCache[id] = JSON.stringify(merged);
+        lastWriteCache[id] = JSON.stringify(remoteTimers[id] || {});
       }
 
-      // Remove local timers that are no longer in Firestore
-      // but only if they were NOT pending (write didn't fail)
-      for (const id of Object.keys(timers)) {
-        if (!remoteTimers[id] && !localPendingTimers.has(id)) {
-          delete timers[id];
-          delete lastWriteCache[id];
-        }
-      }
-
+      timers = remoteTimers;
       renderBossList();
       computeNextBoss();
       scheduleWorldBoss();
@@ -2559,20 +2525,17 @@
 
     // Save or update a single boss timer in Firestore safely, with dedupe
     async function saveTimerToFirestoreOnce(bossId) {
-      localPendingTimers.add(bossId);
       try {
         const ref = doc(db, "timers", "global");
         const data = timers[bossId];
-        if (!data) { localPendingTimers.delete(bossId); return; }
+        if (!data) return;
         const json = JSON.stringify(data);
         if (lastWriteCache[bossId] === json) {
-          localPendingTimers.delete(bossId);
           console.log(`ℹ Skipping redundant write for ${bossId}`);
           return;
         }
         await safeWrite(ref, { [`timers.${bossId}`]: data });
         lastWriteCache[bossId] = json;
-        localPendingTimers.delete(bossId);
         console.log(`✅ saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
       } catch (e) {
         console.warn("saveTimerToFirestoreOnce err", e);
@@ -2603,7 +2566,6 @@
           weekly: true,
           notifiedSoon: false,
           spawnAnnounced: false,
-          _updatedAt: now,
         };
       } else {
         endTime = now + boss.respawn * 1000;
@@ -2612,7 +2574,6 @@
           startedAt: now,
           notifiedSoon: false,
           spawnAnnounced: false,
-          _updatedAt: now,
         };
       }
 
@@ -2694,7 +2655,6 @@
           weekly: true,
           notifiedSoon: false,
           spawnAnnounced: false,
-          _updatedAt: killedAt,
         };
       } else {
         endTime = killedAt + boss.respawn * 1000;
@@ -2703,7 +2663,6 @@
           startedAt: killedAt,
           notifiedSoon: false,
           spawnAnnounced: false,
-          _updatedAt: killedAt,
         };
       }
 
@@ -3087,14 +3046,16 @@
           savePromises.push(sendDiscordEmbedOnce("soon", boss));
         }
 
-        // (3-4) Spawn announcement + cooldown (single save to avoid race)
+        // (3) Spawn announcement when timer reaches 0
+        if (remainingMs <= 0 && !info.spawnAnnounced && !info.cooldownUntil) {
+          info.spawnAnnounced = true;
+          savePromises.push(saveTimerToFirestoreOnce(id));
+          savePromises.push(sendDiscordEmbedOnce("spawn", boss));
+        }
+
+        // (4) Start cooldown when timer reaches 0
         if (remainingMs <= 0 && !info.cooldownUntil) {
-          if (!info.spawnAnnounced) {
-            info.spawnAnnounced = true;
-            savePromises.push(sendDiscordEmbedOnce("spawn", boss));
-          }
           info.cooldownUntil = now + (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
-          info._updatedAt = now;
           if (nameElem) nameElem.classList.remove("dead");
           savePromises.push(saveTimerToFirestoreOnce(id));
           continue;
@@ -3111,7 +3072,7 @@
             nextTime = nowLater + boss.respawn * 1000;
           }
 
-          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null, _updatedAt: nowLater };
+          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null };
 
           if (nameElem && !nameElem.classList.contains("dead")) {
             nameElem.classList.add("dead");
@@ -3678,31 +3639,22 @@
           if (snap.metadata?.hasPendingWrites) return;
 
           applyTimersFromSnapshot(snap.data().timers || {});
+          console.log("🔄 Timers synced from Firestore:", timers);
 
-          // Normalize expired timers so everything is forward-looking
-          const now = Date.now();
-          let timersChanged = false;
+          if (!firebaseLoaded) {
+            firebaseLoaded = true;
 
-          for (const [id, info] of Object.entries(timers)) {
-            const boss = BOSSES.find((b) => b.id === id);
-            if (!boss || !info || !info.endTime) continue;
+            // ✅ Normalize expired timers once after initial load
+            const now = Date.now();
+            let timersChanged = false;
 
-            if (info.cooldownUntil && info.cooldownUntil > now) continue;
+            for (const [id, info] of Object.entries(timers)) {
+              const boss = BOSSES.find((b) => b.id === id);
+              if (!boss || !info || !info.endTime) continue;
 
-            if (info.endTime <= now) {
-              const cooldownMs = (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
-              // Timer just expired (within cooldown window): show "SPAWNED" via cooldown
-              if (!info.cooldownUntil && now - info.endTime < cooldownMs) {
-                timers[id] = {
-                  ...info,
-                  cooldownUntil: now + cooldownMs,
-                  notifiedSoon: true,
-                  spawnAnnounced: true,
-                  _updatedAt: now,
-                };
-                timersChanged = true;
-              } else if (!info.cooldownUntil) {
-                // Timer expired longer ago — advance immediately
+              if (info.cooldownUntil && info.cooldownUntil > now) continue;
+
+              if (info.endTime <= now) {
                 if (boss.weeklyRespawns) {
                   const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
                   timers[id] = {
@@ -3712,8 +3664,8 @@
                     notifiedSoon: false,
                     spawnAnnounced: false,
                     cooldownUntil: null,
-                    _updatedAt: now,
                   };
+                  timersChanged = true;
                 } else if (boss.respawn) {
                   const respMs = boss.respawn * 1000;
                   const cycles = Math.floor((now - info.endTime) / respMs) + 1;
@@ -3724,24 +3676,18 @@
                     notifiedSoon: false,
                     spawnAnnounced: false,
                     cooldownUntil: null,
-                    _updatedAt: now,
                   };
+                  timersChanged = true;
                 }
-                timersChanged = true;
               }
             }
-          }
 
-          if (timersChanged) {
-            try { await saveTimers(); } catch (err) {
-              console.error("Failed to save normalized timers:", err);
+            if (timersChanged) {
+              try { await saveTimers(); } catch (err) {
+                console.error("Failed to save normalized timers:", err);
+              }
             }
-          }
 
-          console.log("🔄 Timers synced from Firestore:", timers);
-
-          if (!firebaseLoaded) {
-            firebaseLoaded = true;
             loadingOverlay.style.display = "none";
             appInitialized = true;
           }
