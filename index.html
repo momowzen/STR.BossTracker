@@ -1425,6 +1425,7 @@
       border-color: var(--accent-green);
       color: var(--accent-green);
     }
+
   </style>
 </head>
 
@@ -3046,8 +3047,8 @@
           savePromises.push(sendDiscordEmbedOnce("soon", boss));
         }
 
-        // (3) Spawn announcement when timer reaches 0
-        if (remainingMs <= 0 && !info.spawnAnnounced && !info.cooldownUntil) {
+        // (3) Spawn announcement when timer reaches 0 (only within last 30s to avoid stale bursts)
+        if (remainingMs <= 0 && remainingMs > -30000 && !info.spawnAnnounced && !info.cooldownUntil) {
           info.spawnAnnounced = true;
           savePromises.push(saveTimerToFirestoreOnce(id));
           savePromises.push(sendDiscordEmbedOnce("spawn", boss));
@@ -3657,12 +3658,12 @@
               if (info.endTime <= now) {
                 if (boss.weeklyRespawns) {
                   const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
-                  timers[id] = {
+                    timers[id] = {
                     endTime: next,
                     startedAt: now,
                     weekly: true,
                     notifiedSoon: false,
-                    spawnAnnounced: false,
+                    spawnAnnounced: true,
                     cooldownUntil: null,
                   };
                   timersChanged = true;
@@ -3674,7 +3675,7 @@
                     endTime: newEnd,
                     startedAt: now,
                     notifiedSoon: false,
-                    spawnAnnounced: false,
+                    spawnAnnounced: true,
                     cooldownUntil: null,
                   };
                   timersChanged = true;
