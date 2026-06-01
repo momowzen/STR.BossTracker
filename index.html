@@ -3087,16 +3087,14 @@
           savePromises.push(sendDiscordEmbedOnce("soon", boss));
         }
 
-        // (3) Spawn announcement when timer reaches 0
-        if (remainingMs <= 0 && !info.spawnAnnounced && !info.cooldownUntil) {
-          info.spawnAnnounced = true;
-          savePromises.push(saveTimerToFirestoreOnce(id));
-          savePromises.push(sendDiscordEmbedOnce("spawn", boss));
-        }
-
-        // (4) Start 3-min cooldown when reaching 0
+        // (3-4) Spawn announcement + 3-min cooldown (single save to avoid race)
         if (remainingMs <= 0 && !info.cooldownUntil) {
+          if (!info.spawnAnnounced) {
+            info.spawnAnnounced = true;
+            savePromises.push(sendDiscordEmbedOnce("spawn", boss));
+          }
           info.cooldownUntil = now + 3 * 60 * 1000;
+          info._updatedAt = now;
           if (nameElem) nameElem.classList.remove("dead");
           savePromises.push(saveTimerToFirestoreOnce(id));
           continue;
@@ -3692,30 +3690,42 @@
             if (info.cooldownUntil && info.cooldownUntil > now) continue;
 
             if (info.endTime <= now) {
-              if (boss.weeklyRespawns) {
-                const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
+              // Timer just expired (within 3 min): show "SPAWNED" via cooldown
+              if (!info.cooldownUntil && now - info.endTime < 3 * 60 * 1000) {
                 timers[id] = {
-                  endTime: next,
-                  startedAt: now,
-                  weekly: true,
-                  notifiedSoon: false,
-                  spawnAnnounced: false,
-                  cooldownUntil: null,
+                  ...info,
+                  cooldownUntil: now + 3 * 60 * 1000,
+                  notifiedSoon: true,
+                  spawnAnnounced: true,
                   _updatedAt: now,
                 };
                 timersChanged = true;
-              } else if (boss.respawn) {
-                const respMs = boss.respawn * 1000;
-                const cycles = Math.floor((now - info.endTime) / respMs) + 1;
-                const newEnd = info.endTime + cycles * respMs;
-                timers[id] = {
-                  endTime: newEnd,
-                  startedAt: now,
-                  notifiedSoon: false,
-                  spawnAnnounced: false,
-                  cooldownUntil: null,
-                  _updatedAt: now,
-                };
+              } else if (!info.cooldownUntil) {
+                // Timer expired longer ago — advance immediately
+                if (boss.weeklyRespawns) {
+                  const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
+                  timers[id] = {
+                    endTime: next,
+                    startedAt: now,
+                    weekly: true,
+                    notifiedSoon: false,
+                    spawnAnnounced: false,
+                    cooldownUntil: null,
+                    _updatedAt: now,
+                  };
+                } else if (boss.respawn) {
+                  const respMs = boss.respawn * 1000;
+                  const cycles = Math.floor((now - info.endTime) / respMs) + 1;
+                  const newEnd = info.endTime + cycles * respMs;
+                  timers[id] = {
+                    endTime: newEnd,
+                    startedAt: now,
+                    notifiedSoon: false,
+                    spawnAnnounced: false,
+                    cooldownUntil: null,
+                    _updatedAt: now,
+                  };
+                }
                 timersChanged = true;
               }
             }
