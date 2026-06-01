@@ -3033,14 +3033,15 @@
         }
 
         // (1) Apply .dead when timer is running (not in cooldown)
-        if (remainingMs > 0 && !info.cooldownUntil) {
+        const cooldownInactive = !info.cooldownUntil || info.cooldownUntil <= now;
+        if (remainingMs > 0 && cooldownInactive) {
           if (nameElem && !nameElem.classList.contains("dead")) {
             nameElem.classList.add("dead");
           }
         }
 
         // (2) Soon warning (5 min before spawn)
-        if (remainingMs <= 5 * 60 * 1000 && remainingMs > 0 && !info.notifiedSoon && !info.cooldownUntil) {
+        if (remainingMs <= 5 * 60 * 1000 && remainingMs > 0 && !info.notifiedSoon && cooldownInactive) {
           info.notifiedSoon = true;
           triggerBossAlarm(boss);
           savePromises.push(saveTimerToFirestoreOnce(id));
@@ -3048,22 +3049,22 @@
         }
 
         // (3) Spawn announcement when timer reaches 0 (only within last 30s to avoid stale bursts)
-        if (remainingMs <= 0 && remainingMs > -30000 && !info.spawnAnnounced && !info.cooldownUntil) {
+        if (remainingMs <= 0 && remainingMs > -30000 && !info.spawnAnnounced && cooldownInactive) {
           info.spawnAnnounced = true;
           savePromises.push(saveTimerToFirestoreOnce(id));
           savePromises.push(sendDiscordEmbedOnce("spawn", boss));
         }
 
         // (4) Start cooldown when timer reaches 0
-        if (remainingMs <= 0 && !info.cooldownUntil) {
+        if (remainingMs <= 0 && cooldownInactive) {
           info.cooldownUntil = now + (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
           if (nameElem) nameElem.classList.remove("dead");
           savePromises.push(saveTimerToFirestoreOnce(id));
           continue;
         }
 
-        // (5) Cooldown ended — restart timer automatically
-        if (info.cooldownUntil && now >= info.cooldownUntil) {
+        // (5) Cooldown ended — restart timer automatically (only if timer also expired)
+        if (info.cooldownUntil && now >= info.cooldownUntil && info.endTime <= now) {
           const nowLater = Date.now();
           let nextTime;
           if (boss.weeklyRespawns) {
