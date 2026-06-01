@@ -3087,13 +3087,13 @@
           savePromises.push(sendDiscordEmbedOnce("soon", boss));
         }
 
-        // (3-4) Spawn announcement + 3-min cooldown (single save to avoid race)
+        // (3-4) Spawn announcement + cooldown (single save to avoid race)
         if (remainingMs <= 0 && !info.cooldownUntil) {
           if (!info.spawnAnnounced) {
             info.spawnAnnounced = true;
             savePromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
-          info.cooldownUntil = now + 3 * 60 * 1000;
+          info.cooldownUntil = now + (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
           info._updatedAt = now;
           if (nameElem) nameElem.classList.remove("dead");
           savePromises.push(saveTimerToFirestoreOnce(id));
@@ -3690,11 +3690,12 @@
             if (info.cooldownUntil && info.cooldownUntil > now) continue;
 
             if (info.endTime <= now) {
-              // Timer just expired (within 3 min): show "SPAWNED" via cooldown
-              if (!info.cooldownUntil && now - info.endTime < 3 * 60 * 1000) {
+              const cooldownMs = (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
+              // Timer just expired (within cooldown window): show "SPAWNED" via cooldown
+              if (!info.cooldownUntil && now - info.endTime < cooldownMs) {
                 timers[id] = {
                   ...info,
-                  cooldownUntil: now + 3 * 60 * 1000,
+                  cooldownUntil: now + cooldownMs,
                   notifiedSoon: true,
                   spawnAnnounced: true,
                   _updatedAt: now,
