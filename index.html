@@ -39,6 +39,11 @@
       margin: 0;
       padding: 0;
     }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+    html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
 
     html {
       height: 100%;
@@ -506,6 +511,17 @@
       gap: 3px;
       padding: 6px;
       scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .boss-column .scrollable::-webkit-scrollbar { width: 6px; }
+    .boss-column .scrollable::-webkit-scrollbar-track { background: transparent; }
+    .boss-column .scrollable::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+    }
+    .boss-column .scrollable::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.25);
     }
 
     @keyframes fadeSlideRight {
