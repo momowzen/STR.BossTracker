@@ -1927,6 +1927,8 @@
     // World boss notification state
     let worldBossSoonNotified = false;
     let worldBossSpawnAnnounced = false;
+    let worldBossCooldownUntil = 0;
+    const SPAWNED_DURATION_MS = 60 * 1000; // 1 min SPAWNED state for all bosses
     let lastWorldBossSpawn = 0;
 
     const ALARM_STORAGE_KEY = "bossTrackerAlarmEnabled";
@@ -3043,8 +3045,8 @@
             discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
-          // Condition 10: enter 3-minute SPAWNED cooldown
-          timers[id] = { ...info, cooldownUntil: now + 3 * 60 * 1000 };
+          // Condition 10: enter SPAWNED cooldown
+          timers[id] = { ...info, cooldownUntil: now + SPAWNED_DURATION_MS };
 
           // Condition 3 exception: system write for cooldown state
           await saveTimerToFirestoreOnce(id);
@@ -3071,6 +3073,7 @@
       if (wbTime !== lastWorldBossSpawn) {
         worldBossSoonNotified = false;
         worldBossSpawnAnnounced = false;
+        worldBossCooldownUntil = 0;
         lastWorldBossSpawn = wbTime;
       }
 
@@ -3086,6 +3089,9 @@
         wbTimeout = setTimeout(() => { handleWorldBossSpawn(); scheduleWorldBoss(); }, wbRemaining);
       } else if (!worldBossSpawnAnnounced) {
         handleWorldBossSpawn(); scheduleWorldBoss();
+      } else if (worldBossCooldownUntil > now) {
+        // In SPAWNED cooldown — schedule cooldown end
+        wbTimeout = setTimeout(() => { worldBossCooldownUntil = 0; scheduleWorldBoss(); }, worldBossCooldownUntil - now);
       } else {
         const nextWb = wbTime + 6 * 60 * 60 * 1000;
         const delay = nextWb - Date.now();
@@ -3103,6 +3109,7 @@
     async function handleWorldBossSpawn() {
       if (worldBossSpawnAnnounced) return;
       worldBossSpawnAnnounced = true;
+      worldBossCooldownUntil = Date.now() + SPAWNED_DURATION_MS;
       console.log(`🎉 world boss spawned, announcing`);
       await sendDiscordEmbedOnce("world_spawn", { id: "__world_boss__", name: "World Boss" });
     }
@@ -3151,15 +3158,19 @@
       // Update world boss
       updateWorldBossName();
       if (worldBossTimeEl) {
-        const wbTime = getNextWorldBossTime();
-        const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
-        if (wbSec === 0) {
+        if (worldBossCooldownUntil > now) {
           worldBossTimeEl.textContent = "SPAWNED";
         } else {
-          const h = Math.floor(wbSec / 3600);
-          const m = Math.floor((wbSec % 3600) / 60);
-          const s = wbSec % 60;
-          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          const wbTime = getNextWorldBossTime();
+          const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
+          if (wbSec === 0) {
+            worldBossTimeEl.textContent = "SPAWNED";
+          } else {
+            const h = Math.floor(wbSec / 3600);
+            const m = Math.floor((wbSec % 3600) / 60);
+            const s = wbSec % 60;
+            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          }
         }
       }
 
@@ -3677,15 +3688,20 @@
 
       updateWorldBossName();
       if (worldBossTimeEl) {
-        const wbTime = getNextWorldBossTime();
-        const wbSec = Math.max(0, Math.round((wbTime - Date.now()) / 1000));
-        if (wbSec === 0) {
+        const now = Date.now();
+        if (worldBossCooldownUntil > now) {
           worldBossTimeEl.textContent = "SPAWNED";
         } else {
-          const h = Math.floor(wbSec / 3600);
-          const m = Math.floor((wbSec % 3600) / 60);
-          const s = wbSec % 60;
-          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          const wbTime = getNextWorldBossTime();
+          const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
+          if (wbSec === 0) {
+            worldBossTimeEl.textContent = "SPAWNED";
+          } else {
+            const h = Math.floor(wbSec / 3600);
+            const m = Math.floor((wbSec % 3600) / 60);
+            const s = wbSec % 60;
+            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          }
         }
       }
       scheduleWorldBoss();
