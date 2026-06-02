@@ -695,6 +695,10 @@
       color: rgba(88, 166, 255, 0.7);
     }
 
+    .boss .spawned-text {
+      color: rgba(63, 185, 80, 0.75);
+    }
+
     .boss .name.dead {
       color: var(--text-muted);
       font-weight: 500;
@@ -2689,7 +2693,7 @@
         let spawnTimeText = "";
 
         if (inCooldown || isExpired) {
-          remainingText = "SPAWNED";
+          remainingText = "<span class=\"spawned-text\">SPAWNED</span>";
           spawnTimeText = t?.endTime ? `Spawn Time: ${formatShortDateTime(t.endTime)}` : "";
         } else if (countingDown) {
           const sec = Math.max(0, Math.round((t.endTime - now) / 1000));
@@ -3145,7 +3149,7 @@
 
         const timeEl = el.querySelector(".time-remaining");
         if (timeEl) {
-          timeEl.innerHTML = remainingSec === 0 ? "SPAWNED" : "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
+          timeEl.innerHTML = remainingSec === 0 ? "<span class=\"spawned-text\">SPAWNED</span>" : "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
         }
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
