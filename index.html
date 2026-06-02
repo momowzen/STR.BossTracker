@@ -1896,14 +1896,17 @@
     // -------------------------
     let firebaseLoaded = false;
     let appInitialized = false;
+    let normalized = false;   // track whether init normalization has been applied to server-confirmed data
     let cachedWebhookUrl = null;
-    let timers = {}; // { bossId: { endTime, startedAt, weekly?, notifiedSoon?, spawnAnnounced? } }
+    let timers = {};          // { bossId: { endTime, startedAt, weekly?, cooldownUntil? } }
     let currentBossForTime = null;
-    let deadLocks = {}; // in-memory map of boss cooldowns
+    let deadLocks = {};       // in-memory map of boss dead-lock timestamps
 
-    // Dedup caches
-    const lastWriteCache = {}; // { bossId: lastJson }
-    const localNotifCache = {}; // { `${bossId}_${type}`: timestamp(ms) }
+    // Write dedupe: skip Firestore write when data unchanged
+    const lastWriteCache = {};
+    // Local notification flags (never persisted — purely in-memory for this session)
+    const localNotifCache = {}; // { "bossId_soon": timestamp, "bossId_spawn": timestamp }
+    const LOCK_DURATION_MS = 3 * 60 * 1000; // 3 min lock for mark-dead button
 
     // World boss notification state
     let worldBossSoonNotified = false;
@@ -2322,22 +2325,8 @@
         key = `${safeId}_${type}`;
 
         const now = Date.now();
-        const localWindow = 2 * 60 * 1000; // 2 min client dedupe
 
-        // 🔔 Local dedupe guard (fast path)
-        if (
-          localNotifCache[key] &&
-          now - localNotifCache[key] < localWindow
-        ) {
-          console.log(
-            `ðŸ›‘ Locally skipped duplicate ${type} notification for ${boss.name}`
-          );
-          return;
-        }
-
-        // 🔒 Reserve locally
         localNotifCache[key] = now;
-        console.log(`🔒 Local reserve set for ${key}`);
 
         const ref = doc(db, "notifications", key);
         const thresholdMs = 2 * 60 * 1000; // server dedupe window
@@ -2496,29 +2485,25 @@
     }
 
     // Apply Firestore timers to local state and refresh UI (real-time sync)
+    // Only cooldownUntil is preserved locally; all other fields come from Firestore
     function applyTimersFromSnapshot(remoteTimersRaw) {
       const now = Date.now();
-      const remoteTimers = JSON.parse(
-        JSON.stringify(remoteTimersRaw || {})
-      );
+      const merged = JSON.parse(JSON.stringify(remoteTimersRaw || {}));
 
-      for (const [id, remoteInfo] of Object.entries(remoteTimers)) {
+      for (const [id, remoteInfo] of Object.entries(merged)) {
         const boss = BOSSES.find((b) => b.id === id);
         if (!boss) continue;
 
-        // Keep active local cooldown; otherwise remote wins
+        // Preserve an active local cooldown if it is still valid
         const localInfo = timers[id];
         if (localInfo?.cooldownUntil && localInfo.cooldownUntil > now) {
-          remoteTimers[id] = {
-            ...remoteInfo,
-            cooldownUntil: localInfo.cooldownUntil,
-          };
+          merged[id] = { ...remoteInfo, cooldownUntil: localInfo.cooldownUntil };
         }
 
-        lastWriteCache[id] = JSON.stringify(remoteTimers[id] || {});
+        lastWriteCache[id] = JSON.stringify(merged[id] || {});
       }
 
-      timers = remoteTimers;
+      timers = merged;
       renderBossList();
       computeNextBoss();
       scheduleWorldBoss();
@@ -2558,37 +2543,25 @@
       const boss = BOSSES.find((b) => b.id === bossId);
       if (!boss) return;
       const now = Date.now();
-      let endTime;
-      if (boss.weeklyRespawns) {
-        endTime = getNextWeeklyRespawn(boss.weeklyRespawns);
-        timers[bossId] = {
-          endTime,
-          startedAt: now,
-          weekly: true,
-          notifiedSoon: false,
-          spawnAnnounced: false,
-        };
-      } else {
-        endTime = now + boss.respawn * 1000;
-        timers[bossId] = {
-          endTime,
-          startedAt: now,
-          notifiedSoon: false,
-          spawnAnnounced: false,
-        };
-      }
+      const endTime = boss.weeklyRespawns
+        ? getNextWeeklyRespawn(boss.weeklyRespawns, now + 1)
+        : now + boss.respawn * 1000;
 
-      // deduped write
+      timers[bossId] = {
+        endTime,
+        startedAt: now,
+        weekly: !!boss.weeklyRespawns,
+        cooldownUntil: null,
+      };
+
+      // Clear local notification flags so future notifications can fire on next cycle
+      delete localNotifCache[`${boss.id}_soon`];
+      delete localNotifCache[`${boss.id}_spawn`];
+
       await saveTimerToFirestoreOnce(bossId);
       renderBossList();
 
-      console.log(
-        `ðŸ•¹ startTimer: started ${bossId} -> ${new Date(
-          timers[bossId].endTime
-        ).toISOString()}`
-      );
-
-      // send killed embed (deduped) — fire-and-forget, has own error handling
+      console.log(`startTimer: ${bossId} -> ${new Date(endTime).toISOString()}`);
       sendDiscordEmbedOnce("killed", boss);
     }
 
@@ -2644,52 +2617,33 @@
 
       const killedAt = parsed.getTime();
       const boss = currentBossForTime;
-      let endTime;
+      const endTime = boss.weeklyRespawns
+        ? getNextWeeklyRespawn(boss.weeklyRespawns, killedAt + 1000)
+        : killedAt + boss.respawn * 1000;
 
-      // ✅ Calculate respawn
       if (boss.weeklyRespawns) {
-        endTime = getNextWeeklyRespawn(boss.weeklyRespawns, killedAt + 1000);
-        while (endTime <= killedAt) endTime += 7 * 24 * 60 * 60 * 1000;
-        timers[boss.id] = {
-          endTime,
-          startedAt: killedAt,
-          weekly: true,
-          notifiedSoon: false,
-          spawnAnnounced: false,
-        };
+        // Ensure next weekly is after kill time
+        let t = endTime;
+        while (t <= killedAt) t += 7 * 24 * 60 * 60 * 1000;
+        timers[boss.id] = { endTime: t, startedAt: killedAt, weekly: true, cooldownUntil: null };
       } else {
-        endTime = killedAt + boss.respawn * 1000;
-        timers[boss.id] = {
-          endTime,
-          startedAt: killedAt,
-          notifiedSoon: false,
-          spawnAnnounced: false,
-        };
+        timers[boss.id] = { endTime, startedAt: killedAt, weekly: false, cooldownUntil: null };
       }
 
+      delete localNotifCache[`${boss.id}_soon`];
+      delete localNotifCache[`${boss.id}_spawn`];
+
       try {
-        // ✅ Ensure webhook is loaded before use
         if (!cachedWebhookUrl) await autoLoadWebhook();
-
-        // Per-boss field update (syncs to all clients via onSnapshot)
         await saveTimerToFirestoreOnce(boss.id);
-
-        console.log(`✅ Firestore updated: ${boss.name} manual time saved.`);
-
-        // ✅ Update local UI
         closeTimeModal();
         renderBossList();
-
-        // ✅ Send Discord notification (manual entry always sends) — fire-and-forget
         sendDiscordEmbedOnce("manual", boss);
-
-        console.log(`ðŸ“¡ Discord notification sent for ${boss.name}.`);
-        alert(`✅ Manual time saved and synced for ${boss.name}.`);
+        console.log(`Manual time saved: ${boss.name}`);
+        alert(`Manual time saved and synced for ${boss.name}.`);
       } catch (err) {
-        console.error("❌ Failed to record manual time:", err);
-        alert(
-          "❌ Failed to record manual time to Firestore. Check console for details."
-        );
+        console.error("Failed to record manual time:", err);
+        alert("Failed to record manual time to Firestore.");
       }
     });
 
@@ -2704,20 +2658,29 @@
 
       function buildBossCard(b) {
         const isWeekly = !!b.weeklyRespawns;
-        const isActive = timers[b.id] && timers[b.id].endTime > now;
         if (q && !b.name.toLowerCase().includes(q)) return null;
 
         const subText = isWeekly
           ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")}`
           : b.respawn / 3600 + " hr";
 
+        const t = timers[b.id];
+        // SPAWNED = timer expired, no active cooldown OR currently in cooldown
+        const inCooldown = t?.cooldownUntil && t.cooldownUntil > now;
+        const isExpired = t && t.endTime <= now && !inCooldown;
+        const countingDown = t && t.endTime > now;
+
         let remainingText = "";
         let spawnTimeText = "";
-        if (timers[b.id] && timers[b.id].endTime) {
-          const sec = Math.max(0, Math.round((timers[b.id].endTime - now) / 1000));
-          remainingText = sec === 0 ? "SPAWNED" : "Respawning in " + formatSec(sec);
-          spawnTimeText = `Spawn Time: ${formatShortDateTime(timers[b.id].endTime)}`;
-        } else if (b.weeklyRespawns) {
+
+        if (inCooldown || isExpired) {
+          remainingText = "SPAWNED";
+          spawnTimeText = t?.endTime ? `Spawn Time: ${formatShortDateTime(t.endTime)}` : "";
+        } else if (countingDown) {
+          const sec = Math.max(0, Math.round((t.endTime - now) / 1000));
+          remainingText = "Respawning in " + formatSec(sec);
+          spawnTimeText = `Spawn Time: ${formatShortDateTime(t.endTime)}`;
+        } else if (isWeekly) {
           const nextTime = getNextWeeklyRespawnTime(b);
           if (nextTime) {
             const sec = Math.max(0, Math.round((nextTime - now) / 1000));
@@ -2726,11 +2689,13 @@
           }
         }
 
+        // Condition 12: active timer = dead state; SPAWNED/no timer = alive state
+        const isDeadState = countingDown || (!inCooldown && isExpired);
         const node = document.createElement("div");
-        node.className = isActive ? "boss is-dead" : "boss is-alive";
+        node.className = isDeadState ? "boss is-dead" : "boss is-alive";
         node.setAttribute("data-id", b.id);
 
-        const nameClass = isActive ? "name dead" : "name";
+        const nameClass = isDeadState ? "name dead" : "name";
 
         node.innerHTML = `
           <div class="meta">
@@ -2770,10 +2735,11 @@
       }
 
       const getRemainingMs = (b) => {
-        if (timers[b.id]?.endTime) return timers[b.id].endTime - now;
+        const info = timers[b.id];
+        if (info?.endTime) return info.endTime - now;
         if (b.weeklyRespawns) {
-          const t = getNextWeeklyRespawnTime(b);
-          return t ? t - now : Infinity;
+          const t2 = getNextWeeklyRespawnTime(b);
+          return t2 ? t2 - now : Infinity;
         }
         return Infinity;
       };
@@ -2792,9 +2758,11 @@
 
       const activeCountEl = document.getElementById("activeCount");
       if (activeCountEl) {
-        const now2 = Date.now();
-        const count = BOSSES.filter(b => timers[b.id] && timers[b.id].endTime > now2).length;
-        activeCountEl.textContent = count;
+        const c = BOSSES.filter(b => {
+          const info = timers[b.id];
+          return info && info.endTime > now;
+        }).length;
+        activeCountEl.textContent = c;
       }
     }
 
@@ -2812,8 +2780,7 @@
 
       if (action === "mark") {
         const now = Date.now();
-        const lockDuration = 60 * 1000; // 1 minute
-        const lockUntil = now + lockDuration;
+        const lockUntil = now + LOCK_DURATION_MS;
 
         // Immediate visual disable to give feedback
         btn.disabled = true;
@@ -3014,85 +2981,82 @@
 
     async function tickUpdate() {
       const now = Date.now();
-      const savePromises = [];
+      const discordPromises = [];
+
+      // Ensure weekly bosses always have in-memory timers (condition 5)
+      for (const boss of BOSSES) {
+        if (boss.weeklyRespawns && !timers[boss.id]) {
+          const next = getNextWeeklyRespawnTime(boss);
+          if (next) {
+            timers[boss.id] = { endTime: next, startedAt: now, weekly: true, cooldownUntil: null };
+          }
+        }
+      }
 
       for (const [id, info] of Object.entries(timers)) {
         const boss = BOSSES.find((b) => b.id === id);
-        if (!boss) continue;
+        if (!boss || !info || !info.endTime) continue;
 
-        const activeEndTime = info.cooldownUntil || info.endTime;
-        const remainingMs = activeEndTime - now;
-        const nameElem = document.querySelector(`.boss[data-id="${id}"] .name`);
+        const co = info.cooldownUntil;
+        const remainingMs = info.endTime - now;
 
-        // (0) Cooldown active — skip further processing
-        if (info.cooldownUntil && now < info.cooldownUntil) {
-          if (nameElem && nameElem.classList.contains("dead")) {
-            nameElem.classList.remove("dead");
+        // --- SPAWNED cooldown window ---
+        if (co && now < co) {
+          // boss is in the 3-minute SPAWNED window; no further processing
+          continue;
+        }
+
+        // --- Cooldown just expired: auto-enter next cycle (condition 10) ---
+        if (co && now >= co && info.endTime <= now) {
+          const nextTime = boss.weeklyRespawns
+            ? getNextWeeklyRespawn(boss.weeklyRespawns, now + 1)
+            : now + boss.respawn * 1000;
+
+          timers[id] = { endTime: nextTime, startedAt: now, weekly: !!boss.weeklyRespawns, cooldownUntil: null };
+
+          // Clear local notification flags for new cycle
+          delete localNotifCache[`${id}_soon`];
+          delete localNotifCache[`${id}_spawn`];
+
+          // Condition 3 exception: system write for auto-restart
+          await saveTimerToFirestoreOnce(id);
+          renderBossList();
+          continue;
+        }
+
+        // --- Timer counting down ---
+        if (remainingMs > 0) {
+          // Condition 7: 5-min warning
+          if (remainingMs <= 5 * 60 * 1000 && !localNotifCache[`${id}_soon`]) {
+            localNotifCache[`${id}_soon`] = Date.now();
+            triggerBossAlarm(boss);
+            discordPromises.push(sendDiscordEmbedOnce("soon", boss));
           }
           continue;
         }
 
-        // (1) Apply .dead when timer is running (not in cooldown)
-        const cooldownInactive = !info.cooldownUntil || info.cooldownUntil <= now;
-        if (remainingMs > 0 && cooldownInactive) {
-          if (nameElem && !nameElem.classList.contains("dead")) {
-            nameElem.classList.add("dead");
-          }
-        }
-
-        // (2) Soon warning (5 min before spawn)
-        if (remainingMs <= 5 * 60 * 1000 && remainingMs > 0 && !info.notifiedSoon && cooldownInactive) {
-          info.notifiedSoon = true;
-          triggerBossAlarm(boss);
-          savePromises.push(saveTimerToFirestoreOnce(id));
-          savePromises.push(sendDiscordEmbedOnce("soon", boss));
-        }
-
-        // (3) Spawn announcement when timer reaches 0 (only within last 30s to avoid stale bursts)
-        if (remainingMs <= 0 && remainingMs > -30000 && !info.spawnAnnounced && cooldownInactive) {
-          info.spawnAnnounced = true;
-          savePromises.push(saveTimerToFirestoreOnce(id));
-          savePromises.push(sendDiscordEmbedOnce("spawn", boss));
-        }
-
-        // (4) Start cooldown when timer reaches 0
-        if (remainingMs <= 0 && cooldownInactive) {
-          info.cooldownUntil = now + (boss.weeklyRespawns ? 60 : 3 * 60) * 1000;
-          if (nameElem) nameElem.classList.remove("dead");
-          savePromises.push(saveTimerToFirestoreOnce(id));
-          continue;
-        }
-
-        // (5) Cooldown ended — restart timer automatically (only if timer also expired)
-        if (info.cooldownUntil && now >= info.cooldownUntil && info.endTime <= now) {
-          const nowLater = Date.now();
-          let nextTime;
-          if (boss.weeklyRespawns) {
-            nextTime = getNextWeeklyRespawn(boss.weeklyRespawns, nowLater + 1);
-            while (nextTime <= nowLater) nextTime += 7 * 24 * 60 * 60 * 1000;
-          } else {
-            nextTime = nowLater + boss.respawn * 1000;
+        // --- Timer just reached 0 (condition 8 + 10) ---
+        // Note: remainingMs <= 0 here
+        if (remainingMs <= 0 && !co) {
+          // Condition 8: send spawn notification (firestore-deduped, condition 13)
+          if (!localNotifCache[`${id}_spawn`]) {
+            localNotifCache[`${id}_spawn`] = Date.now();
+            discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
-          timers[id] = { endTime: nextTime, startedAt: nowLater, weekly: !!boss.weeklyRespawns, notifiedSoon: false, spawnAnnounced: false, cooldownUntil: null };
+          // Condition 10: enter 3-minute SPAWNED cooldown
+          timers[id] = { ...info, cooldownUntil: now + 3 * 60 * 1000 };
 
-          if (nameElem && !nameElem.classList.contains("dead")) {
-            nameElem.classList.add("dead");
-          }
-
+          // Condition 3 exception: system write for cooldown state
           await saveTimerToFirestoreOnce(id);
           renderBossList();
           continue;
         }
       }
 
-      // (6) Commit pending Firestore writes
-      if (savePromises.length) {
-        try {
-          await Promise.all(savePromises);
-        } catch (e) {
-          console.warn("⚠️ tickUpdate savePromises error", e);
-        }
+      // Fire all Discord notifications (Firestore dedupe prevents spam — condition 13)
+      if (discordPromises.length) {
+        await Promise.allSettled(discordPromises);
       }
 
       computeNextBoss();
@@ -3152,10 +3116,10 @@
       for (const [bossId, info] of Object.entries(timers)) {
         const el = document.querySelector(`.boss[data-id="${bossId}"]`);
         if (!el || !info?.endTime) continue;
-        const remainingSec = Math.max(
-          0,
-          Math.round((info.endTime - now) / 1000)
-        );
+
+        const inCooldown = info.cooldownUntil && now < info.cooldownUntil;
+        const remainingSec = inCooldown ? 0 : Math.max(0, Math.round((info.endTime - now) / 1000));
+
         const timeEl = el.querySelector(".time-remaining");
         if (timeEl) {
           timeEl.textContent = remainingSec === 0 ? "SPAWNED" : "Respawning in " + formatSec(remainingSec);
@@ -3167,7 +3131,7 @@
         }
       }
 
-      // Update weekly-only bosses
+      // Update weekly-only bosses (those without a Firestore timer entry)
       for (const boss of BOSSES) {
         if (timers[boss.id]) continue;
         if (!boss.weeklyRespawns) continue;
@@ -3207,7 +3171,7 @@
     // fast visual refresh (every 1s, no Firestore writes)
     setInterval(() => {
       updateCountdownDisplay();
-      if (firebaseLoaded) tickUpdate();
+      if (normalized && firebaseLoaded) tickUpdate();
     }, 1000);
 
     // -------------------------
@@ -3627,13 +3591,10 @@
       nextTimeEl.textContent = "";
 
       try {
-        // ✅ Firestore real-time listener (safe merge that respects cooldowns)
+        // Condition 1+4: real-time listener — syncs when data is written to Firestore
         const docRef = doc(db, "timers", "global");
         onSnapshot(docRef, async (snap) => {
           if (!snap.exists()) {
-            console.log(
-              "ℹ No Firestore timers document found. Creating empty one..."
-            );
             await setDoc(docRef, { timers: {} }, { merge: true });
             return;
           }
@@ -3641,14 +3602,15 @@
           if (snap.metadata?.hasPendingWrites) return;
 
           applyTimersFromSnapshot(snap.data().timers || {});
-          console.log("🔄 Timers synced from Firestore:", timers);
 
-          if (!firebaseLoaded) {
-            firebaseLoaded = true;
-
-            // ✅ Normalize expired timers once after initial load
+          // Condition 6: normalize expired timers on the first server-confirmed snapshot.
+          // This handles the case where the initial cached snapshot has valid data
+          // but the subsequent server snapshot has expired timers (manual Firestore edit
+          // or stale data from before a prior normalization).
+          if (!normalized && !snap.metadata.fromCache) {
+            normalized = true;
             const now = Date.now();
-            let timersChanged = false;
+            let changed = false;
 
             for (const [id, info] of Object.entries(timers)) {
               const boss = BOSSES.find((b) => b.id === id);
@@ -3659,37 +3621,40 @@
               if (info.endTime <= now) {
                 if (boss.weeklyRespawns) {
                   const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
-                    timers[id] = {
-                    endTime: next,
-                    startedAt: now,
-                    weekly: true,
-                    notifiedSoon: false,
-                    spawnAnnounced: true,
-                    cooldownUntil: null,
-                  };
-                  timersChanged = true;
-                } else if (boss.respawn) {
+                  timers[id] = { endTime: next, startedAt: now, weekly: true, cooldownUntil: null };
+                } else {
                   const respMs = boss.respawn * 1000;
                   const cycles = Math.floor((now - info.endTime) / respMs) + 1;
-                  const newEnd = info.endTime + cycles * respMs;
-                  timers[id] = {
-                    endTime: newEnd,
-                    startedAt: now,
-                    notifiedSoon: false,
-                    spawnAnnounced: true,
-                    cooldownUntil: null,
-                  };
-                  timersChanged = true;
+                  timers[id] = { endTime: info.endTime + cycles * respMs, startedAt: now, cooldownUntil: null };
+                }
+                changed = true;
+              }
+            }
+
+            // Condition 5: initialize weekly bosses that have no timer entry yet
+            for (const boss of BOSSES) {
+              if (boss.weeklyRespawns && !timers[boss.id]) {
+                const next = getNextWeeklyRespawnTime(boss);
+                if (next) {
+                  timers[boss.id] = { endTime: next, startedAt: now, weekly: true, cooldownUntil: null };
+                  changed = true;
                 }
               }
             }
 
-            if (timersChanged) {
+            if (changed) {
+              // Condition 3 exception: system write for init normalization
               try { await saveTimers(); } catch (err) {
                 console.error("Failed to save normalized timers:", err);
               }
             }
 
+            // Re-render after normalization
+            renderBossList();
+          }
+
+          if (!firebaseLoaded) {
+            firebaseLoaded = true;
             loadingOverlay.style.display = "none";
             appInitialized = true;
           }
