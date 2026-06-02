@@ -3657,13 +3657,15 @@
             }
 
             if (changed) {
+              // Render normalized data BEFORE async Firestore write, so the browser
+              // never paints expired timers during the await yield point
+              renderBossList();
               // Condition 3 exception: system write for init normalization
               try { await saveTimers(); } catch (err) {
                 console.error("Failed to save normalized timers:", err);
               }
             }
 
-            // Re-render after normalization
             renderBossList();
           }
 
