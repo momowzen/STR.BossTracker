@@ -3644,10 +3644,10 @@
                   timers[id] = { endTime: info.endTime + cycles * respMs, startedAt: now, cooldownUntil: null };
                 }
                 changed = true;
-              } else if (cleaned) {
-                // Non-expired timer that had stale fields — write the cleaned version
-                timers[id] = clean;
-                changed = true;
+              } else {
+                // Non-expired timer — strip stale fields and expired cooldownUntil
+                if ("cooldownUntil" in clean) { delete clean.cooldownUntil; cleaned = true; }
+                if (cleaned) { timers[id] = clean; changed = true; }
               }
             }
 
