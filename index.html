@@ -1589,6 +1589,18 @@
     </div>
   </div>
 
+  <!-- Confirm modal -->
+  <div class="modal-backdrop" id="confirmModalBackdrop">
+    <div class="modal" role="alertdialog" aria-modal="true">
+      <h3 id="confirmModalTitle">Confirm</h3>
+      <div class="small" id="confirmModalMessage"></div>
+      <div class="modal-actions">
+        <button class="kbtn" id="confirmModalYes">YES</button>
+        <button class="kbtn" id="confirmModalNo">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
       <svg class="settings-header-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2101,6 +2113,37 @@
       return timeOnlyFormatter.format(ms);
     }
 
+    const confirmModalBackdrop = document.getElementById("confirmModalBackdrop");
+    const confirmModalMessage = document.getElementById("confirmModalMessage");
+    const confirmModalYes = document.getElementById("confirmModalYes");
+    const confirmModalNo = document.getElementById("confirmModalNo");
+
+    function showConfirmModal(message) {
+      return new Promise((resolve) => {
+        confirmModalMessage.textContent = message;
+        confirmModalBackdrop.classList.remove("hidden");
+        confirmModalBackdrop.classList.add("active");
+
+        const cleanup = () => {
+          confirmModalBackdrop.classList.remove("active");
+          confirmModalBackdrop.classList.add("hidden");
+          confirmModalYes.removeEventListener("click", onYes);
+          confirmModalNo.removeEventListener("click", onNo);
+          confirmModalBackdrop.removeEventListener("click", onBackdrop);
+        };
+
+        const onYes = () => { cleanup(); resolve(true); };
+        const onNo = () => { cleanup(); resolve(false); };
+        const onBackdrop = (e) => {
+          if (e.target === confirmModalBackdrop) { cleanup(); resolve(false); }
+        };
+
+        confirmModalYes.addEventListener("click", onYes);
+        confirmModalNo.addEventListener("click", onNo);
+        confirmModalBackdrop.addEventListener("click", onBackdrop);
+      });
+    }
+
     function getNextWeeklyRespawn(respawns, fromTime = Date.now()) {
       const base = new Date(fromTime + TIME_ZONE_OFFSET_MS);
       let soonest = null;
@@ -2154,11 +2197,7 @@
     // --- Trigger Sync ---
     syncBtn.addEventListener("click", async () => {
       settingsDropdown.classList.add("hidden");
-      if (
-        confirm(
-          "Synchronize all clients? This will reload every user's page."
-        )
-      ) {
+      if (await showConfirmModal("Synchronize all clients? This will reload every user's page.")) {
         const now = Date.now();
         lastTriggeredBySelf = now;
         await setDoc(refreshDocRef, { forceRefresh: now });
@@ -2548,7 +2587,7 @@
     }
 
     async function resetAll() {
-      if (!confirm("Clear all non-weekly timers?")) return;
+      if (!(await showConfirmModal("Clear all non-weekly timers?"))) return;
       const preserved = {};
       for (const [id, info] of Object.entries(timers)) {
         const boss = BOSSES.find((b) => b.id === id);
@@ -3452,11 +3491,7 @@
         const text = await file.text();
         try {
           const imported = JSON.parse(text);
-          if (
-            confirm(
-              "Import this JSON data? It will overwrite existing timers."
-            )
-          ) {
+          if (await showConfirmModal("Import this JSON data? It will overwrite existing timers.")) {
             timers = imported;
             await saveTimers();
             renderBossList();
@@ -3470,9 +3505,9 @@
       input.click();
     });
 
-    resetBtn.addEventListener("click", () => {
+    resetBtn.addEventListener("click", async () => {
       settingsDropdown.classList.add("hidden");
-      if (confirm("Are you sure you want to reset all timers?")) resetAll();
+      if (await showConfirmModal("Are you sure you want to reset all timers?")) resetAll();
     });
 
     // ✅ Firestore document for lock management
@@ -3520,7 +3555,7 @@
     });
 
     webhookClear.addEventListener("click", async () => {
-      if (!confirm("Clear webhook from Firestore?")) return;
+      if (!(await showConfirmModal("Clear webhook from Firestore?"))) return;
       await clearWebhookInFirestore();
     });
 
