@@ -2204,46 +2204,28 @@
       }
     }
 
-    // --- Load Discord webhook on startup (Firestore version) ---
-    async function autoLoadWebhook() {
-      try {
-        const docRef = doc(db, "config", "discordWebhook");
-        const snap = await getDoc(docRef);
+    // --- Real-time Discord webhook listener (syncs across all users) ---
+    let webhookUnsub = null;
+    function autoLoadWebhook() {
+      const docRef = doc(db, "config", "discordWebhook");
+      webhookUnsub = onSnapshot(docRef, (snap) => {
+        if (snap.metadata?.hasPendingWrites) return;
         if (snap.exists()) {
           const data = snap.data();
           cachedWebhookUrl = data.url || null;
-          console.log("✅ Webhook loaded on startup:", cachedWebhookUrl);
+          console.log("✅ Webhook synced from Firestore:", cachedWebhookUrl);
         } else {
-          console.warn("⚠️  No webhook found in Firestore config.");
+          cachedWebhookUrl = null;
+          console.log("ℹ No webhook in Firestore.");
         }
-      } catch (e) {
-        console.error("❌ Failed to auto-load webhook:", e);
-      }
+      });
     }
 
     // -------------------------
-    // Webhook load/save/clear
+    // Webhook save/clear
     // -------------------------
-    async function loadWebhookFromFirestore() {
-      try {
-        const docRef = doc(db, "config", "discordWebhook");
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          cachedWebhookUrl = data.url || null;
-          webhookInput.value = cachedWebhookUrl || "";
-          console.log("✅ Loaded webhook from Firestore.");
-          return cachedWebhookUrl;
-        } else {
-          cachedWebhookUrl = null;
-          webhookInput.value = "";
-          console.log("â„¹ No webhook stored in Firestore.");
-          return null;
-        }
-      } catch (e) {
-        console.warn("load webhook err", e);
-        return null;
-      }
+    function loadWebhookIntoInput() {
+      webhookInput.value = cachedWebhookUrl || "";
     }
 
     async function saveWebhookToFirestore(url) {
@@ -3447,7 +3429,7 @@
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
       settingsDropdown.classList.add("hidden");
-      await loadWebhookFromFirestore();
+      loadWebhookIntoInput();
       webhookBackdrop.style.display = "flex";
       console.log("ðŸ”§ open webhook modal");
     });
@@ -3557,7 +3539,6 @@
     });
 
     webhookTest.addEventListener("click", async () => {
-      if (!cachedWebhookUrl) await loadWebhookFromFirestore();
       await testWebhook();
     });
 
