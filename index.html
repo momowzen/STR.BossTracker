@@ -2565,7 +2565,6 @@
     }
 
     async function resetAll() {
-      if (!(await showConfirmModal("Clear all non-weekly timers?"))) return;
       const preserved = {};
       for (const [id, info] of Object.entries(timers)) {
         const boss = BOSSES.find((b) => b.id === id);
