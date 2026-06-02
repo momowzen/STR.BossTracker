@@ -689,10 +689,14 @@
     .boss .time-remaining {
       font-size: 11px;
       font-family: var(--font-mono);
-      color: var(--accent-blue);
+      color: var(--text-muted);
       font-weight: 600;
       font-variant-numeric: tabular-nums;
       margin-top: 1px;
+    }
+
+    .boss .time-value {
+      color: rgba(88, 166, 255, 0.7);
     }
 
     .boss .name.dead {
@@ -2693,13 +2697,13 @@
           spawnTimeText = t?.endTime ? `Spawn Time: ${formatShortDateTime(t.endTime)}` : "";
         } else if (countingDown) {
           const sec = Math.max(0, Math.round((t.endTime - now) / 1000));
-          remainingText = "Respawning in " + formatSec(sec);
+          remainingText = "Respawning in <span class=\"time-value\">" + formatSec(sec) + "</span>";
           spawnTimeText = `Spawn Time: ${formatShortDateTime(t.endTime)}`;
         } else if (isWeekly) {
           const nextTime = getNextWeeklyRespawnTime(b);
           if (nextTime) {
             const sec = Math.max(0, Math.round((nextTime - now) / 1000));
-            remainingText = "Respawning in " + formatSec(sec);
+            remainingText = "Respawning in <span class=\"time-value\">" + formatSec(sec) + "</span>";
             spawnTimeText = `Spawn Time: ${formatShortDateTime(nextTime)}`;
           }
         }
@@ -3145,7 +3149,7 @@
 
         const timeEl = el.querySelector(".time-remaining");
         if (timeEl) {
-          timeEl.textContent = remainingSec === 0 ? "SPAWNED" : "Respawning in " + formatSec(remainingSec);
+          timeEl.innerHTML = remainingSec === 0 ? "SPAWNED" : "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
         }
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
@@ -3164,7 +3168,7 @@
         if (!nextTime) continue;
         const remainingSec = Math.max(0, Math.round((nextTime - now) / 1000));
         const timeEl = el.querySelector(".time-remaining");
-        if (timeEl) timeEl.textContent = "Respawning in " + formatSec(remainingSec);
+        if (timeEl) timeEl.innerHTML = "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
           spawnEl.textContent = `Spawn Time: ${formatShortDateTime(nextTime)}`;
