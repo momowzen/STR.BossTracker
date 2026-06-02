@@ -2308,7 +2308,7 @@
       }
     }
 
-    // === patched sendDiscordEmbedOnce: normalized key + endTimeMs dedupe ===
+    // === patched sendDiscordEmbedOnce: dedupe by spawn cycle (not time window) ===
     async function sendDiscordEmbedOnce(type, boss) {
       let key = "";
       try {
@@ -2323,7 +2323,12 @@
         localNotifCache[key] = now;
 
         const ref = doc(db, "notifications", key);
-        const thresholdMs = 2 * 60 * 1000; // server dedupe window
+
+        // Determine the unique cycle identifier for deduplication
+        let thisEndTimeMs = timers[boss.id]?.endTime || 0;
+        if (!thisEndTimeMs && boss.id === "__world_boss__") {
+          thisEndTimeMs = getNextWorldBossTime() || 0;
+        }
 
         let txResult;
         try {
@@ -2331,25 +2336,10 @@
             const snap = await tx.get(ref);
             const data = snap.exists() ? snap.data() : {};
 
-            let lastSentMs = 0;
-            if (data.lastSent && typeof data.lastSent.toMillis === "function") {
-              lastSentMs = data.lastSent.toMillis();
-            } else if (typeof data.lastSent === "number") {
-              lastSentMs = data.lastSent;
-            } else if (typeof data.lastSent === "string") {
-              const parsed = Date.parse(data.lastSent);
-              if (!isNaN(parsed)) lastSentMs = parsed;
-            }
-
             const lastEndTimeMs = data.lastEndTimeMs || 0;
-            const thisEndTimeMs = timers[boss.id]?.endTime || 0;
-            const nowMs = Date.now();
 
-            const recentlySent =
-              nowMs - lastSentMs <= thresholdMs &&
-              lastEndTimeMs === thisEndTimeMs;
-
-            if (recentlySent) {
+            // If this exact spawn cycle was already notified, skip
+            if (lastEndTimeMs !== 0 && lastEndTimeMs === thisEndTimeMs) {
               console.log(
                 `⏸️ Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
               );
