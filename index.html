@@ -3639,9 +3639,25 @@
                   const next = getNextWeeklyRespawn(boss.weeklyRespawns, now + 1);
                   timers[id] = { endTime: next, startedAt: now, weekly: true, cooldownUntil: null };
                 } else {
+                  // Account for the SPAWNED window at the start of each cycle
                   const respMs = boss.respawn * 1000;
-                  const cycles = Math.floor((now - info.endTime) / respMs) + 1;
-                  timers[id] = { endTime: info.endTime + cycles * respMs, startedAt: now, cooldownUntil: null };
+                  const fullCycle = respMs + SPAWNED_DURATION_MS;
+                  const elapsed = now - info.endTime;
+                  const intoCycle = elapsed % fullCycle;
+
+                  if (intoCycle < SPAWNED_DURATION_MS) {
+                    // Still within the SPAWNED window
+                    timers[id] = {
+                      endTime: info.endTime,
+                      startedAt: info.startedAt,
+                      cooldownUntil: now + (SPAWNED_DURATION_MS - intoCycle),
+                    };
+                  } else {
+                    // Past SPAWNED window — countdown is running
+                    const countdownElapsed = intoCycle - SPAWNED_DURATION_MS;
+                    const remaining = respMs - countdownElapsed;
+                    timers[id] = { endTime: now + remaining, startedAt: now, cooldownUntil: null };
+                  }
                 }
                 changed = true;
               } else {
