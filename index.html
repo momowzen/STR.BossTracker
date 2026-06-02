@@ -1382,10 +1382,6 @@
       flex: 0 0 auto;
     }
 
-    .action-btn.hidden {
-      visibility: hidden;
-    }
-
     .icon-btn {
       width: 32px;
       height: 32px;
@@ -2712,8 +2708,9 @@
               </div>
             </div>
           </div>
+          ${!isWeekly ? `
           <div class="actions">
-            <div class="action-btn ${isWeekly ? "hidden" : ""}">
+            <div class="action-btn">
               <button class="kbtn icon-btn" title="Set date and time manually" data-action="set" data-id="${b.id}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2722,7 +2719,7 @@
                 </svg>
               </button>
             </div>
-            <div class="action-btn ${isWeekly ? "hidden" : ""}">
+            <div class="action-btn">
               <button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2731,7 +2728,7 @@
                 </svg>
               </button>
             </div>
-          </div>
+          </div>` : ""}
         `;
         return node;
       }
