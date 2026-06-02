@@ -476,6 +476,10 @@
       border-right: 1px solid var(--border);
     }
 
+    /* Schedule view toggle: hide columns, show schedule in place */
+    #bossListPanel.view-schedule .boss-column { display: none; }
+    #bossListPanel.view-schedule #scheduleView { display: flex; }
+
     .column-label {
       font-size: 9px;
       font-weight: 600;
@@ -558,6 +562,9 @@
         display: none;
       }
 
+      #bossListPanel.view-schedule .boss-column { display: none; }
+      #bossListPanel.view-schedule #scheduleView { display: flex; }
+
       .top-panels-row .stat-card {
         min-width: 0;
       }
@@ -571,11 +578,7 @@
       }
 
       #scheduleBtn {
-        display: none;
-      }
-
-      #schedulePanel {
-        display: none !important;
+        display: inline-flex;
       }
     }
 
@@ -1093,30 +1096,32 @@
 
     .settings-dropdown.hidden { display: none; }
 
-    .schedule-panel {
-      position: fixed;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      z-index: 10002;
-      min-width: 280px;
-      max-width: 360px;
-      max-height: min(500px, calc(100vh - 60px));
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      display: flex;
+    .schedule-view {
+      display: none;
+      flex: 1;
       flex-direction: column;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      min-height: 0;
     }
-
-    .schedule-toggle {
-      flex-shrink: 0;
-    }
-
-    .schedule-section {
+    .schedule-view:not(.hidden) { display: flex; }
+    .schedule-view .schedule-list {
+      flex: 1;
       overflow-y: auto;
       padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .schedule-view .schedule-list::-webkit-scrollbar { width: 6px; }
+    .schedule-view .schedule-list::-webkit-scrollbar-track { background: transparent; }
+    .schedule-view .schedule-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
     }
 
-    .schedule-panel.hidden { display: none; }
     .schedule-list.hidden { display: none; }
 
     .schedule-toggle {
@@ -1521,16 +1526,6 @@
         </div>
       </div>
     </header>
-    <div class="schedule-panel hidden" id="schedulePanel">
-      <div class="schedule-toggle">
-        <button class="schedule-toggle-btn active" data-day="0">Today</button>
-        <button class="schedule-toggle-btn" data-day="1">Tomorrow</button>
-      </div>
-      <div class="schedule-section">
-        <div class="schedule-list" id="scheduleDay0"></div>
-        <div class="schedule-list hidden" id="scheduleDay1"></div>
-      </div>
-    </div>
     <main class="main">
       <div class="top-panels-row">
         <div class="panels-slider" id="panelsSlider">
@@ -1567,13 +1562,21 @@
           </button>
         </h4>
         <div id="bossList">
-          <div class="boss-column">
+          <div class="boss-column" id="intervalColumn">
             <div class="column-label"><span class="label-dot active"></span> FIXED INTERVAL</div>
             <div class="scrollable" id="timerBossList"></div>
           </div>
-          <div class="boss-column">
+          <div class="boss-column" id="weeklyColumn">
             <div class="column-label"><span class="label-dot weekly"></span> FIXED SCHEDULE</div>
             <div class="scrollable" id="weeklyBossList"></div>
+          </div>
+          <div id="scheduleView" class="schedule-view hidden">
+            <div class="schedule-toggle">
+              <button class="schedule-toggle-btn active" data-day="0">Today</button>
+              <button class="schedule-toggle-btn" data-day="1">Tomorrow</button>
+            </div>
+            <div class="schedule-list" id="scheduleDay0"></div>
+            <div class="schedule-list hidden" id="scheduleDay1"></div>
           </div>
         </div>
       </section>
@@ -3219,11 +3222,6 @@
     // === VIEW TOGGLE (mobile: switch between WEEKLY and FIX) ===
     const viewToggle = document.getElementById("viewToggle");
     const bossListPanel = document.getElementById("bossListPanel");
-    if (viewToggle) {
-      viewToggle.addEventListener("click", () => {
-        bossListPanel.classList.toggle("view-weekly");
-      });
-    }
 
     // === PANELS SLIDER (mobile: swipe left/right, auto-rotate every 3s) ===
     const panelsTrack = document.getElementById("panelsTrack");
@@ -3280,7 +3278,6 @@
     // === SETTINGS BUTTON + MODAL TOGGLE ===
     settingsBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      schedulePanel.classList.add("hidden");
       const userMode = sessionStorage.getItem("userMode");
       // Keep settings hidden for member mode
       if (userMode === "member") {
@@ -3311,15 +3308,8 @@
       }
     });
 
-    // === SCHEDULE PANEL ===
+    // === SCHEDULE VIEW (inline toggle: normal list ↔ schedule) ===
     const scheduleBtn = document.getElementById("scheduleBtn");
-    const schedulePanel = document.getElementById("schedulePanel");
-
-    function positionSchedulePanel() {
-      const btnRect = scheduleBtn.getBoundingClientRect();
-      schedulePanel.style.top = (btnRect.bottom + 4) + "px";
-      schedulePanel.style.right = (window.innerWidth - btnRect.right) + "px";
-    }
 
     function getJSTStartOfDay(daysFromNow = 0) {
       const now = Date.now();
@@ -3411,34 +3401,18 @@
       }
     }
 
-    scheduleBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
+    scheduleBtn.addEventListener("click", () => {
       settingsDropdown.classList.add("hidden");
-      const isOpen = !schedulePanel.classList.contains("hidden");
-      schedulePanel.classList.toggle("hidden");
-      if (!isOpen) {
-        positionSchedulePanel();
+      const enteringSchedule = !bossListPanel.classList.contains("view-schedule");
+      bossListPanel.classList.toggle("view-schedule");
+      if (enteringSchedule) {
         renderSchedule();
-        // Reset to Today view
         document.querySelectorAll(".schedule-toggle-btn").forEach(b => b.classList.remove("active"));
         document.querySelector(".schedule-toggle-btn[data-day='0']").classList.add("active");
         document.getElementById("scheduleDay0").classList.remove("hidden");
         document.getElementById("scheduleDay1").classList.add("hidden");
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (!schedulePanel.classList.contains("hidden")) {
-        positionSchedulePanel();
-      }
-    });
-
-    document.addEventListener("click", (ev) => {
-      if (
-        !scheduleBtn.contains(ev.target) &&
-        !schedulePanel.contains(ev.target)
-      ) {
-        schedulePanel.classList.add("hidden");
+        // Exit mobile weekly toggle when entering schedule
+        bossListPanel.classList.remove("view-weekly");
       }
     });
 
@@ -3452,6 +3426,14 @@
         document.getElementById("scheduleDay1").classList.toggle("hidden", day !== "1");
       });
     });
+
+    // View-toggle (arrows) exits schedule mode
+    if (viewToggle) {
+      viewToggle.addEventListener("click", () => {
+        bossListPanel.classList.remove("view-schedule");
+        bossListPanel.classList.toggle("view-weekly");
+      });
+    }
 
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
