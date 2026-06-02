@@ -2334,7 +2334,7 @@
             const nowMs = Date.now();
 
             const recentlySent =
-              nowMs - lastSentMs < thresholdMs &&
+              nowMs - lastSentMs <= thresholdMs &&
               lastEndTimeMs === thisEndTimeMs;
 
             if (recentlySent) {
@@ -2489,7 +2489,6 @@
       timers = merged;
       renderBossList();
       computeNextBoss();
-      scheduleWorldBoss();
     }
 
     // Save or update a single boss timer in Firestore safely, with dedupe
