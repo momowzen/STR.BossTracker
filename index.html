@@ -3081,7 +3081,7 @@
       if (wbTime !== lastWorldBossSpawn) {
         worldBossSoonNotified = false;
         worldBossSpawnAnnounced = false;
-        worldBossCooldownUntil = 0;
+        if (!(worldBossCooldownUntil > now)) worldBossCooldownUntil = 0;
         lastWorldBossSpawn = wbTime;
       }
 
