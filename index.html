@@ -2486,6 +2486,7 @@
 
     // Apply Firestore timers to local state and refresh UI (real-time sync)
     // Only cooldownUntil is preserved locally; all other fields come from Firestore
+    const STALE_KEYS = ["notifiedSoon", "spawnAnnounced", "_updatedAt"];
     function applyTimersFromSnapshot(remoteTimersRaw) {
       const now = Date.now();
       const merged = JSON.parse(JSON.stringify(remoteTimersRaw || {}));
@@ -2493,6 +2494,9 @@
       for (const [id, remoteInfo] of Object.entries(merged)) {
         const boss = BOSSES.find((b) => b.id === id);
         if (!boss) continue;
+
+        // Strip obsolete fields that may linger from older code
+        for (const k of STALE_KEYS) delete merged[id][k];
 
         // Preserve an active local cooldown if it is still valid
         const localInfo = timers[id];
@@ -3612,11 +3616,23 @@
             const now = Date.now();
             let changed = false;
 
+            // One-time cleanup: strip obsolete fields and normalize expired timers
             for (const [id, info] of Object.entries(timers)) {
               const boss = BOSSES.find((b) => b.id === id);
               if (!boss || !info || !info.endTime) continue;
 
-              if (info.cooldownUntil && info.cooldownUntil > now) continue;
+              // Strip stale fields from any timer that still has them
+              let cleaned = false;
+              const clean = { ...info };
+              for (const k of STALE_KEYS) {
+                if (k in clean) { delete clean[k]; cleaned = true; }
+              }
+
+              if (info.cooldownUntil && info.cooldownUntil > now) {
+                // Active cooldown — preserve it but still strip stale fields
+                if (cleaned) { timers[id] = clean; changed = true; }
+                continue;
+              }
 
               if (info.endTime <= now) {
                 if (boss.weeklyRespawns) {
@@ -3627,6 +3643,10 @@
                   const cycles = Math.floor((now - info.endTime) / respMs) + 1;
                   timers[id] = { endTime: info.endTime + cycles * respMs, startedAt: now, cooldownUntil: null };
                 }
+                changed = true;
+              } else if (cleaned) {
+                // Non-expired timer that had stale fields — write the cleaned version
+                timers[id] = clean;
                 changed = true;
               }
             }
