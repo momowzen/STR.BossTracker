@@ -2382,42 +2382,42 @@
             message =
               `${boss.name} has been defeated.\n` +
               `Next respawn: ${formattedTime}\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           case "soon":
             message =
               `${boss.name} will respawn soon!\n` +
               `Respawn time: ${formattedTime}\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           case "spawn":
             message =
               `${boss.name} has respawned!\n` +
               `It's time to hunt!\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           case "manual":
             message =
               `${boss.name} timer manually updated.\n` +
               `Next respawn: ${formattedTime}\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           case "world_soon":
             message =
               `WORLD BOSS IS ABOUT TO SPAWN!\n` +
               `Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           case "world_spawn":
             message =
               `WORLD BOSS HAS SPAWNED!\n` +
               `Ratan · Parto · Nedra are now ready to fight!\n` +
-              `@everyone`;
+              `@here`;
             break;
 
           default:
@@ -3681,7 +3681,13 @@
     const adminPasswordBtn = document.getElementById("adminPasswordBtn");
     const adminPasswordCancelBtn = document.getElementById("adminPasswordCancelBtn");
     const passwordError = document.getElementById("passwordError");
-    const ADMIN_PASSWORD = "masasarap69";
+    const ADMIN_PASSWORD_HASH = "ebc15fed31918346982c88e5857b53c60d934b1c57b8215b711d2160c8b71e16";
+
+    async function hashPassword(input) {
+      const enc = new TextEncoder().encode(input);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
 
     if (!sessionStorage.getItem("userMode")) {
       sessionStorage.setItem("userMode", "member");
@@ -3743,9 +3749,10 @@
     }
 
     if (adminPasswordBtn) {
-      adminPasswordBtn.addEventListener("click", () => {
+      adminPasswordBtn.addEventListener("click", async () => {
         const inputPassword = adminPasswordInput ? adminPasswordInput.value : "";
-        if (inputPassword === ADMIN_PASSWORD) {
+        const inputHash = await hashPassword(inputPassword);
+        if (inputHash === ADMIN_PASSWORD_HASH) {
           sessionStorage.setItem("userMode", "admin");
           closeAdminPasswordModal();
           updateAuthUI();
