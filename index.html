@@ -2187,7 +2187,7 @@
 
     async function checkForUpdates() {
       try {
-        const res = await fetch("/index.html?t=" + Date.now());
+        const res = await fetch("index.html?t=" + Date.now());
         const text = await res.text();
         const enc = new TextEncoder().encode(text);
         const buf = await crypto.subtle.digest("SHA-256", enc);
