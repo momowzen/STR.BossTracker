@@ -1633,13 +1633,6 @@
         </svg>
         <span class="label">Reset Timers</span>
       </button>
-      <button class="settings-item" id="syncBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="8" cy="8" r="6.5"/>
-          <path d="M8 4.5V8l2 1.5"/>
-        </svg>
-        <span class="label">Sync Users</span>
-      </button>
       <button class="settings-item" id="discordWebhookBtn">
         <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M6.5 3a3.5 3.5 0 0 0-3.5 3.5v1A3.5 3.5 0 0 0 6.5 11h.5"/>
@@ -2189,43 +2182,26 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ✅ Firestore-based Global Synchronization
-    let lastTriggeredBySelf = null;
-    const syncBtn = document.getElementById("syncBtn");
-    const refreshDocRef = doc(db, "meta", "refresh"); // Firestore doc for sync trigger
+    // ✅ Auto-detect page updates by polling index.html hash
+    let lastPageHash = null;
 
-    // --- Trigger Sync ---
-    syncBtn.addEventListener("click", async () => {
-      settingsDropdown.classList.add("hidden");
-      if (await showConfirmModal("Synchronize all clients? This will reload every user's page.")) {
-        const now = Date.now();
-        lastTriggeredBySelf = now;
-        await setDoc(refreshDocRef, { forceRefresh: now });
-        alert("✅ Synchronization triggered for all connected users.");
-        console.log("🔁 sync triggered at", new Date(now).toISOString());
+    async function checkForUpdates() {
+      try {
+        const res = await fetch("/index.html?t=" + Date.now());
+        const text = await res.text();
+        const enc = new TextEncoder().encode(text);
+        const buf = await crypto.subtle.digest("SHA-256", enc);
+        const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+        if (lastPageHash === null) {
+          lastPageHash = hash;
+        } else if (hash !== lastPageHash) {
+          console.log("🔄 Update detected, reloading...");
+          location.reload();
+        }
+      } catch (e) {
+        console.warn("Update check failed:", e);
       }
-    });
-
-    // --- Auto-refresh on Firestore update ---
-    let hasInitialized = false;
-    onSnapshot(refreshDocRef, (snapshot) => {
-      const data = snapshot.data();
-      if (!data) return;
-      const lastTrigger = data.forceRefresh;
-      const lastTriggerMs =
-        lastTrigger && lastTrigger.toMillis
-          ? lastTrigger.toMillis()
-          : lastTrigger;
-
-      if (!hasInitialized) {
-        hasInitialized = true;
-        return;
-      }
-      if (lastTriggerMs === lastTriggeredBySelf) return;
-
-      console.log("ðŸ”„ Firestore refresh triggered, reloading page.");
-      location.reload();
-    });
+    }
 
     // ✅ Safe Firestore write helper — dot-path updates only (never replace whole timers map)
     async function safeWrite(ref, payload) {
@@ -3813,7 +3789,11 @@
 
     updateAuthUI();
     if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
-    window.addEventListener("load", () => init());
+    window.addEventListener("load", () => {
+      init();
+      checkForUpdates();
+      setInterval(checkForUpdates, 30000);
+    });
 
     // === SERVER TIME UPDATE ===
     const serverTimeEl = document.getElementById("serverTime");
