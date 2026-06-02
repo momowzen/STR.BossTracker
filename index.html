@@ -545,21 +545,21 @@
         align-items: center;
       }
 
-      .boss-column:last-of-type {
+      #weeklyColumn {
         display: none;
       }
 
-      .boss-column:first-child {
+      #intervalColumn {
         border-right: none;
         animation: fadeSlideRight 0.25s ease;
       }
 
-      #bossListPanel.view-weekly .boss-column:last-of-type {
+      #bossListPanel.view-weekly #weeklyColumn {
         display: flex;
         animation: fadeSlideLeft 0.25s ease;
       }
 
-      #bossListPanel.view-weekly .boss-column:first-child {
+      #bossListPanel.view-weekly #intervalColumn {
         display: none;
       }
 
