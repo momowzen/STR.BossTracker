@@ -1378,8 +1378,17 @@
     .action-btn {
       display: flex;
       align-items: center;
-      gap: 2px;
+      gap: 4px;
       flex: 0 0 auto;
+    }
+
+    .action-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      line-height: 1;
+      text-transform: uppercase;
     }
 
     .icon-btn {
@@ -2718,6 +2727,7 @@
                   <polyline points="12,7 12,12 16,12"></polyline>
                 </svg>
               </button>
+              <span class="action-label">SET</span>
             </div>
             <div class="action-btn">
               <button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
@@ -2727,6 +2737,7 @@
                   <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"></circle>
                 </svg>
               </button>
+              <span class="action-label">KILLED</span>
             </div>
           </div>` : ""}
         `;
