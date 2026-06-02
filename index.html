@@ -685,7 +685,6 @@
       font-weight: 700;
       letter-spacing: 0.3px;
       border-radius: 3px;
-      background: var(--accent-blue);
       color: #000;
       line-height: 1;
     }
@@ -2650,6 +2649,14 @@
       const q = (searchInput.value || "").toLowerCase().trim();
       const now = Date.now();
 
+      function getLevelColor(level) {
+        if (!level) return "";
+        if (level <= 75) return "var(--accent-green)";
+        if (level <= 95) return "var(--accent-blue)";
+        if (level <= 100) return "var(--accent-purple)";
+        return "var(--accent-orange)";
+      }
+
       function buildBossCard(b) {
         const isWeekly = !!b.weeklyRespawns;
         if (q && !b.name.toLowerCase().includes(q)) return null;
@@ -2704,7 +2711,7 @@
             <div class="portrait-meta">
               <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
               <div class="info">
-                <div class="name">${b.name}${b.level ? `<span class="level-badge">${b.level}</span>` : ""}<span class="status-pill ${statusClass}">${statusText}</span></div>
+                <div class="name">${b.name}${b.level ? `<span class="level-badge" style="background:${getLevelColor(b.level)}">${b.level}</span>` : ""}<span class="status-pill ${statusClass}">${statusText}</span></div>
                 <div class="sub">${subText}</div>
                 <div class="spawn-time">${spawnTimeText}</div>
                 <div class="time-remaining">${remainingText}</div>
