@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1454,7 +1454,7 @@
       <div class="header-controls">
         <div class="search-wrapper">
           <input class="search" id="bossSearch" placeholder="Search boss..." autocomplete="off" />
-          <span class="clear-icon" id="clearSearch">✕</span>
+          <span class="clear-icon" id="clearSearch">Γ£ò</span>
         </div>
         <div class="header-actions">
 
@@ -1567,10 +1567,10 @@
       </div>
     </div>
   </div>
-  <!-- Webhook modal â€” compact cyber panel -->
+  <!-- Webhook modal ├óΓé¼ΓÇ¥ compact cyber panel -->
   <div class="modal-backdrop" id="webhookModalBackdrop">
     <div aria-labelledby="webhookTitle" aria-modal="true" class="modal" role="dialog">
-      <h3 id="webhookTitle">💬 Discord Webhook</h3>
+      <h3 id="webhookTitle">≡ƒÆ¼ Discord Webhook</h3>
       <div class="small">Paste your Discord webhook URL below.</div>
       <input id="webhookInput" placeholder="Paste your Discord Webhook URL here." type="text" />
       <div class="modal-actions">
@@ -1894,7 +1894,7 @@
 
     // Write dedupe: skip Firestore write when data unchanged
     const lastWriteCache = {};
-    // Local notification flags (never persisted — purely in-memory for this session)
+    // Local notification flags (never persisted ΓÇö purely in-memory for this session)
     const localNotifCache = {}; // { "bossId_soon": timestamp, "bossId_spawn": timestamp }
     const LOCK_DURATION_MS = 3 * 60 * 1000; // 3 min lock for mark-dead button
 
@@ -1983,7 +1983,7 @@
       const iconUrl =
         "https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png";
       try {
-        new Notification(`${boss.name} — respawns in 5 minutes`, {
+        new Notification(`${boss.name} ΓÇö respawns in 5 minutes`, {
           body: `Respawn time: ${formattedTime}`,
           icon: iconUrl,
           tag: `boss-alarm-${boss.id}`,
@@ -1997,7 +1997,7 @@
       if (!alarmEnabled || !boss) return;
       playAlarmSound();
       showBossTrayNotification(boss, timers[boss.id]?.endTime);
-      console.log(`🔔 Local alarm triggered for ${boss.name}`);
+      console.log(`≡ƒöö Local alarm triggered for ${boss.name}`);
     }
 
     updateAlarmButton();
@@ -2111,7 +2111,7 @@
       return soonest ?? fromTime;
     }
 
-    // ✅ Import Firebase core and services
+    // Γ£à Import Firebase core and services
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import {
       getFirestore,
@@ -2125,7 +2125,7 @@
       serverTimestamp,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-    // ✅ Initialize Firebase app
+    // Γ£à Initialize Firebase app
     const firebaseConfig = {
       apiKey: "AIzaSyAho-BrXGOJlFD-LfhK7fXTpQ5OIajQXhY",
       authDomain: "bosstracker-a290e.firebaseapp.com",
@@ -2138,7 +2138,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ✅ Firestore-based Global Synchronization
+    // Γ£à Firestore-based Global Synchronization
     let lastTriggeredBySelf = null;
     const syncBtn = document.getElementById("syncBtn");
     const refreshDocRef = doc(db, "meta", "refresh"); // Firestore doc for sync trigger
@@ -2154,8 +2154,8 @@
         const now = Date.now();
         lastTriggeredBySelf = now;
         await setDoc(refreshDocRef, { forceRefresh: now });
-        alert("✅ Synchronization triggered for all connected users.");
-        console.log("🔁 sync triggered at", new Date(now).toISOString());
+        alert("Γ£à Synchronization triggered for all connected users.");
+        console.log("≡ƒöü sync triggered at", new Date(now).toISOString());
       }
     });
 
@@ -2176,11 +2176,11 @@
       }
       if (lastTriggerMs === lastTriggeredBySelf) return;
 
-      console.log("ðŸ”„ Firestore refresh triggered, reloading page.");
+      console.log("├░┼╕ΓÇ¥ΓÇ₧ Firestore refresh triggered, reloading page.");
       location.reload();
     });
 
-    // ✅ Safe Firestore write helper — dot-path updates only (never replace whole timers map)
+    // Γ£à Safe Firestore write helper ΓÇö dot-path updates only (never replace whole timers map)
     async function safeWrite(ref, payload) {
       try {
         await updateDoc(ref, payload);
@@ -2191,7 +2191,7 @@
           await updateDoc(ref, payload);
           return;
         }
-        console.warn("⚠️  safeWrite failed", err);
+        console.warn("ΓÜá∩╕Å  safeWrite failed", err);
         throw err;
       }
     }
@@ -2205,10 +2205,10 @@
         if (snap.exists()) {
           const data = snap.data();
           cachedWebhookUrl = data.url || null;
-          console.log("✅ Webhook synced from Firestore:", cachedWebhookUrl);
+          console.log("Γ£à Webhook synced from Firestore:", cachedWebhookUrl);
         } else {
           cachedWebhookUrl = null;
-          console.log("ℹ No webhook in Firestore.");
+          console.log("Γä╣ No webhook in Firestore.");
         }
       });
     }
@@ -2225,11 +2225,11 @@
         await setDoc(doc(db, "config", "discordWebhook"), { url });
         cachedWebhookUrl = url;
         webhookInput.value = url;
-        alert("✅ Webhook saved.");
-        console.log("✅ Webhook saved to Firestore.");
+        alert("Γ£à Webhook saved.");
+        console.log("Γ£à Webhook saved to Firestore.");
       } catch (e) {
         console.warn("save webhook err", e);
-        alert("❌ Failed to save webhook.");
+        alert("Γ¥î Failed to save webhook.");
       }
     }
 
@@ -2238,11 +2238,11 @@
         await deleteDoc(doc(db, "config", "discordWebhook"));
         cachedWebhookUrl = null;
         webhookInput.value = "";
-        alert("✅ Webhook cleared.");
-        console.log("✅ Webhook cleared from Firestore.");
+        alert("Γ£à Webhook cleared.");
+        console.log("Γ£à Webhook cleared from Firestore.");
       } catch (e) {
         console.warn("clear webhook err", e);
-        alert("❌ Failed to clear webhook.");
+        alert("Γ¥î Failed to clear webhook.");
       }
     }
 
@@ -2256,7 +2256,7 @@
         null;
 
       if (!webhook) {
-        console.warn("⚠️ No Discord webhook configured.");
+        console.warn("ΓÜá∩╕Å No Discord webhook configured.");
         return;
       }
 
@@ -2276,15 +2276,15 @@
 
         if (!res.ok) {
           console.error(
-            "❌ Discord webhook failed:",
+            "Γ¥î Discord webhook failed:",
             res.status,
             await res.text()
           );
         } else {
-          console.log("✅ Discord message sent successfully.");
+          console.log("Γ£à Discord message sent successfully.");
         }
       } catch (err) {
-        console.error("⚠️ Discord webhook error:", err);
+        console.error("ΓÜá∩╕Å Discord webhook error:", err);
       }
     }
 
@@ -2294,7 +2294,7 @@
       try {
         if (!boss || !type) return;
 
-        // 🔔 Normalize Firestore key (handles spaces, punctuation)
+        // ≡ƒöö Normalize Firestore key (handles spaces, punctuation)
         const safeId = encodeURIComponent(boss.id.trim());
         key = `${safeId}_${type}`;
 
@@ -2331,7 +2331,7 @@
 
             if (recentlySent) {
               console.log(
-                `⏸️ Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
+                `ΓÅ╕∩╕Å Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
               );
               return false;
             }
@@ -2350,12 +2350,12 @@
             return { endTimeMs: thisEndTimeMs };
           });
         } catch (txErr) {
-          console.warn(`⚠️ Transaction failed for ${key}, using local dedupe only:`, txErr.message);
+          console.warn(`ΓÜá∩╕Å Transaction failed for ${key}, using local dedupe only:`, txErr.message);
         }
 
         if (txResult === false) {
           console.log(
-            `⏹️ sendDiscordEmbedOnce: server dedupe prevented sending ${type} for ${boss.name}`
+            `ΓÅ╣∩╕Å sendDiscordEmbedOnce: server dedupe prevented sending ${type} for ${boss.name}`
           );
           return;
         }
@@ -2366,7 +2366,7 @@
           wbSpawn || endTimeMs || Date.now()
         );
 
-        // 🔔 Build appropriate embed
+        // ≡ƒöö Build appropriate embed
         let message = "";
 
         switch (type) {
@@ -2401,30 +2401,30 @@
           case "world_soon":
             message =
               `WORLD BOSS IS ABOUT TO SPAWN!\n` +
-              `Ratan · Parto · Nedra spawning at ${formattedTime}\n` +
+              `Ratan ┬╖ Parto ┬╖ Nedra spawning at ${formattedTime}\n` +
               `@everyone`;
             break;
 
           case "world_spawn":
             message =
               `WORLD BOSS HAS SPAWNED!\n` +
-              `Ratan · Parto · Nedra are now ready to fight!\n` +
+              `Ratan ┬╖ Parto ┬╖ Nedra are now ready to fight!\n` +
               `@everyone`;
             break;
 
           default:
-            console.warn(`⚠️ Unknown notification type: ${type}`);
+            console.warn(`ΓÜá∩╕Å Unknown notification type: ${type}`);
             return;
         }
 
         await sendDiscordMessage(message);
-        console.log(`✅ Sent ${type} notification for ${boss.name}`);
+        console.log(`Γ£à Sent ${type} notification for ${boss.name}`);
       } catch (e) {
         if (e?.code === "ABORTED") {
-          console.warn("â„¹ Transaction aborted (expected):", e);
+          console.warn("├óΓÇ₧┬╣ Transaction aborted (expected):", e);
           return;
         }
-        console.warn("⚠️  sendDiscordEmbedOnce error:", e);
+        console.warn("ΓÜá∩╕Å  sendDiscordEmbedOnce error:", e);
         delete localNotifCache[key]; // allow retry if failed
       }
     }    
@@ -2449,7 +2449,7 @@
       try {
         // No merge: writes the entire timers map, dropping any stale sub-fields
         await setDoc(doc(db, "timers", "global"), { timers });
-        console.log("✅ saveTimersToFirestore: saved timers document.");
+        console.log("Γ£à saveTimersToFirestore: saved timers document.");
       } catch (e) {
         console.warn("saveTimersToFirestore err", e);
       }
@@ -2492,12 +2492,12 @@
         if (!data) return;
         const json = JSON.stringify(data);
         if (lastWriteCache[bossId] === json) {
-          console.log(`ℹ Skipping redundant write for ${bossId}`);
+          console.log(`Γä╣ Skipping redundant write for ${bossId}`);
           return;
         }
         await safeWrite(ref, { [`timers.${bossId}`]: data });
         lastWriteCache[bossId] = json;
-        console.log(`✅ saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
+        console.log(`Γ£à saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
       } catch (e) {
         console.warn("saveTimerToFirestoreOnce err", e);
       }
@@ -2552,11 +2552,11 @@
       try {
         await setDoc(doc(db, "timers", "global"), { timers }); // overwrite entire timers doc
         renderBossList();
-        alert("✅ All non-weekly timers reset (Firestore updated).");
-        console.log("🔁 resetAll: fully reset timers and updated Firestore.");
+        alert("Γ£à All non-weekly timers reset (Firestore updated).");
+        console.log("≡ƒöü resetAll: fully reset timers and updated Firestore.");
       } catch (e) {
-        console.warn("❌ resetAll Firestore update failed", e);
-        alert("⚠️  Failed to update Firestore.");
+        console.warn("Γ¥î resetAll Firestore update failed", e);
+        alert("ΓÜá∩╕Å  Failed to update Firestore.");
       }
     }
 
@@ -2760,7 +2760,7 @@
         // Immediate visual disable to give feedback
         btn.disabled = true;
         console.log(
-          `ðŸ”˜ mark clicked: attempting lock for ${id} (local visual disabled)`
+          `├░┼╕ΓÇ¥╦£ mark clicked: attempting lock for ${id} (local visual disabled)`
         );
 
         try {
@@ -2783,7 +2783,7 @@
           if (!locked) {
             // lock lost to another client: re-enable and warn
             console.warn(
-              `â›” markDead: failed to acquire lock for ${id} â€” another user locked it.`
+              `├óΓÇ║ΓÇ¥ markDead: failed to acquire lock for ${id} ├óΓé¼ΓÇ¥ another user locked it.`
             );
             // refresh deadLocks on next snapshot will correct disabled state, but re-enable for good UX
             btn.disabled = false;
@@ -2796,7 +2796,7 @@
             .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"]`)
             .forEach((b) => (b.disabled = true));
           console.log(
-            `🔒 Acquired lock for ${id} until ${new Date(
+            `≡ƒöÆ Acquired lock for ${id} until ${new Date(
               lockUntil
             ).toISOString()}`
           );
@@ -2815,7 +2815,7 @@
           // Start the timer (this writes timer and triggers Discord send)
           await startTimer(id);
         } catch (err) {
-          console.error("⚠️  Error during mark dead transaction:", err);
+          console.error("ΓÜá∩╕Å  Error during mark dead transaction:", err);
           btn.disabled = false;
         }
         return;
@@ -2927,8 +2927,8 @@
       upcoming.sort((a, b) => a.endTime - b.endTime);
 
       if (upcoming.length === 0) {
-        nextBossNameEl.textContent = "Next Boss: â€”";
-        nextTimeEl.textContent = "â€”";
+        nextBossNameEl.textContent = "Next Boss: ├óΓé¼ΓÇ¥";
+        nextTimeEl.textContent = "├óΓé¼ΓÇ¥";
         return;
       }
 
@@ -3029,7 +3029,7 @@
         }
       }
 
-      // Fire all Discord notifications (Firestore dedupe prevents spam — condition 13)
+      // Fire all Discord notifications (Firestore dedupe prevents spam ΓÇö condition 13)
       if (discordPromises.length) {
         await Promise.allSettled(discordPromises);
       }
@@ -3064,7 +3064,7 @@
       } else if (!worldBossSpawnAnnounced) {
         handleWorldBossSpawn(); scheduleWorldBoss();
       } else if (worldBossCooldownUntil > now) {
-        // In SPAWNED cooldown — schedule cooldown end
+        // In SPAWNED cooldown ΓÇö schedule cooldown end
         wbTimeout = setTimeout(() => { worldBossCooldownUntil = 0; scheduleWorldBoss(); }, worldBossCooldownUntil - now);
       } else {
         const nextWb = wbTime + 6 * 60 * 60 * 1000;
@@ -3076,7 +3076,7 @@
     async function handleWorldBossSoon() {
       if (worldBossSoonNotified) return;
       worldBossSoonNotified = true;
-      console.log(`⚠️ world boss within 5min, sending notification`);
+      console.log(`ΓÜá∩╕Å world boss within 5min, sending notification`);
       await sendDiscordEmbedOnce("world_soon", { id: "__world_boss__", name: "World Boss" });
     }
 
@@ -3084,7 +3084,7 @@
       if (worldBossSpawnAnnounced) return;
       worldBossSpawnAnnounced = true;
       worldBossCooldownUntil = Date.now() + SPAWNED_DURATION_MS;
-      console.log(`🎉 world boss spawned, announcing`);
+      console.log(`≡ƒÄë world boss spawned, announcing`);
       await sendDiscordEmbedOnce("world_spawn", { id: "__world_boss__", name: "World Boss" });
     }
 
@@ -3253,14 +3253,14 @@
       // Keep settings hidden for member mode
       if (userMode === "member") {
         settingsDropdown.classList.add("hidden");
-        console.log(`⚙️ settings hidden for member mode`);
+        console.log(`ΓÜÖ∩╕Å settings hidden for member mode`);
         return;
       }
       settingsDropdown.classList.toggle("hidden");
       if (!settingsDropdown.classList.contains("hidden")) {
         positionSettingsDropdown();
       }
-      console.log(`⚙️ settings modal opened`);
+      console.log(`ΓÜÖ∩╕Å┬Å settings modal opened`);
     });
 
     document.addEventListener("click", (ev) => {
@@ -3279,7 +3279,7 @@
       }
     });
 
-    // === SCHEDULE VIEW (inline toggle: normal list ↔ schedule) ===
+    // === SCHEDULE VIEW (inline toggle: normal list Γåö schedule) ===
     const scheduleBtn = document.getElementById("scheduleBtn");
 
     function getJSTStartOfDay(daysFromNow = 0) {
@@ -3400,7 +3400,7 @@
       settingsDropdown.classList.add("hidden");
       loadWebhookIntoInput();
       webhookBackdrop.style.display = "flex";
-      console.log("ðŸ”§ open webhook modal");
+      console.log("├░┼╕ΓÇ¥┬º open webhook modal");
     });
 
     webhookBackdrop.addEventListener("click", (ev) => {
@@ -3426,10 +3426,10 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        alert("✅ Timers exported successfully.");
-        console.log("ðŸ“¤ Exported timers.json");
+        alert("Γ£à Timers exported successfully.");
+        console.log("├░┼╕ΓÇ£┬ñ Exported timers.json");
       } catch (e) {
-        alert("❌ Failed to export timers.");
+        alert("Γ¥î Failed to export timers.");
       }
     });
 
@@ -3452,11 +3452,11 @@
             timers = imported;
             await saveTimers();
             renderBossList();
-            alert("✅ Timers imported successfully.");
-            console.log("ðŸ“¥ Imported timers from file.");
+            alert("Γ£à Timers imported successfully.");
+            console.log("├░┼╕ΓÇ£┬Ñ Imported timers from file.");
           }
         } catch (e) {
-          alert("❌ Invalid JSON file.");
+          alert("Γ¥î Invalid JSON file.");
         }
       };
       input.click();
@@ -3467,7 +3467,7 @@
       if (confirm("Are you sure you want to reset all timers?")) resetAll();
     });
 
-    // ✅ Firestore document for lock management
+    // Γ£à Firestore document for lock management
     const deadLockRef = doc(db, "meta", "deadLocks");
     onSnapshot(deadLockRef, (snapshot) => {
       if (snapshot.metadata?.hasPendingWrites) return;
@@ -3483,7 +3483,7 @@
         });
 
       if (firebaseLoaded) renderBossList();
-      console.log("🔔 deadLocks updated from Firestore:", deadLocks);
+      console.log("≡ƒöö deadLocks updated from Firestore:", deadLocks);
     });
 
     // Periodically re-check (every 10s)
@@ -3523,7 +3523,7 @@
       if (appInitialized) return;
       loadingOverlay.style.display = "flex";
 
-      // ✅ Wait until the DOM is fully loaded
+      // Γ£à Wait until the DOM is fully loaded
       await new Promise((resolve) => {
         if (
           document.readyState === "complete" ||
@@ -3542,7 +3542,7 @@
       nextTimeEl.textContent = "";
 
       try {
-        // Condition 1+4: real-time listener — syncs when data is written to Firestore
+        // Condition 1+4: real-time listener ΓÇö syncs when data is written to Firestore
         const docRef = doc(db, "timers", "global");
         onSnapshot(docRef, async (snap) => {
           if (!snap.exists()) {
@@ -3555,7 +3555,7 @@
           applyTimersFromSnapshot(snap.data().timers || {});
 
           // Condition 6: normalize expired timers silently on first snapshot.
-          // Cached (fromCache=true): normalize in-memory only — user never sees SPAWNED.
+          // Cached (fromCache=true): normalize in-memory only ΓÇö user never sees SPAWNED.
           // Server (fromCache=false): also write normalized timers to Firestore.
           if (!normalized) {
             const now = Date.now();
@@ -3595,7 +3595,7 @@
                       cooldownUntil: now + (SPAWNED_DURATION_MS - intoCycle),
                     };
                   } else {
-                    // Past SPAWNED window — countdown is running
+                    // Past SPAWNED window ΓÇö countdown is running
                     const countdownElapsed = intoCycle - SPAWNED_DURATION_MS;
                     const remaining = respMs - countdownElapsed;
                     timers[id] = { endTime: now + remaining, startedAt: now, cooldownUntil: null };
@@ -3641,7 +3641,7 @@
         console.warn("Firestore load failed", e);
       }
 
-      // ✅ Ensure Discord webhook is ready before any future notification
+      // Γ£à Ensure Discord webhook is ready before any future notification
       await autoLoadWebhook();
 
       updateWorldBossName();
@@ -3664,7 +3664,7 @@
       }
       scheduleWorldBoss();
 
-      console.log("✅ init completed successfully.");
+      console.log("Γ£à init completed successfully.");
     }
 
     // === AUTH: member by default, admin via password ===
@@ -3788,3 +3788,4 @@
 </body>
 
 </html>
+
