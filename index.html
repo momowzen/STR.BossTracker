@@ -3601,21 +3601,17 @@
 
           applyTimersFromSnapshot(snap.data().timers || {});
 
-          // Condition 6: normalize expired timers on the first server-confirmed snapshot.
-          // This handles the case where the initial cached snapshot has valid data
-          // but the subsequent server snapshot has expired timers (manual Firestore edit
-          // or stale data from before a prior normalization).
-          if (!normalized && !snap.metadata.fromCache) {
-            normalized = true;
+          // Condition 6: normalize expired timers silently on first snapshot.
+          // Cached (fromCache=true): normalize in-memory only — user never sees SPAWNED.
+          // Server (fromCache=false): also write normalized timers to Firestore.
+          if (!normalized) {
             const now = Date.now();
             let changed = false;
 
-            // One-time cleanup: strip obsolete fields and normalize expired timers
             for (const [id, info] of Object.entries(timers)) {
               const boss = BOSSES.find((b) => b.id === id);
               if (!boss || !info || !info.endTime) continue;
 
-              // Strip stale fields from any timer that still has them
               let cleaned = false;
               const clean = { ...info };
               for (const k of STALE_KEYS) {
@@ -3623,7 +3619,6 @@
               }
 
               if (info.cooldownUntil && info.cooldownUntil > now) {
-                // Active cooldown — preserve it but still strip stale fields
                 if (cleaned) { timers[id] = clean; changed = true; }
                 continue;
               }
@@ -3639,13 +3634,11 @@
                 }
                 changed = true;
               } else {
-                // Non-expired timer — strip stale fields and expired cooldownUntil
                 if ("cooldownUntil" in clean) { delete clean.cooldownUntil; cleaned = true; }
                 if (cleaned) { timers[id] = clean; changed = true; }
               }
             }
 
-            // Condition 5: initialize weekly bosses that have no timer entry yet
             for (const boss of BOSSES) {
               if (boss.weeklyRespawns && !timers[boss.id]) {
                 const next = getNextWeeklyRespawnTime(boss);
@@ -3656,17 +3649,17 @@
               }
             }
 
-            if (changed) {
-              // Render normalized data BEFORE async Firestore write, so the browser
-              // never paints expired timers during the await yield point
-              renderBossList();
-              // Condition 3 exception: system write for init normalization
-              try { await saveTimers(); } catch (err) {
-                console.error("Failed to save normalized timers:", err);
-              }
-            }
+            if (changed) renderBossList();
 
-            renderBossList();
+            if (!snap.metadata.fromCache) {
+              normalized = true;
+              if (changed) {
+                try { await saveTimers(); } catch (err) {
+                  console.error("Failed to save normalized timers:", err);
+                }
+              }
+              renderBossList();
+            }
           }
 
           if (!firebaseLoaded) {
