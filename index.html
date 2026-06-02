@@ -1377,18 +1377,24 @@
 
     .action-btn {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       flex: 0 0 auto;
     }
 
     .action-label {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 700;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.3px;
       color: var(--text-muted);
       line-height: 1;
       text-transform: uppercase;
+      max-width: 32px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .icon-btn {
