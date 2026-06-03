@@ -2897,7 +2897,7 @@
         slotDate.setUTCHours(slot.hour, slot.minute, 0, 0);
 
         if (daysUntilSlot === 0 && (currentHour > slot.hour ||
-          (currentHour === slot.hour && currentMinute >= slot.minute))) {
+          (currentHour === slot.hour && currentMinute > slot.minute))) {
           slotDate.setUTCDate(slotDate.getUTCDate() + 7);
         }
 
@@ -3657,13 +3657,41 @@
               const next = getNextWeeklyRespawnTime(boss);
               if (!next) continue;
               const existing = timers[boss.id];
-              if (!existing || existing.endTime !== next) {
-                timers[boss.id] = {
-                  endTime: next,
-                  startedAt: now,
-                  weekly: true,
-                  cooldownUntil: (existing?.cooldownUntil && existing.cooldownUntil > now) ? existing.cooldownUntil : null,
-                };
+              // Recalculate if no existing timer, or existing endTime is stale
+              if (!existing || Math.abs(existing.endTime - next) > 60 * 60 * 1000) {
+                // Check if we're within the SPAWNED window — use the current slot time
+                const jstNow = new Date(Date.now() + TIME_ZONE_OFFSET_MS);
+                const curDay = jstNow.getUTCDay();
+                const curMin = jstNow.getUTCHours() * 60 + jstNow.getUTCMinutes();
+                let spawnedEndTime = null;
+                for (const slot of boss.weeklyRespawns) {
+                  const dayDelta = (slot.day - curDay + 7) % 7;
+                  if (dayDelta !== 0) continue;
+                  const slotMin = slot.hour * 60 + slot.minute;
+                  const diff = curMin - slotMin;
+                  if (diff >= 0 && diff <= 3) {
+                    // Compute this slot's absolute epoch as UTC
+                    const d = new Date(jstNow);
+                    d.setUTCHours(slot.hour, slot.minute, 0, 0);
+                    const ms = d.getTime() - TIME_ZONE_OFFSET_MS;
+                    if (!spawnedEndTime || ms > spawnedEndTime) spawnedEndTime = ms;
+                  }
+                }
+                if (spawnedEndTime) {
+                  timers[boss.id] = {
+                    endTime: spawnedEndTime,
+                    startedAt: spawnedEndTime,
+                    weekly: true,
+                    cooldownUntil: null,
+                  };
+                } else {
+                  timers[boss.id] = {
+                    endTime: next,
+                    startedAt: now,
+                    weekly: true,
+                    cooldownUntil: null,
+                  };
+                }
                 changed = true;
               }
             }
