@@ -881,9 +881,7 @@
       }
 
       .card-header {
-        justify-content: space-between;
         padding-left: 10px;
-        text-align: left;
       }
 
       #bossListPanel {
@@ -1365,7 +1363,7 @@
 
     .card-header {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       gap: 6px;
       font-size: clamp(11px, 2.5vw, 14px);
@@ -1375,7 +1373,7 @@
       color: var(--text-primary);
       border-bottom: 1px solid var(--border);
       padding: 6px 8px;
-      text-align: center;
+      text-align: left;
       box-sizing: border-box;
       min-height: 36px;
       width: 100%;
@@ -1609,7 +1607,7 @@
         <h4 class="card-header">
           <span>FIELD BOSS LIST</span>
           <span class="header-sort">
-            <span class="sort-label">SORT</span>
+            <span class="sort-label">SORT BY</span>
             <select class="sort-select" id="sortSelect">
               <option value="name">Name</option>
               <option value="level">Level</option>
@@ -2837,7 +2835,7 @@
 
       function sortBosses(a, b) {
         if (currentSort === "name") return a.name.localeCompare(b.name);
-        if (currentSort === "level") return b.level - a.level;
+        if (currentSort === "level") return a.level - b.level;
         return getRemainingMs(a) - getRemainingMs(b);
       }
 
