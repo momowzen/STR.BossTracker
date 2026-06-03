@@ -2746,42 +2746,10 @@
       }
     }
 
-    async function fetchLogs() {
-      try {
-        const logsRef = collection(db, LOGS_COLLECTION);
-        const q = query(logsRef, orderBy("timestamp", "desc"), limit(100));
-        const snap = await getDocs(q);
-        const entries = [];
-        snap.forEach((d) => {
-          const data = d.data();
-          const ts = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
-          entries.push({ id: d.id, ...data, ts });
-        });
-        return entries;
-      } catch (e) {
-        console.warn("fetchLogs err", e);
-        return [];
-      }
-    }
-
     const logsListEl = document.getElementById("logsList");
     const logsModalBackdrop = document.getElementById("logsModalBackdrop");
     const logsClose = document.getElementById("logsClose");
-
-    async function openLogsPanel() {
-      if (!logsModalBackdrop) return;
-      logsModalBackdrop.classList.add("active");
-      logsModalBackdrop.style.display = "flex";
-      if (logsListEl) logsListEl.innerHTML = '<div class="logs-loading">Loading logs...</div>';
-      const entries = await fetchLogs();
-      renderLogs(entries);
-    }
-
-    function closeLogsPanel() {
-      if (!logsModalBackdrop) return;
-      logsModalBackdrop.classList.remove("active");
-      logsModalBackdrop.style.display = "none";
-    }
+    let logsUnsub = null;
 
     function renderLogs(entries) {
       if (!logsListEl) return;
@@ -2809,6 +2777,33 @@
         </div>`;
       }
       logsListEl.innerHTML = html;
+    }
+
+    function logsSnapshotHandler(snap) {
+      const entries = [];
+      snap.forEach((d) => {
+        const data = d.data();
+        const ts = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
+        entries.push({ id: d.id, ...data, ts });
+      });
+      renderLogs(entries);
+    }
+
+    function openLogsPanel() {
+      if (!logsModalBackdrop) return;
+      logsModalBackdrop.classList.add("active");
+      logsModalBackdrop.style.display = "flex";
+      if (logsListEl) logsListEl.innerHTML = '<div class="logs-loading">Loading logs...</div>';
+      const logsRef = collection(db, LOGS_COLLECTION);
+      const q = query(logsRef, orderBy("timestamp", "desc"), limit(100));
+      logsUnsub = onSnapshot(q, logsSnapshotHandler);
+    }
+
+    function closeLogsPanel() {
+      if (logsUnsub) { logsUnsub(); logsUnsub = null; }
+      if (!logsModalBackdrop) return;
+      logsModalBackdrop.classList.remove("active");
+      logsModalBackdrop.style.display = "none";
     }
 
     // Close logs modal on backdrop click
