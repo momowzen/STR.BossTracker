@@ -1308,7 +1308,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0;
       gap: 6px;
       font-size: clamp(11px, 2.5vw, 14px);
       font-weight: 600;
@@ -1321,12 +1320,6 @@
       box-sizing: border-box;
       min-height: 36px;
       width: 100%;
-    }
-
-    .header-title {
-      line-height: 1;
-      position: relative;
-      top: -1px;
     }
 
     .clear-icon {
@@ -1554,8 +1547,8 @@
         </div>
       </div>
       <section class="card" id="bossListPanel">
-        <div class="card-header">
-          <span class="header-title">FIELD BOSS LIST</span>
+        <h4 class="card-header">
+          FIELD BOSS LIST
           <button class="view-toggle" id="viewToggle">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4L1 8L4 12"/>
@@ -2731,7 +2724,7 @@
                 <div class="sub">${subText}</div>
                 <div class="spawn-time">${spawnTimeText}</div>
                 <div class="time-remaining">${remainingText}</div>
-              </div>
+        </h4>
             </div>
           </div>
           ${!isWeekly ? `
