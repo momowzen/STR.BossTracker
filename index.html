@@ -3653,12 +3653,18 @@
             }
 
             for (const boss of BOSSES) {
-              if (boss.weeklyRespawns && !timers[boss.id]) {
-                const next = getNextWeeklyRespawnTime(boss);
-                if (next) {
-                  timers[boss.id] = { endTime: next, startedAt: now, weekly: true, cooldownUntil: null };
-                  changed = true;
-                }
+              if (!boss.weeklyRespawns) continue;
+              const next = getNextWeeklyRespawnTime(boss);
+              if (!next) continue;
+              const existing = timers[boss.id];
+              if (!existing || existing.endTime !== next) {
+                timers[boss.id] = {
+                  endTime: next,
+                  startedAt: now,
+                  weekly: true,
+                  cooldownUntil: (existing?.cooldownUntil && existing.cooldownUntil > now) ? existing.cooldownUntil : null,
+                };
+                changed = true;
               }
             }
 
