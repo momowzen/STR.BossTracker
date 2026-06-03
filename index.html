@@ -3547,11 +3547,13 @@
       computeNextBoss();
     }
 
-    // fast visual refresh (every 1s, no Firestore writes)
-    setInterval(() => {
+    // fast visual refresh (every 1s, no overlapping tickUpdate calls)
+    async function tickLoop() {
       updateCountdownDisplay();
-      if (normalized && firebaseLoaded) tickUpdate();
-    }, 1000);
+      if (normalized && firebaseLoaded) await tickUpdate();
+      setTimeout(tickLoop, 1000);
+    }
+    tickLoop();
 
     // -------------------------
     // UI wiring
