@@ -1499,6 +1499,146 @@
       box-shadow: 0 0 14px rgba(88, 166, 255, 0.12);
     }
 
+    /* === LOGS MODAL === */
+    #logsModalBackdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    #logsModalBackdrop.active { display: flex; }
+
+    .logs-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      width: min(500px, calc(100vw - 24px));
+      max-height: min(600px, calc(100vh - 48px));
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .logs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logs-header-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-primary);
+    }
+
+    .logs-close {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--transition), color var(--transition);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .logs-close:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    .logs-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+
+    .logs-list::-webkit-scrollbar { width: 6px; }
+    .logs-list::-webkit-scrollbar-track { background: transparent; }
+    .logs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    .log-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .log-badge {
+      flex-shrink: 0;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      line-height: 1.2;
+    }
+
+    .log-badge.killed {
+      background: var(--accent-red);
+      color: #000;
+    }
+
+    .log-badge.spawned {
+      background: var(--accent-green);
+      color: #000;
+    }
+
+    .log-time {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .log-boss {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .log-empty {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 40px 0;
+    }
+
+    .logs-loading {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 40px 0;
+    }
   </style>
 </head>
 
@@ -1684,6 +1824,19 @@
     </div>
   </div>
 
+  <!-- Logs modal -->
+  <div class="modal-backdrop" id="logsModalBackdrop">
+    <div class="logs-panel" role="dialog" aria-modal="true" aria-labelledby="logsTitle">
+      <div class="logs-header">
+        <span class="logs-header-title" id="logsTitle">Tracker Logs</span>
+        <button class="logs-close" id="logsClose" aria-label="Close logs">&times;</button>
+      </div>
+      <div class="logs-list" id="logsList">
+        <div class="logs-loading">Loading logs...</div>
+      </div>
+    </div>
+  </div>
+
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
       <svg class="settings-header-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1715,6 +1868,13 @@
           <path d="M2.5 14.5v-3.7h3.7"/>
         </svg>
         <span class="label">Reset Timers</span>
+      </button>
+      <button class="settings-item" id="logsBtn">
+        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 3h12v10H2z"/>
+          <path d="M4 7h8M4 10h5"/>
+        </svg>
+        <span class="label">Tracker Logs</span>
       </button>
       <button class="settings-item" id="discordWebhookBtn">
         <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2251,6 +2411,12 @@
       runTransaction,
       onSnapshot,
       serverTimestamp,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      limit,
+      getDocs,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check.js";
 
@@ -2547,6 +2713,113 @@
     }
 
     // -------------------------
+    // Tracker Logs
+    // -------------------------
+    const LOGS_COLLECTION = "logs";
+    const LOGS_CACHE_KEY = "trackerLogsCache";
+    const LOGS_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 min
+
+    async function writeLog(bossId, bossName, eventType) {
+      try {
+        const logsRef = collection(db, LOGS_COLLECTION);
+        await addDoc(logsRef, {
+          bossId,
+          bossName,
+          eventType,
+          timestamp: serverTimestamp(),
+          createdAt: Date.now(),
+        });
+
+        // Keep only the 100 newest logs; delete oldest beyond that
+        const allRef = query(logsRef, orderBy("createdAt", "asc"));
+        const snap = await getDocs(allRef);
+        if (snap.size > 100) {
+          const toDelete = snap.size - 100;
+          const docs = snap.docs.slice(0, toDelete);
+          await Promise.allSettled(docs.map((d) => deleteDoc(doc(db, LOGS_COLLECTION, d.id))));
+          console.log(`🧹 Cleaned up ${toDelete} old log(s)`);
+        }
+
+        console.log(`✅ Log written: ${bossName} ${eventType}`);
+      } catch (e) {
+        console.warn("writeLog err", e);
+      }
+    }
+
+    async function fetchLogs() {
+      try {
+        const logsRef = collection(db, LOGS_COLLECTION);
+        const q = query(logsRef, orderBy("timestamp", "desc"), limit(100));
+        const snap = await getDocs(q);
+        const entries = [];
+        snap.forEach((d) => {
+          const data = d.data();
+          const ts = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
+          entries.push({ id: d.id, ...data, ts });
+        });
+        return entries;
+      } catch (e) {
+        console.warn("fetchLogs err", e);
+        return [];
+      }
+    }
+
+    const logsListEl = document.getElementById("logsList");
+    const logsModalBackdrop = document.getElementById("logsModalBackdrop");
+    const logsClose = document.getElementById("logsClose");
+
+    async function openLogsPanel() {
+      if (!logsModalBackdrop) return;
+      logsModalBackdrop.classList.add("active");
+      logsModalBackdrop.style.display = "flex";
+      if (logsListEl) logsListEl.innerHTML = '<div class="logs-loading">Loading logs...</div>';
+      const entries = await fetchLogs();
+      renderLogs(entries);
+    }
+
+    function closeLogsPanel() {
+      if (!logsModalBackdrop) return;
+      logsModalBackdrop.classList.remove("active");
+      logsModalBackdrop.style.display = "none";
+    }
+
+    function renderLogs(entries) {
+      if (!logsListEl) return;
+      if (!entries || entries.length === 0) {
+        logsListEl.innerHTML = '<div class="log-empty">No logs yet.</div>';
+        return;
+      }
+
+      let html = "";
+      for (const entry of entries) {
+        const d = new Date(entry.ts);
+        const timeStr = d.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: TIME_ZONE,
+        });
+        const badgeClass = entry.eventType === "Killed" ? "killed" : "spawned";
+        html += `<div class="log-entry">
+          <span class="log-badge ${badgeClass}">${entry.eventType}</span>
+          <span class="log-time">${timeStr}</span>
+          <span class="log-boss">${entry.bossName}</span>
+        </div>`;
+      }
+      logsListEl.innerHTML = html;
+    }
+
+    // Close logs modal on backdrop click
+    if (logsModalBackdrop) {
+      logsModalBackdrop.addEventListener("click", (e) => {
+        if (e.target === logsModalBackdrop) closeLogsPanel();
+      });
+    }
+    if (logsClose) logsClose.addEventListener("click", closeLogsPanel);
+
+    // -------------------------
     // Firestore save dedupe helpers
     // -------------------------
     async function saveTimersToFirestore() {
@@ -2637,6 +2910,7 @@
       delete localNotifCache[`${boss.id}_spawn`];
 
       await saveTimerToFirestoreOnce(bossId);
+      writeLog(boss.id, boss.name, "Killed");
       renderBossList();
 
       console.log(`startTimer: ${bossId} -> ${new Date(endTime).toISOString()}`);
@@ -2713,6 +2987,7 @@
       try {
         if (!cachedWebhookUrl) await autoLoadWebhook();
         await saveTimerToFirestoreOnce(boss.id);
+        writeLog(boss.id, boss.name, "Killed");
         closeTimeModal();
         renderBossList();
         sendDiscordEmbedOnce("manual", boss);
@@ -3135,6 +3410,7 @@
           // Condition 8: send spawn notification (firestore-deduped, condition 13)
           if (!localNotifCache[`${id}_spawn`]) {
             localNotifCache[`${id}_spawn`] = Date.now();
+            writeLog(boss.id, boss.name, "Spawned");
             discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
@@ -3524,12 +3800,21 @@
       });
     }
 
+    const logsBtn = document.getElementById("logsBtn");
+    if (logsBtn) {
+      logsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        settingsDropdown.classList.add("hidden");
+        openLogsPanel();
+      });
+    }
+
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
       settingsDropdown.classList.add("hidden");
       loadWebhookIntoInput();
       webhookBackdrop.style.display = "flex";
-      console.log("ðŸ”§ open webhook modal");
+      console.log("🔧 open webhook modal");
     });
 
     webhookBackdrop.addEventListener("click", (ev) => {
