@@ -1579,12 +1579,20 @@
     .log-entry {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
       padding: 7px 10px;
       border-radius: var(--radius-sm);
       background: var(--bg-primary);
       border: 1px solid var(--border);
       font-size: 12px;
+    }
+
+    .log-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
     }
 
     .log-badge {
@@ -2796,9 +2804,11 @@
         });
         const badgeClass = entry.eventType === "Killed" ? "killed" : "spawned";
         html += `<div class="log-entry">
-          <span class="log-badge ${badgeClass}">${entry.eventType}</span>
+          <span class="log-left">
+            <span class="log-boss">${entry.bossName}</span>
+            <span class="log-badge ${badgeClass}">${entry.eventType}</span>
+          </span>
           <span class="log-time">${timeStr}</span>
-          <span class="log-boss">${entry.bossName}</span>
         </div>`;
       }
       logsListEl.innerHTML = html;
