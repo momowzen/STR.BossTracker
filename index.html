@@ -445,6 +445,7 @@
       letter-spacing: 0.5px;
       cursor: pointer;
       flex-shrink: 0;
+      margin-left: auto;
       transition: border-color var(--transition), color var(--transition);
       font-family: var(--font-sans);
     }
@@ -544,8 +545,6 @@
       .view-toggle {
         display: inline-flex;
         align-items: center;
-        position: absolute;
-        right: 8px;
       }
 
       #weeklyColumn {
@@ -1311,7 +1310,6 @@
       align-items: center;
       margin: 0;
       line-height: 1;
-      position: relative;
       font-size: clamp(11px, 2.5vw, 14px);
       font-weight: 600;
       text-transform: uppercase;
@@ -1550,7 +1548,7 @@
         </div>
       </div>
       <section class="card" id="bossListPanel">
-        <h4 class="card-header">
+        <div class="card-header">
           FIELD BOSS LIST
           <button class="view-toggle" id="viewToggle">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1558,7 +1556,7 @@
               <path d="M12 4L15 8L12 12"/>
             </svg>
           </button>
-        </h4>
+        </div>
         <div id="bossList">
           <div class="boss-column" id="intervalColumn">
             <div class="column-label"><span class="label-dot active"></span> FIXED INTERVAL</div>
