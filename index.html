@@ -445,7 +445,6 @@
       letter-spacing: 0.5px;
       cursor: pointer;
       flex-shrink: 0;
-      margin-left: auto;
       transition: border-color var(--transition), color var(--transition);
       font-family: var(--font-sans);
     }
@@ -545,6 +544,8 @@
       .view-toggle {
         display: inline-flex;
         align-items: center;
+        position: absolute;
+        right: 8px;
       }
 
       #weeklyColumn {
@@ -1310,6 +1311,7 @@
       align-items: center;
       margin: 0;
       line-height: 1;
+      position: relative;
       font-size: clamp(11px, 2.5vw, 14px);
       font-weight: 600;
       text-transform: uppercase;
