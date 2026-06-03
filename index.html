@@ -3590,6 +3590,7 @@
         const docRef = doc(db, "timers", "global");
         onSnapshot(docRef, async (snap) => {
           if (!snap.exists()) {
+            if (snap.metadata.fromCache) return;
             await setDoc(docRef, { timers: {} }, { merge: true });
             return;
           }
