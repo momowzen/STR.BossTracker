@@ -455,6 +455,55 @@
       color: var(--text-primary);
     }
 
+    .header-sort {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .sort-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .sort-select {
+      height: 26px;
+      padding: 0 22px 0 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color var(--transition), color var(--transition);
+      min-width: 110px;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%236e7681' stroke-width='1.5'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      background-size: 10px 6px;
+    }
+
+    .sort-select:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23e6edf3' stroke-width='1.5'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    }
+
+    .sort-select:focus {
+      border-color: var(--accent-blue);
+    }
+
     #bossList {
       flex: 1 1 auto;
       min-height: 0;
@@ -588,6 +637,10 @@
 
       #scheduleBtn {
         display: inline-flex;
+      }
+
+      .header-sort {
+        display: none;
       }
     }
 
@@ -825,6 +878,12 @@
 
       .column-label {
         text-align: center;
+      }
+
+      .card-header {
+        justify-content: space-between;
+        padding-left: 10px;
+        text-align: left;
       }
 
       #bossListPanel {
@@ -1548,7 +1607,15 @@
       </div>
       <section class="card" id="bossListPanel">
         <h4 class="card-header">
-          FIELD BOSS LIST
+          <span>FIELD BOSS LIST</span>
+          <span class="header-sort">
+            <span class="sort-label">SORT</span>
+            <select class="sort-select" id="sortSelect">
+              <option value="name">Name</option>
+              <option value="level">Level</option>
+              <option value="time" selected>Time Remaining</option>
+            </select>
+          </span>
           <button class="view-toggle" id="viewToggle">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4L1 8L4 12"/>
@@ -1922,6 +1989,7 @@
     let timers = {};          // { bossId: { endTime, startedAt, weekly?, cooldownUntil? } }
     let currentBossForTime = null;
     let deadLocks = {};       // in-memory map of boss dead-lock timestamps
+    let currentSort = "time"; // sort: "name", "level", or "time"
 
     // Write dedupe: skip Firestore write when data unchanged
     const lastWriteCache = {};
@@ -2767,13 +2835,19 @@
         return Infinity;
       };
 
-      const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
+      function sortBosses(a, b) {
+        if (currentSort === "name") return a.name.localeCompare(b.name);
+        if (currentSort === "level") return b.level - a.level;
+        return getRemainingMs(a) - getRemainingMs(b);
+      }
+
+      const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns).sort(sortBosses);
       for (const bb of weeklyBosses) {
         const node = buildBossCard(bb);
         if (node) weeklyBossListEl.appendChild(node);
       }
 
-      const timerBosses = BOSSES.filter(b => !b.weeklyRespawns).sort((a, b) => getRemainingMs(a) - getRemainingMs(b));
+      const timerBosses = BOSSES.filter(b => !b.weeklyRespawns).sort(sortBosses);
       for (const bb of timerBosses) {
         const node = buildBossCard(bb);
         if (node) timerBossListEl.appendChild(node);
@@ -3440,6 +3514,15 @@
         } else {
           bossListPanel.classList.toggle("view-weekly");
         }
+      });
+    }
+
+    // === SORT DROPDOWN ===
+    const sortSelect = document.getElementById("sortSelect");
+    if (sortSelect) {
+      sortSelect.addEventListener("change", () => {
+        currentSort = sortSelect.value;
+        renderBossList();
       });
     }
 
