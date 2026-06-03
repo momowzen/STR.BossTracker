@@ -2164,7 +2164,7 @@
         candidate.setUTCDate(base.getUTCDate() + delta);
         candidate.setUTCHours(hour, minute, 0, 0);
         const candidateUtc = candidate.getTime() - TIME_ZONE_OFFSET_MS;
-        if (candidateUtc <= fromTime) {
+        if (candidateUtc < fromTime) {
           candidate.setUTCDate(candidate.getUTCDate() + 7);
         }
         const adjustedUtc = candidate.getTime() - TIME_ZONE_OFFSET_MS;
@@ -2882,33 +2882,32 @@
         return null;
       }
 
-      const now = new Date();
-      const currentDayOfWeek = now.getUTCDay(); // 0 = Sunday
-      const currentHour = now.getUTCHours();
-      const currentMinute = now.getUTCMinutes();
+      const now = Date.now();
+      const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
+      const currentDay = jstNow.getUTCDay();
+      const currentHour = jstNow.getUTCHours();
+      const currentMinute = jstNow.getUTCMinutes();
 
       let nextRespawnTime = null;
 
-      // Check each weekly respawn slot
       for (const slot of boss.weeklyRespawns) {
-        // Create a date for this week's slot
-        let slotDate = new Date(now);
-        const daysUntilSlot = (slot.day - currentDayOfWeek + 7) % 7;
+        let slotDate = new Date(jstNow);
+        const daysUntilSlot = (slot.day - currentDay + 7) % 7;
         slotDate.setUTCDate(slotDate.getUTCDate() + daysUntilSlot);
         slotDate.setUTCHours(slot.hour, slot.minute, 0, 0);
 
-        // If this slot is in the past (same day but earlier time), move to next week
         if (daysUntilSlot === 0 && (currentHour > slot.hour ||
           (currentHour === slot.hour && currentMinute >= slot.minute))) {
           slotDate.setUTCDate(slotDate.getUTCDate() + 7);
         }
 
-        if (!nextRespawnTime || slotDate.getTime() < nextRespawnTime.getTime()) {
-          nextRespawnTime = slotDate;
+        const slotMs = slotDate.getTime() - TIME_ZONE_OFFSET_MS;
+        if (!nextRespawnTime || slotMs < nextRespawnTime) {
+          nextRespawnTime = slotMs;
         }
       }
 
-      return nextRespawnTime ? nextRespawnTime.getTime() : null;
+      return nextRespawnTime;
     }
 
     const WORLD_BOSS_NAMES = ["Ratan", "Parto", "Nedra"];
