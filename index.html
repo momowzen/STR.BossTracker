@@ -2721,10 +2721,41 @@
     // Tracker Logs
     // -------------------------
     const LOGS_COLLECTION = "logs";
-    const LOGS_CACHE_KEY = "trackerLogsCache";
-    const LOGS_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 min
 
     const logDedupeCache = {};
+    let logsCleanupDone = false;
+
+    async function cleanupDuplicateLogs() {
+      if (logsCleanupDone) return;
+      logsCleanupDone = true;
+      try {
+        const logsRef = collection(db, LOGS_COLLECTION);
+        const snap = await getDocs(query(logsRef, orderBy("createdAt", "asc")));
+        const groups = {};
+        for (const d of snap.docs) {
+          const data = d.data();
+          const key = `${data.bossId}_${data.eventType}`;
+          const minTs = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
+          const minuteKey = new Date(minTs).toISOString().slice(0, 16);
+          const groupKey = `${key}_${minuteKey}`;
+          if (!groups[groupKey]) groups[groupKey] = [];
+          groups[groupKey].push({ id: d.id, ts: minTs });
+        }
+        const toDelete = [];
+        for (const [groupKey, entries] of Object.entries(groups)) {
+          if (entries.length > 1) {
+            entries.sort((a, b) => b.ts - a.ts);
+            toDelete.push(...entries.slice(1).map((e) => e.id));
+          }
+        }
+        if (toDelete.length > 0) {
+          await Promise.allSettled(toDelete.map((id) => deleteDoc(doc(db, LOGS_COLLECTION, id))));
+          console.log(`🧹 Cleaned up ${toDelete.length} duplicate log(s)`);
+        }
+      } catch (e) {
+        console.warn("cleanupDuplicateLogs err", e);
+      }
+    }
 
     async function writeLog(bossId, bossName, eventType) {
       const dedupeKey = `${bossId}_${eventType}`;
@@ -4063,6 +4094,7 @@
             firebaseLoaded = true;
             loadingOverlay.style.display = "none";
             appInitialized = true;
+            cleanupDuplicateLogs();
           }
         });
       } catch (e) {
