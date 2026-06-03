@@ -2719,7 +2719,15 @@
     const LOGS_CACHE_KEY = "trackerLogsCache";
     const LOGS_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 min
 
+    const logDedupeCache = {};
+
     async function writeLog(bossId, bossName, eventType) {
+      const dedupeKey = `${bossId}_${eventType}`;
+      const lastLog = logDedupeCache[dedupeKey];
+      if (lastLog && Date.now() - lastLog < 60_000) return;
+
+      logDedupeCache[dedupeKey] = Date.now();
+
       try {
         const logsRef = collection(db, LOGS_COLLECTION);
         await addDoc(logsRef, {
