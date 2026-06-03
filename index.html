@@ -2670,9 +2670,10 @@
       function getLevelColor(level) {
         if (!level) return "";
         if (level <= 75) return "var(--accent-green)";
-        if (level <= 95) return "var(--accent-blue)";
-        if (level <= 100) return "var(--accent-purple)";
-        return "var(--accent-orange)";
+        if (level <= 90) return "var(--accent-blue)";
+        if (level <= 98) return "var(--accent-purple)";
+        if (level <= 120) return "var(--accent-orange)";
+        return "var(--accent-red)";
       }
 
       function buildBossCard(b) {
