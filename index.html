@@ -1614,6 +1614,11 @@
       color: #000;
     }
 
+    .log-badge.reset {
+      background: var(--accent-orange);
+      color: #000;
+    }
+
     .log-time {
       flex-shrink: 0;
       font-family: var(--font-mono);
@@ -2830,7 +2835,7 @@
           hour12: false,
           timeZone: TIME_ZONE,
         });
-        const badgeClass = entry.eventType === "Killed" ? "killed" : "spawned";
+        const badgeClass = entry.eventType === "Killed" ? "killed" : entry.eventType === "Reset" ? "reset" : "spawned";
         html += `<div class="log-entry">
           <span class="log-left">
             <span class="log-boss">${entry.bossName}</span>
@@ -2974,6 +2979,7 @@
       try {
         await setDoc(doc(db, "timers", "global"), { timers }); // overwrite entire timers doc
         renderBossList();
+        writeLog("__all__", "Time Tracker Reset", "Reset");
         alert("✅ All non-weekly timers reset (Firestore updated).");
         console.log("🔁 resetAll: fully reset timers and updated Firestore.");
       } catch (e) {
