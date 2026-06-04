@@ -2793,6 +2793,23 @@
 
       try {
         const logsRef = collection(db, LOGS_COLLECTION);
+
+        // Firestore-side dedup: check recent logs for same boss+event
+        const cutoff = Date.now() - 60_000;
+        const recentQ = query(logsRef, orderBy("createdAt", "desc"), limit(20));
+        const recentSnap = await getDocs(recentQ);
+        for (const d of recentSnap.docs) {
+          const data = d.data();
+          if (data.bossId === bossId && data.eventType === eventType) {
+            const existingTs = data.createdAt || 0;
+            if (existingTs > cutoff) {
+              console.log(`⏸️ Skipped duplicate log: ${bossName} ${eventType}`);
+              return;
+            }
+            break;
+          }
+        }
+
         await addDoc(logsRef, {
           bossId,
           bossName,
