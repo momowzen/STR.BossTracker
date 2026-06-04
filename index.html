@@ -1539,7 +1539,14 @@
       color: var(--text-primary);
     }
 
-    .logs-close {
+    .logs-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logs-close,
+    .logs-dl {
       width: 28px;
       height: 28px;
       padding: 0;
@@ -1556,7 +1563,8 @@
       line-height: 1;
     }
 
-    .logs-close:hover {
+    .logs-close:hover,
+    .logs-dl:hover {
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
@@ -1844,7 +1852,15 @@
     <div class="logs-panel" role="dialog" aria-modal="true" aria-labelledby="logsTitle">
       <div class="logs-header">
         <span class="logs-header-title" id="logsTitle">Tracker Logs</span>
-        <button class="logs-close" id="logsClose" aria-label="Close logs">&times;</button>
+        <span class="logs-header-actions">
+          <button class="logs-dl" id="logsDlBtn" aria-label="Download logs" title="Download as TXT">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 1.5v9M4.5 7L8 10.5 11.5 7"/>
+              <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
+            </svg>
+          </button>
+          <button class="logs-close" id="logsClose" aria-label="Close logs">&times;</button>
+        </span>
       </div>
       <div class="logs-list" id="logsList">
         <div class="logs-loading">Loading logs...</div>
@@ -2865,6 +2881,7 @@
       logsModalBackdrop.style.display = "flex";
       if (logsListEl) logsListEl.innerHTML = '<div class="logs-loading">Loading logs...</div>';
       const entries = await fetchLogs();
+      window._currentLogEntries = entries;
       renderLogs(entries);
     }
 
@@ -2881,6 +2898,29 @@
       });
     }
     if (logsClose) logsClose.addEventListener("click", closeLogsPanel);
+
+    const logsDlBtn = document.getElementById("logsDlBtn");
+    if (logsDlBtn) {
+      logsDlBtn.addEventListener("click", () => {
+        const entries = window._currentLogEntries;
+        if (!entries || entries.length === 0) return;
+        const lines = entries.map((e) => {
+          const d = new Date(e.ts);
+          const timeStr = d.toLocaleString("en-US", {
+            month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+            hour12: false, timeZone: TIME_ZONE,
+          });
+          return `${e.bossName} ${e.eventType} — ${timeStr}`;
+        });
+        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tracker_logs_${new Date().toISOString().slice(0, 10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
 
     // -------------------------
     // Firestore save dedupe helpers
