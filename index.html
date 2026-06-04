@@ -2910,7 +2910,9 @@
             month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
             hour12: false, timeZone: TIME_ZONE,
           });
-          return `${e.bossName} ${e.eventType} — ${timeStr}`;
+          const extra = e.eventType === "Manual" && e.manualTime
+            ? ` (set: ${formatShortDateTime(e.manualTime)})` : "";
+          return `${e.bossName}${extra} ${e.eventType} — ${timeStr}`;
         });
         const blob = new Blob([lines.join("\n")], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
