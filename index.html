@@ -1619,6 +1619,11 @@
       color: #000;
     }
 
+    .log-badge.manual {
+      background: var(--accent-blue);
+      color: #000;
+    }
+
     .log-time {
       flex-shrink: 0;
       font-family: var(--font-mono);
@@ -2762,7 +2767,7 @@
       }
     }
 
-    async function writeLog(bossId, bossName, eventType) {
+    async function writeLog(bossId, bossName, eventType, manualTime) {
       const dedupeKey = `${bossId}_${eventType}`;
       const lastLog = logDedupeCache[dedupeKey];
       if (lastLog && Date.now() - lastLog < 60_000) return;
@@ -2775,6 +2780,7 @@
           bossId,
           bossName,
           eventType,
+          manualTime: manualTime || null,
           timestamp: serverTimestamp(),
           createdAt: Date.now(),
         });
@@ -2835,10 +2841,16 @@
           hour12: false,
           timeZone: TIME_ZONE,
         });
-        const badgeClass = entry.eventType === "Killed" ? "killed" : entry.eventType === "Reset" ? "reset" : "spawned";
+        let badgeClass = "spawned";
+        if (entry.eventType === "Killed") badgeClass = "killed";
+        else if (entry.eventType === "Reset") badgeClass = "reset";
+        else if (entry.eventType === "Manual") badgeClass = "manual";
+        const manualText = entry.manualTime
+          ? ` (${formatShortDateTime(entry.manualTime)})`
+          : "";
         html += `<div class="log-entry">
           <span class="log-left">
-            <span class="log-boss">${entry.bossName}</span>
+            <span class="log-boss">${entry.bossName}${manualText}</span>
             <span class="log-badge ${badgeClass}">${entry.eventType}</span>
           </span>
           <span class="log-time">${timeStr}</span>
@@ -3039,7 +3051,7 @@
       try {
         if (!cachedWebhookUrl) await autoLoadWebhook();
         await saveTimerToFirestoreOnce(boss.id);
-        writeLog(boss.id, boss.name, "Killed");
+        writeLog(boss.id, boss.name, "Manual", killedAt);
         closeTimeModal();
         renderBossList();
         sendDiscordEmbedOnce("manual", boss);
