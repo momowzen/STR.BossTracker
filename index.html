@@ -2583,10 +2583,18 @@
         // Strip obsolete fields that may linger from older code
         for (const k of STALE_KEYS) delete merged[id][k];
 
-        // Preserve an active local cooldown if it is still valid
         const localInfo = timers[id];
+
+        // Preserve an active local cooldown if it is still valid
         if (localInfo?.cooldownUntil && localInfo.cooldownUntil > now) {
           merged[id] = { ...remoteInfo, cooldownUntil: localInfo.cooldownUntil };
+        }
+
+        // Prevent stale cached data from overwriting a valid future local timer.
+        // If the local timer has a valid future endTime but the remote data is
+        // expired (endTime in the past), the local state is the authoritative one.
+        if (localInfo && localInfo.endTime > now && remoteInfo.endTime <= now) {
+          merged[id] = { ...localInfo };
         }
 
         lastWriteCache[id] = JSON.stringify(merged[id] || {});
@@ -3114,6 +3122,7 @@
         }
 
         // --- Cooldown just expired: auto-enter next cycle (condition 10) ---
+        if (!normalized && co && now >= co && info.endTime <= now) continue;
         if (co && now >= co && info.endTime <= now) {
           const nextTime = boss.weeklyRespawns
             ? getNextWeeklyRespawn(boss.weeklyRespawns, now + 1)
@@ -3144,6 +3153,9 @@
 
         // --- Timer just reached 0 (condition 8 + 10) ---
         // Note: remainingMs <= 0 here
+        // Skip spawn transitions during initial load — stale cached data
+        // could trigger false spawns for already-killed bosses.
+        if (!normalized) continue;
         if (remainingMs <= 0 && !co) {
           // Condition 8: send spawn notification (firestore-deduped, condition 13)
           if (!localNotifCache[`${id}_spawn`]) {
@@ -3287,7 +3299,9 @@
     // fast visual refresh (every 1s, no overlapping tickUpdate calls)
     async function tickLoop() {
       updateCountdownDisplay();
-      if (normalized && firebaseLoaded) await tickUpdate();
+      if (firebaseLoaded && Object.keys(timers).length) {
+        await tickUpdate();
+      }
       setTimeout(tickLoop, 1000);
     }
     tickLoop();
@@ -3696,8 +3710,6 @@
           applyTimersFromSnapshot(snap.data().timers || {});
 
           // Condition 6: normalize expired timers silently on first snapshot.
-          // Cached (fromCache=true): normalize in-memory only — user never sees SPAWNED.
-          // Server (fromCache=false): also write normalized timers to Firestore.
           if (!normalized) {
             const now = Date.now();
             let changed = false;
