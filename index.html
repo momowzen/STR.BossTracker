@@ -1502,169 +1502,6 @@
       box-shadow: 0 0 14px rgba(88, 166, 255, 0.12);
     }
 
-    /* === LOGS MODAL === */
-    #logsModalBackdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      background: rgba(0, 0, 0, 0.7);
-    }
-
-    #logsModalBackdrop.active { display: flex; }
-
-    .logs-panel {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      width: min(500px, calc(100vw - 24px));
-      max-height: min(600px, calc(100vh - 48px));
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    }
-
-    .logs-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 14px 10px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logs-header-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-primary);
-    }
-
-    .logs-header-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .logs-close,
-    .logs-dl {
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-primary);
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color var(--transition), color var(--transition);
-      font-size: 14px;
-      line-height: 1;
-    }
-
-    .logs-close:hover,
-    .logs-dl:hover {
-      border-color: var(--border-hover);
-      color: var(--text-primary);
-    }
-
-    .logs-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.15) transparent;
-    }
-
-    .logs-list::-webkit-scrollbar { width: 6px; }
-    .logs-list::-webkit-scrollbar-track { background: transparent; }
-    .logs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-
-    .log-entry {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: var(--radius-sm);
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      font-size: 12px;
-    }
-
-    .log-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .log-badge {
-      flex-shrink: 0;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      line-height: 1.2;
-    }
-
-    .log-badge.killed {
-      background: var(--accent-red);
-      color: #000;
-    }
-
-    .log-badge.spawned {
-      background: var(--accent-green);
-      color: #000;
-    }
-
-    .log-badge.reset {
-      background: var(--accent-orange);
-      color: #000;
-    }
-
-    .log-badge.manual {
-      background: var(--accent-blue);
-      color: #000;
-    }
-
-    .log-time {
-      flex-shrink: 0;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .log-boss {
-      font-weight: 600;
-      color: var(--text-primary);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .log-empty {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
-      font-style: italic;
-      padding: 40px 0;
-    }
-
-    .logs-loading {
-      text-align: center;
-      font-size: 11px;
-      color: var(--text-muted);
-      padding: 40px 0;
-    }
   </style>
 </head>
 
@@ -1850,27 +1687,7 @@
     </div>
   </div>
 
-  <!-- Logs modal -->
-  <div class="modal-backdrop" id="logsModalBackdrop">
-    <div class="logs-panel" role="dialog" aria-modal="true" aria-labelledby="logsTitle">
-      <div class="logs-header">
-        <span class="logs-header-title" id="logsTitle">Tracker Logs</span>
-        <span class="logs-header-actions">
-          <button class="logs-dl" id="logsDlBtn" aria-label="Download logs" title="Download as TXT">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 1.5v9M4.5 7L8 10.5 11.5 7"/>
-              <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
-            </svg>
-          </button>
-          <button class="logs-close" id="logsClose" aria-label="Close logs">&times;</button>
-        </span>
-      </div>
-      <div class="logs-list" id="logsList">
-        <div class="logs-loading">Loading logs...</div>
-      </div>
-    </div>
-  </div>
-
+  
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
       <svg class="settings-header-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1902,13 +1719,6 @@
           <path d="M2.5 14.5v-3.7h3.7"/>
         </svg>
         <span class="label">Reset Timers</span>
-      </button>
-      <button class="settings-item" id="logsBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M2 3h12v10H2z"/>
-          <path d="M4 7h8M4 10h5"/>
-        </svg>
-        <span class="label">Tracker Logs</span>
       </button>
       <button class="settings-item" id="discordWebhookBtn">
         <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2747,204 +2557,6 @@
     }
 
     // -------------------------
-    // Tracker Logs
-    // -------------------------
-    const LOGS_COLLECTION = "logs";
-
-    const logDedupeCache = {};
-    let logsCleanupDone = false;
-
-    async function cleanupDuplicateLogs() {
-      if (logsCleanupDone) return;
-      logsCleanupDone = true;
-      try {
-        const logsRef = collection(db, LOGS_COLLECTION);
-        const snap = await getDocs(query(logsRef, orderBy("createdAt", "asc")));
-        const groups = {};
-        for (const d of snap.docs) {
-          const data = d.data();
-          const key = `${data.bossId}_${data.eventType}`;
-          const minTs = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
-          const minuteKey = new Date(minTs).toISOString().slice(0, 16);
-          const groupKey = `${key}_${minuteKey}`;
-          if (!groups[groupKey]) groups[groupKey] = [];
-          groups[groupKey].push({ id: d.id, ts: minTs });
-        }
-        const toDelete = [];
-        for (const [groupKey, entries] of Object.entries(groups)) {
-          if (entries.length > 1) {
-            entries.sort((a, b) => b.ts - a.ts);
-            toDelete.push(...entries.slice(1).map((e) => e.id));
-          }
-        }
-        if (toDelete.length > 0) {
-          await Promise.allSettled(toDelete.map((id) => deleteDoc(doc(db, LOGS_COLLECTION, id))));
-          console.log(`🧹 Cleaned up ${toDelete.length} duplicate log(s)`);
-        }
-      } catch (e) {
-        console.warn("cleanupDuplicateLogs err", e);
-      }
-    }
-
-    async function writeLog(bossId, bossName, eventType, manualTime) {
-      const dedupeKey = `${bossId}_${eventType}`;
-      const lastLog = logDedupeCache[dedupeKey];
-      if (lastLog && Date.now() - lastLog < 60_000) return;
-
-      logDedupeCache[dedupeKey] = Date.now();
-
-      try {
-        const logsRef = collection(db, LOGS_COLLECTION);
-
-        // Firestore-side dedup: check recent logs for same boss+event
-        const cutoff = Date.now() - 60_000;
-        const recentQ = query(logsRef, orderBy("createdAt", "desc"), limit(20));
-        const recentSnap = await getDocs(recentQ);
-        for (const d of recentSnap.docs) {
-          const data = d.data();
-          if (data.bossId === bossId && data.eventType === eventType) {
-            const existingTs = data.createdAt || 0;
-            if (existingTs > cutoff) {
-              console.log(`⏸️ Skipped duplicate log: ${bossName} ${eventType}`);
-              return;
-            }
-            break;
-          }
-        }
-
-        await addDoc(logsRef, {
-          bossId,
-          bossName,
-          eventType,
-          manualTime: manualTime || null,
-          timestamp: serverTimestamp(),
-          createdAt: Date.now(),
-        });
-
-        // Keep only the 100 newest logs; delete oldest beyond that
-        const allRef = query(logsRef, orderBy("createdAt", "asc"));
-        const snap = await getDocs(allRef);
-        if (snap.size > 100) {
-          const toDelete = snap.size - 100;
-          const docs = snap.docs.slice(0, toDelete);
-          await Promise.allSettled(docs.map((d) => deleteDoc(doc(db, LOGS_COLLECTION, d.id))));
-          console.log(`🧹 Cleaned up ${toDelete} old log(s)`);
-        }
-
-        console.log(`✅ Log written: ${bossName} ${eventType}`);
-      } catch (e) {
-        console.warn("writeLog err", e);
-      }
-    }
-
-    const logsListEl = document.getElementById("logsList");
-    const logsModalBackdrop = document.getElementById("logsModalBackdrop");
-    const logsClose = document.getElementById("logsClose");
-
-    async function fetchLogs() {
-      try {
-        const logsRef = collection(db, LOGS_COLLECTION);
-        const q = query(logsRef, orderBy("timestamp", "desc"), limit(100));
-        const snap = await getDocs(q);
-        const entries = [];
-        snap.forEach((d) => {
-          const data = d.data();
-          const ts = data.timestamp?.toMillis ? data.timestamp.toMillis() : data.createdAt || 0;
-          entries.push({ id: d.id, ...data, ts });
-        });
-        return entries;
-      } catch (e) {
-        console.warn("fetchLogs err", e);
-        return [];
-      }
-    }
-
-    function renderLogs(entries) {
-      if (!logsListEl) return;
-      if (!entries || entries.length === 0) {
-        logsListEl.innerHTML = '<div class="log-empty">No logs yet.</div>';
-        return;
-      }
-
-      let html = "";
-      for (const entry of entries) {
-        const d = new Date(entry.ts);
-        const timeStr = d.toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZone: TIME_ZONE,
-        });
-        let badgeClass = "spawned";
-        if (entry.eventType === "Killed") badgeClass = "killed";
-        else if (entry.eventType === "Reset") badgeClass = "reset";
-        else if (entry.eventType === "Manual") badgeClass = "manual";
-        const manualText = entry.manualTime
-          ? ` (${formatShortDateTime(entry.manualTime)})`
-          : "";
-        html += `<div class="log-entry">
-          <span class="log-left">
-            <span class="log-boss">${entry.bossName}${manualText}</span>
-            <span class="log-badge ${badgeClass}">${entry.eventType}</span>
-          </span>
-          <span class="log-time">${timeStr}</span>
-        </div>`;
-      }
-      logsListEl.innerHTML = html;
-    }
-
-    async function openLogsPanel() {
-      if (!logsModalBackdrop) return;
-      logsModalBackdrop.classList.add("active");
-      logsModalBackdrop.style.display = "flex";
-      if (logsListEl) logsListEl.innerHTML = '<div class="logs-loading">Loading logs...</div>';
-      const entries = await fetchLogs();
-      window._currentLogEntries = entries;
-      renderLogs(entries);
-    }
-
-    function closeLogsPanel() {
-      if (!logsModalBackdrop) return;
-      logsModalBackdrop.classList.remove("active");
-      logsModalBackdrop.style.display = "none";
-    }
-
-    // Close logs modal on backdrop click
-    if (logsModalBackdrop) {
-      logsModalBackdrop.addEventListener("click", (e) => {
-        if (e.target === logsModalBackdrop) closeLogsPanel();
-      });
-    }
-    if (logsClose) logsClose.addEventListener("click", closeLogsPanel);
-
-    const logsDlBtn = document.getElementById("logsDlBtn");
-    if (logsDlBtn) {
-      logsDlBtn.addEventListener("click", () => {
-        const entries = window._currentLogEntries;
-        if (!entries || entries.length === 0) return;
-        const lines = entries.map((e) => {
-          const d = new Date(e.ts);
-          const timeStr = d.toLocaleString("en-US", {
-            month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-            hour12: false, timeZone: TIME_ZONE,
-          });
-          const extra = e.eventType === "Manual" && e.manualTime
-            ? ` (set: ${formatShortDateTime(e.manualTime)})` : "";
-          return `${e.bossName}${extra} ${e.eventType} — ${timeStr}`;
-        });
-        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `tracker_logs_${new Date().toISOString().slice(0, 10)}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-      });
-    }
-
-    // -------------------------
     // Firestore save dedupe helpers
     // -------------------------
     async function saveTimersToFirestore() {
@@ -3035,7 +2647,6 @@
       delete localNotifCache[`${boss.id}_spawn`];
 
       await saveTimerToFirestoreOnce(bossId);
-      writeLog(boss.id, boss.name, "Killed");
       renderBossList();
 
       console.log(`startTimer: ${bossId} -> ${new Date(endTime).toISOString()}`);
@@ -3053,7 +2664,6 @@
       try {
         await setDoc(doc(db, "timers", "global"), { timers }); // overwrite entire timers doc
         renderBossList();
-        writeLog("__all__", "Time Tracker Reset", "Reset");
         alert("✅ All non-weekly timers reset (Firestore updated).");
         console.log("🔁 resetAll: fully reset timers and updated Firestore.");
       } catch (e) {
@@ -3113,7 +2723,6 @@
       try {
         if (!cachedWebhookUrl) await autoLoadWebhook();
         await saveTimerToFirestoreOnce(boss.id);
-        writeLog(boss.id, boss.name, "Manual", killedAt);
         closeTimeModal();
         renderBossList();
         sendDiscordEmbedOnce("manual", boss);
@@ -3536,7 +3145,6 @@
           // Condition 8: send spawn notification (firestore-deduped, condition 13)
           if (!localNotifCache[`${id}_spawn`]) {
             localNotifCache[`${id}_spawn`] = Date.now();
-            writeLog(boss.id, boss.name, "Spawned");
             discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
@@ -3928,15 +3536,6 @@
       });
     }
 
-    const logsBtn = document.getElementById("logsBtn");
-    if (logsBtn) {
-      logsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        settingsDropdown.classList.add("hidden");
-        openLogsPanel();
-      });
-    }
-
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
       settingsDropdown.classList.add("hidden");
@@ -4174,7 +3773,6 @@
             firebaseLoaded = true;
             loadingOverlay.style.display = "none";
             appInitialized = true;
-            cleanupDuplicateLogs();
           }
         });
       } catch (e) {
