@@ -2866,11 +2866,12 @@
         const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
         const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
         const tomorrowStart = todayStart + 86400000;
-        const c = BOSSES.filter(b => {
+        const todayBosses = BOSSES.filter(b => {
           const info = timers[b.id];
           return info && info.endTime >= todayStart && info.endTime < tomorrowStart;
-        }).length;
-        activeCountEl.textContent = c;
+        });
+        const remaining = todayBosses.filter(b => timers[b.id].endTime > now).length;
+        activeCountEl.textContent = `${remaining}/${todayBosses.length}`;
       }
     }
 
