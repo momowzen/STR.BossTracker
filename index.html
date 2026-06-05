@@ -1602,7 +1602,7 @@
           </div>
         </div>
         <div class="stat-card" id="activeStatCard">
-          <div class="stat-label">Active Timers</div>
+          <div class="stat-label">Remaining Boss</div>
           <div class="stat-count" id="activeCount">0</div>
         </div>
       </div>
@@ -2863,9 +2863,12 @@
 
       const activeCountEl = document.getElementById("activeCount");
       if (activeCountEl) {
+        const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
+        const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
+        const tomorrowStart = todayStart + 86400000;
         const c = BOSSES.filter(b => {
           const info = timers[b.id];
-          return info && info.endTime > now;
+          return info && info.endTime >= todayStart && info.endTime < tomorrowStart;
         }).length;
         activeCountEl.textContent = c;
       }
