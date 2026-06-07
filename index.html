@@ -2334,6 +2334,8 @@
           cachedWebhookUrl = null;
           console.log("ℹ No webhook in Firestore.");
         }
+      }, (err) => {
+        console.warn("Webhook snapshot error (non-fatal):", err.code);
       });
     }
 
@@ -3801,6 +3803,8 @@
             loadingOverlay.style.display = "none";
             appInitialized = true;
           }
+        }, (err) => {
+          console.warn("Timers snapshot error (non-fatal):", err.code);
         });
       } catch (e) {
         console.warn("Firestore load failed", e);
