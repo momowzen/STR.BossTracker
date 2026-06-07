@@ -2261,6 +2261,7 @@
       orderBy,
       limit,
       getDocs,
+      getDoc,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check.js";
 
@@ -2433,6 +2434,18 @@
         if (!thisEndTimeMs && boss.id === "__world_boss__") {
           thisEndTimeMs = getNextWorldBossTime() || 0;
         }
+
+        // Fast pre-check: if another user already wrote the same cycle, skip
+        try {
+          const preSnap = await getDoc(ref);
+          if (preSnap.exists()) {
+            const preData = preSnap.data();
+            if (preData.lastEndTimeMs !== 0 && preData.lastEndTimeMs === thisEndTimeMs) {
+              console.log(`⏸️ Pre-check dedupe: ${type} for ${boss.name} already notified`);
+              return;
+            }
+          }
+        } catch (_) { /* pre-check is optional; continue to transaction */ }
 
         let txResult;
         try {
