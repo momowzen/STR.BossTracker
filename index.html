@@ -3306,6 +3306,19 @@
         }
       }
 
+      // Update remaining boss count
+      const activeCountEl = document.getElementById("activeCount");
+      if (activeCountEl) {
+        const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
+        const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
+        const tomorrowStart = todayStart + 86400000;
+        const c = BOSSES.filter(b => {
+          const info = timers[b.id];
+          return info && info.endTime >= todayStart && info.endTime < tomorrowStart && info.endTime > now;
+        }).length;
+        activeCountEl.textContent = c;
+      }
+
       // Update next boss countdown
       computeNextBoss();
     }
