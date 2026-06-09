@@ -2913,6 +2913,13 @@
     // Render functions
     // -------------------------
     function renderBossList() {
+      // FLIP: capture old positions
+      const oldRects = {};
+      document.querySelectorAll(".boss").forEach(el => {
+        const id = el.getAttribute("data-id");
+        if (id) oldRects[id] = el.getBoundingClientRect();
+      });
+
       weeklyBossListEl.innerHTML = "";
       timerBossListEl.innerHTML = "";
       const q = (searchInput.value || "").toLowerCase().trim();
@@ -3049,6 +3056,28 @@
           return info && info.endTime >= todayStart && info.endTime < tomorrowStart;
         }).length;
         activeCountEl.textContent = c;
+      }
+
+      // FLIP: animate cards from old to new positions
+      const moved = [];
+      document.querySelectorAll(".boss").forEach(el => {
+        const old = oldRects[el.getAttribute("data-id")];
+        if (!old) return;
+        const cur = el.getBoundingClientRect();
+        const dx = old.left - cur.left;
+        const dy = old.top - cur.top;
+        if (dx === 0 && dy === 0) return;
+        el.style.transition = "none";
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        moved.push(el);
+      });
+      if (moved.length) {
+        void document.body.offsetHeight;
+        moved.forEach(el => {
+          el.style.transition = "transform 0.3s ease";
+          el.style.transform = "";
+        });
+        setTimeout(() => moved.forEach(el => el.style.transition = ""), 350);
       }
     }
 
