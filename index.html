@@ -720,14 +720,22 @@
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid var(--border);
       font-size: 12px;
-      transition: border-color var(--transition), box-shadow var(--transition);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition), transform var(--transition);
       box-sizing: border-box;
       position: relative;
     }
 
     .boss:hover {
       border-color: var(--border-hover);
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+      background: rgba(22, 27, 34, 0.8);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      transform: translateY(-1px);
+    }
+    .boss.is-alive:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(88, 166, 255, 0.08);
+    }
+    .boss.is-dead:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(248, 81, 73, 0.08);
     }
 
     .boss.is-dead {
