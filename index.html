@@ -957,6 +957,30 @@
       }
     }
 
+    @media (min-width: 901px) {
+      .header-top {
+        display: contents;
+      }
+      .header-controls {
+        display: contents;
+      }
+      .app-title { order: 0; }
+      .search-wrapper {
+        order: 1;
+        flex: 1;
+        min-width: 0;
+      }
+      .header-actions {
+        order: 2;
+      }
+      .server-time {
+        order: 3;
+        width: 100%;
+        text-align: center;
+        margin-top: 4px;
+      }
+    }
+
     /* === MODALS & OVERLAYS === */
     .modal-backdrop {
       position: fixed;
