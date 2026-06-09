@@ -1432,6 +1432,23 @@
       text-overflow: ellipsis;
     }
 
+    .location {
+      font-size: 9px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .info .sub svg,
+    .info .location svg,
+    .info .spawn-time svg,
+    .info .time-remaining svg {
+      vertical-align: middle;
+      margin-right: 2px;
+      flex-shrink: 0;
+    }
+
     .actions {
       display: flex;
       align-items: center;
@@ -1912,10 +1929,57 @@
       },
 
     ];
+    const LOCATIONS = {
+      Venatus: "Corrupted River Stream",
+      Viorent: "Gill Stream",
+      Ego: "Reclaimed Gathering Point",
+      Clemantis: "White Witch's Cradle",
+      Livera: "Black Storm Peninsula",
+      Araneo: "Lower Tomb of Tyriosa 1F",
+      Undomiel: "Test Subject Lab",
+      Saphirus: "Moonlight Shackle",
+      Neutro: "Battlefield of Love and Hatred",
+      LadyDalia: "Bloody Shadow",
+      GeneralAquleus: "Lower Tomb of Tyriosa 2F",
+      Thymele: "Mark of Rampage",
+      Amentis: "Limestone Cape",
+      BaronBraudmore: "Rosevine Bridge",
+      Milavy: "Lower Tomb of Tyriosa 3F",
+      Wannitas: "Snare Swamp",
+      Metus: "Follower's Field",
+      Duplican: "Open-Eyed Puppet's Throne",
+      Shuliar: "Masquerade of Hounds",
+      Ringor: "Torchlight Highway",
+      Roderick: "Garbana Underground Waterway 1F",
+      Gareth: "Deadman's Land District 1",
+      Titore: "Deadman's Land District 2",
+      Larba: "Garbana Reclaimed Land",
+      Catena: "Deadman's Land District 3",
+      Auraq: "Garbana Underground Waterway 2F",
+      Secreta: "Kallion's Tomb",
+      Ordo: "Successor's Paradise",
+      Asta: "Goldblood Plain",
+      Supore: "Goldblood Plain",
+      Chaiflock: "Kallion's Tomb",
+      Benji: "Nest of Vengeance",
+      Libitina: "Chapel of Eternal Vassalage",
+      Rakajeth: "Secreta's Punishment",
+      Icaruthia: "Royal Valley",
+      Motti: "Evelyn's Outer Court",
+      Nevaeh: "Celine's Courtyard",
+      Tumier: "Garbana Underground Waterway 3F",
+      Lucus: "Silent Smelter",
+    };
     // -------------------------
     // DOM refs
     // -------------------------
     // Timezone configuration
+    const ICONS = {
+      clock: `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><polyline points="8,4.5 8,8 10.5,10"/></svg>`,
+      gps: `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>`,
+      calendar: `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3.5" width="13" height="11" rx="1.5"/><line x1="1.5" y1="7" x2="14.5" y2="7"/><line x1="5" y1="1.5" x2="5" y2="5"/><line x1="11" y1="1.5" x2="11" y2="5"/></svg>`,
+      hourglass: `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1.5h10M3 14.5h10"/><path d="M3 1.5c0 2.5 2 4.5 5 4.5s5-2 5-4.5"/><path d="M3 14.5c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>`,
+    };
     const TIME_ZONE = "Asia/Tokyo";
     const TIME_ZONE_LABEL = "UTC+9";
     const TIME_ZONE_ISO_SUFFIX = "+09:00";
@@ -2779,8 +2843,8 @@
         if (q && !b.name.toLowerCase().includes(q)) return null;
 
         const subText = isWeekly
-          ? `${b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")}`
-          : b.respawn / 3600 + " hr";
+          ? "Time: " + b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")
+          : "Time: " + b.respawn / 3600 + " hr";
 
         const t = timers[b.id];
         // SPAWNED = timer expired, no active cooldown OR currently in cooldown
@@ -2820,9 +2884,10 @@
               <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
               <div class="info">
                 <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge" style="background:${getLevelColor(b.level)}">${b.level}</span>` : ""}</div>
-                <div class="sub">${subText}</div>
-                <div class="spawn-time">${spawnTimeText}</div>
-                <div class="time-remaining">${remainingText}</div>
+                <div class="sub">${ICONS.clock} ${subText}</div>
+                <div class="location">${ICONS.gps} ${LOCATIONS[b.id] || ""}</div>
+                <div class="spawn-time">${spawnTimeText ? ICONS.calendar + " " + spawnTimeText : ""}</div>
+                <div class="time-remaining">${remainingText ? ICONS.hourglass + " " + remainingText : ""}</div>
         </h4>
             </div>
           </div>
