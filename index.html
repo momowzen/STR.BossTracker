@@ -1467,6 +1467,20 @@
     .time-remaining::before {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 1.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 14.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 1.5C3 4.3 5.2 7 8 7s5-2.7 5-5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3Cpath d='M3 14.5C3 11.7 5.2 9 8 9s5 2.7 5 5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3C/svg%3E");
     }
+    #nextTime::before,
+    #worldBossTime::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 3px;
+      vertical-align: middle;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 1.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 14.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 1.5C3 4.3 5.2 7 8 7s5-2.7 5-5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3Cpath d='M3 14.5C3 11.7 5.2 9 8 9s5 2.7 5 5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      flex-shrink: 0;
+    }
     .spawn-time:empty::before,
     .time-remaining:empty::before {
       display: none;
