@@ -2752,9 +2752,16 @@
 
         const localInfo = timers[id];
 
-        // Preserve an active local cooldown if it is still valid
+        // Preserve an active local cooldown if it is still valid,
+        // but NOT when the remote data shows the timer was intentionally
+        // reset (future endTime, no active cooldown) — e.g. another user
+        // marked the boss dead, clearing the SPAWNED state.
         if (localInfo?.cooldownUntil && localInfo.cooldownUntil > now) {
-          merged[id] = { ...remoteInfo, cooldownUntil: localInfo.cooldownUntil };
+          const remoteHasFutureEnd = remoteInfo.endTime && remoteInfo.endTime > now;
+          const remoteHasNoCooldown = !(remoteInfo.cooldownUntil && remoteInfo.cooldownUntil > now);
+          if (!(remoteHasFutureEnd && remoteHasNoCooldown)) {
+            merged[id] = { ...remoteInfo, cooldownUntil: localInfo.cooldownUntil };
+          }
         }
 
         // Prevent stale cached data from overwriting a valid future local timer.
