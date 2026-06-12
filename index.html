@@ -3091,8 +3091,8 @@
         if (q && !b.name.toLowerCase().includes(q)) return null;
 
         const subText = isWeekly
-          ? "Time: " + b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")
-          : "Time: " + b.respawn / 3600 + " hr";
+          ? "Schedule: " + b.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")
+          : "Interval: " + b.respawn / 3600 + " hr";
 
         const t = timers[b.id];
         // SPAWNED = timer expired, no active cooldown OR currently in cooldown
