@@ -3438,7 +3438,6 @@
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = Math.floor(totalSeconds % 60);
-      const ms = remainingMs % 1000;
 
       nextBossNameEl.textContent = soon.boss.name;
       if (totalSeconds === 0) {
@@ -3446,7 +3445,7 @@
       } else {
         nextTimeEl.textContent = `${String(hours).padStart(2, "0")}:${String(
           minutes
-        ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(ms).padStart(3, "0")}`;
+        ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
       }
 
     }
@@ -3632,16 +3631,14 @@
           worldBossTimeEl.textContent = "SPAWNED";
         } else {
           const wbTime = getNextWorldBossTime();
-          const wbRemainingMs = Math.max(0, wbTime - now);
-          const wbTotalSec = Math.floor(wbRemainingMs / 1000);
-          if (wbTotalSec === 0) {
+          const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
+          if (wbSec === 0) {
             worldBossTimeEl.textContent = "SPAWNED";
           } else {
-            const h = Math.floor(wbTotalSec / 3600);
-            const m = Math.floor((wbTotalSec % 3600) / 60);
-            const s = wbTotalSec % 60;
-            const ms = wbRemainingMs % 1000;
-            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms).padStart(3, "0")}`;
+            const h = Math.floor(wbSec / 3600);
+            const m = Math.floor((wbSec % 3600) / 60);
+            const s = wbSec % 60;
+            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
           }
         }
       }
