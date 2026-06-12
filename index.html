@@ -542,29 +542,6 @@
       background: rgba(212,175,55,0.08);
     }
 
-    .schedule-day-select {
-      display: none;
-      height: 28px;
-      padding: 0 8px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      cursor: pointer;
-      flex-shrink: 0;
-      margin-left: auto;
-      font-family: var(--font-display);
-      outline: none;
-    }
-    .schedule-day-select:focus {
-      border-color: var(--accent-gold);
-      box-shadow: var(--glow-gold);
-    }
-
     .header-sort {
       position: relative;
       display: flex;
@@ -708,14 +685,8 @@
 
     .label-dot.active { background: var(--accent-gold); box-shadow: 0 0 6px rgba(212,175,55,0.5); }
     .label-dot.weekly { background: var(--accent-purple); box-shadow: 0 0 6px rgba(155,89,182,0.5); }
-    /* Day dots for schedule view (Mon-Sun) */
-    .day-dot-0 { background: #D4AF37; box-shadow: 0 0 6px rgba(212,175,55,0.5); } /* gold */
-    .day-dot-1 { background: #4A90E2; box-shadow: 0 0 6px rgba(74,144,226,0.5); } /* blue */
-    .day-dot-2 { background: #2ECC71; box-shadow: 0 0 6px rgba(46,204,113,0.5); } /* green */
-    .day-dot-3 { background: #9B59B6; box-shadow: 0 0 6px rgba(155,89,182,0.5); } /* purple */
-    .day-dot-4 { background: #E67E22; box-shadow: 0 0 6px rgba(230,126,34,0.5); } /* orange */
-    .day-dot-5 { background: #E74C3C; box-shadow: 0 0 6px rgba(231,76,60,0.5); } /* red */
-    .day-dot-6 { background: #1ABC9C; box-shadow: 0 0 6px rgba(26,188,156,0.5); } /* teal */
+    #scheduleDay0 .label-dot.active { background: var(--accent-green); box-shadow: 0 0 6px rgba(46,204,113,0.5); }
+    #scheduleDay1 .label-dot.weekly { background: var(--accent-red); box-shadow: 0 0 6px rgba(231,76,60,0.5); }
 
     .boss-column .scrollable {
       flex: 1;
@@ -778,17 +749,11 @@
       #bossListPanel.view-schedule .boss-column { display: none; }
       #bossListPanel.view-schedule #scheduleView { display: flex; }
 
-      /* Mobile: schedule view shows one day at a time via dropdown */
-      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; border: none; }
-      #bossListPanel.view-schedule[data-schedule-day="0"] .schedule-column[data-day="0"],
-      #bossListPanel.view-schedule[data-schedule-day="1"] .schedule-column[data-day="1"],
-      #bossListPanel.view-schedule[data-schedule-day="2"] .schedule-column[data-day="2"],
-      #bossListPanel.view-schedule[data-schedule-day="3"] .schedule-column[data-day="3"],
-      #bossListPanel.view-schedule[data-schedule-day="4"] .schedule-column[data-day="4"],
-      #bossListPanel.view-schedule[data-schedule-day="5"] .schedule-column[data-day="5"],
-      #bossListPanel.view-schedule[data-schedule-day="6"] .schedule-column[data-day="6"] { display: flex; }
-      #bossListPanel.view-schedule .view-toggle { display: none; }
-      #bossListPanel.view-schedule .schedule-day-select { display: inline-flex; }
+      /* Mobile: schedule day columns toggle (like interval/weekly) */
+      #bossListPanel.view-schedule .schedule-column:last-child { display: none; }
+      #bossListPanel.view-schedule .schedule-column:first-child { border-right: none; animation: fadeSlideRight 0.3s ease; }
+      #bossListPanel.view-schedule.view-schedule-day .schedule-column:last-child { display: flex; animation: fadeSlideLeft 0.3s ease; }
+      #bossListPanel.view-schedule.view-schedule-day .schedule-column:first-child { display: none; }
 
       .top-panels-row .stat-card {
         min-width: 0;
@@ -1377,40 +1342,27 @@
 
     .settings-dropdown.hidden { display: none; }
 
-    /* Schedule view: 2-column day grid, scrollable on desktop */
+    /* Schedule view: two columns like the boss list */
     .schedule-view {
       display: none;
       flex: 1;
       flex-direction: row;
-      flex-wrap: wrap;
       min-height: 0;
-      overflow-y: auto;
+      overflow: hidden;
       gap: 0;
     }
     .schedule-view:not(.hidden) { display: flex; }
     .schedule-column {
-      flex: 0 0 50%;
-      max-width: 50%;
+      flex: 1;
       min-width: 0;
       display: flex;
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
       background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border);
     }
-    .schedule-column:nth-child(odd) {
+    .schedule-column:first-child {
       border-right: 1px solid var(--border);
-    }
-    .schedule-column:last-child {
-      border-right: none;
-    }
-    .schedule-column .schedule-list {
-      flex: 1;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
     }
     .schedule-column .schedule-list {
       flex: 1;
@@ -1923,7 +1875,6 @@
               <path d="M12 4L15 8L12 12"/>
             </svg>
           </button>
-          <select class="schedule-day-select" id="scheduleDaySelect" aria-label="Select day"></select>
         </h2>
         <div id="bossList">
           <div class="boss-column" id="intervalColumn" role="tabpanel" aria-label="Fixed interval bosses">
@@ -1935,33 +1886,13 @@
             <div class="scrollable" id="weeklyBossList"></div>
           </div>
           <div id="scheduleView" class="schedule-view hidden" role="tabpanel" aria-label="Spawn schedule">
-            <div class="schedule-column" id="scheduleDay0" data-day="0">
-              <div class="column-label"><span class="label-dot day-dot-0" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
+            <div class="schedule-column" id="scheduleDay0">
+              <div class="column-label"><span class="label-dot active" aria-hidden="true"></span> TODAY</div>
               <div class="schedule-list" id="scheduleDay0List"></div>
             </div>
-            <div class="schedule-column" id="scheduleDay1" data-day="1">
-              <div class="column-label"><span class="label-dot day-dot-1" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
+            <div class="schedule-column" id="scheduleDay1">
+              <div class="column-label"><span class="label-dot weekly" aria-hidden="true"></span> TOMORROW</div>
               <div class="schedule-list" id="scheduleDay1List"></div>
-            </div>
-            <div class="schedule-column" id="scheduleDay2" data-day="2">
-              <div class="column-label"><span class="label-dot day-dot-2" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
-              <div class="schedule-list" id="scheduleDay2List"></div>
-            </div>
-            <div class="schedule-column" id="scheduleDay3" data-day="3">
-              <div class="column-label"><span class="label-dot day-dot-3" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
-              <div class="schedule-list" id="scheduleDay3List"></div>
-            </div>
-            <div class="schedule-column" id="scheduleDay4" data-day="4">
-              <div class="column-label"><span class="label-dot day-dot-4" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
-              <div class="schedule-list" id="scheduleDay4List"></div>
-            </div>
-            <div class="schedule-column" id="scheduleDay5" data-day="5">
-              <div class="column-label"><span class="label-dot day-dot-5" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
-              <div class="schedule-list" id="scheduleDay5List"></div>
-            </div>
-            <div class="schedule-column" id="scheduleDay6" data-day="6">
-              <div class="column-label"><span class="label-dot day-dot-6" aria-hidden="true"></span> <span class="day-label">DAY</span></div>
-              <div class="schedule-list" id="scheduleDay6List"></div>
             </div>
           </div>
         </div>
@@ -2283,7 +2214,6 @@
     const TIME_ZONE_ISO_SUFFIX = "+09:00";
     const TIME_ZONE_OFFSET_MS = 9 * 60 * 60 * 1000;
     const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const WEEKDAY_LABELS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const shortDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
       timeZone: TIME_ZONE,
       month: "short",
@@ -3920,28 +3850,14 @@
       return spawns;
     }
 
-    function getJSTDayOfWeek() {
-      const now = Date.now();
-      const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
-      return jstNow.getUTCDay();
-    }
-
     function renderSchedule() {
       const now = Date.now();
-      const todayJST = getJSTDayOfWeek();
 
-      for (let day = 0; day <= 6; day++) {
+      for (let day = 0; day <= 1; day++) {
         const start = getJSTStartOfDay(day);
         const end = getJSTEndOfDay(day);
-
-        const listEl = document.getElementById("scheduleDay" + day + "List");
-        const colEl = document.getElementById("scheduleDay" + day);
-        if (!listEl || !colEl) continue;
-
-        const dayOfWeek = (todayJST + day) % 7;
-        const dayName = WEEKDAY_LABELS_FULL[dayOfWeek];
-        const labelEl = colEl.querySelector(".day-label");
-        if (labelEl) labelEl.textContent = dayName.toUpperCase();
+        const el = document.getElementById("scheduleDay" + day + "List");
+        if (!el) continue;
 
         const spawns = [];
         for (const boss of BOSSES) {
@@ -3953,9 +3869,9 @@
         filtered.sort((a, b) => a.time - b.time);
 
         if (filtered.length === 0) {
-          listEl.innerHTML = '<div class="schedule-empty">No spawns</div>';
+          el.innerHTML = '<div class="schedule-empty">No spawns</div>';
         } else {
-          listEl.innerHTML = filtered.map(s =>
+          el.innerHTML = filtered.map(s =>
             `<div class="schedule-item">
               <span class="boss-label">${s.boss.name}</span>
               <span class="time-label">${formatTimeOnly(s.time)}</span>
@@ -3965,45 +3881,26 @@
       }
     }
 
-    const scheduleDaySelect = document.getElementById("scheduleDaySelect");
-
-    function populateDaySelect() {
-      if (!scheduleDaySelect) return;
-      const todayJST = getJSTDayOfWeek();
-      scheduleDaySelect.innerHTML = "";
-      for (let day = 0; day <= 6; day++) {
-        const dayOfWeek = (todayJST + day) % 7;
-        const dayName = WEEKDAY_LABELS_FULL[dayOfWeek];
-        const opt = document.createElement("option");
-        opt.value = day;
-        opt.textContent = dayName.toUpperCase();
-        scheduleDaySelect.appendChild(opt);
-      }
-    }
-
     scheduleBtn.addEventListener("click", () => {
       settingsDropdown.classList.add("hidden");
       const enteringSchedule = !bossListPanel.classList.contains("view-schedule");
       bossListPanel.classList.toggle("view-schedule");
       if (enteringSchedule) {
         renderSchedule();
-        populateDaySelect();
         bossListPanel.classList.remove("view-weekly");
-        if (scheduleDaySelect) scheduleDaySelect.value = "0";
-        bossListPanel.dataset.scheduleDay = "0";
+        bossListPanel.classList.remove("view-schedule-day");
       }
     });
 
-    if (scheduleDaySelect) {
-      scheduleDaySelect.addEventListener("change", () => {
-        bossListPanel.dataset.scheduleDay = scheduleDaySelect.value;
-      });
-    }
-
-    // View-toggle (arrows): toggles interval/weekly on mobile (normal view only)
+    // View-toggle (arrows): in schedule view toggles TODAY/TOMORROW,
+    // in normal view toggles interval/weekly (mobile)
     if (viewToggle) {
       viewToggle.addEventListener("click", () => {
-        bossListPanel.classList.toggle("view-weekly");
+        if (bossListPanel.classList.contains("view-schedule")) {
+          bossListPanel.classList.toggle("view-schedule-day");
+        } else {
+          bossListPanel.classList.toggle("view-weekly");
+        }
       });
     }
 
