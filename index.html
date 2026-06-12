@@ -2298,8 +2298,6 @@
     const LOCK_DURATION_MS = 3 * 60 * 1000; // 3 min lock for mark-dead button
 
     // World boss notification state
-    let worldBossSoonNotified = false;
-    let worldBossSpawnAnnounced = false;
     let worldBossCooldownUntil = 0;
     const SPAWNED_DURATION_MS = 5 * 60 * 1000; // 5 min SPAWNED state for all bosses
     let lastWorldBossSpawn = 0;
@@ -3557,26 +3555,23 @@
       const wbTime = getNextWorldBossTime();
 
       if (wbTime !== lastWorldBossSpawn) {
-        worldBossSoonNotified = false;
-        worldBossSpawnAnnounced = false;
         if (!(worldBossCooldownUntil > now)) worldBossCooldownUntil = 0;
         lastWorldBossSpawn = wbTime;
       }
 
       const wbRemaining = wbTime - now;
 
-      if (!worldBossSoonNotified && wbRemaining > 5 * 60 * 1000) {
+      if (worldBossSoonCycle !== wbTime && wbRemaining > 5 * 60 * 1000) {
         wbTimeout = setTimeout(() => { handleWorldBossSoon(); scheduleWorldBoss(); }, wbRemaining - 5 * 60 * 1000);
-      } else if (!worldBossSoonNotified) {
+      } else if (worldBossSoonCycle !== wbTime) {
         handleWorldBossSoon();
         if (wbRemaining > 0) { wbTimeout = setTimeout(() => { handleWorldBossSpawn(); scheduleWorldBoss(); }, wbRemaining); }
         else { handleWorldBossSpawn(); scheduleWorldBoss(); }
-      } else if (!worldBossSpawnAnnounced && wbRemaining > 0) {
+      } else if (worldBossSpawnCycle !== wbTime && wbRemaining > 0) {
         wbTimeout = setTimeout(() => { handleWorldBossSpawn(); scheduleWorldBoss(); }, wbRemaining);
-      } else if (!worldBossSpawnAnnounced) {
+      } else if (worldBossSpawnCycle !== wbTime) {
         handleWorldBossSpawn(); scheduleWorldBoss();
       } else if (worldBossCooldownUntil > now) {
-        // In SPAWNED cooldown — schedule cooldown end
         wbTimeout = setTimeout(() => { worldBossCooldownUntil = 0; scheduleWorldBoss(); }, worldBossCooldownUntil - now);
       } else {
         const nextWb = wbTime + 6 * 60 * 60 * 1000;
@@ -3585,16 +3580,21 @@
       }
     }
 
+    let worldBossSoonCycle = null;
+    let worldBossSpawnCycle = null;
+
     async function handleWorldBossSoon() {
-      if (worldBossSoonNotified) return;
-      worldBossSoonNotified = true;
+      const cycle = getNextWorldBossTime();
+      if (worldBossSoonCycle === cycle) return;
+      worldBossSoonCycle = cycle;
       console.log(`⚠️ world boss within 5min, sending notification`);
       await sendDiscordEmbedOnce("world_soon", { id: "__world_boss__", name: "World Boss" });
     }
 
     async function handleWorldBossSpawn() {
-      if (worldBossSpawnAnnounced) return;
-      worldBossSpawnAnnounced = true;
+      const cycle = getNextWorldBossTime();
+      if (worldBossSpawnCycle === cycle) return;
+      worldBossSpawnCycle = cycle;
       worldBossCooldownUntil = Date.now() + SPAWNED_DURATION_MS;
       console.log(`🎉 world boss spawned, announcing`);
       await sendDiscordEmbedOnce("world_spawn", { id: "__world_boss__", name: "World Boss" });
