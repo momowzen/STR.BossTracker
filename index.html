@@ -779,8 +779,7 @@
       #bossListPanel.view-schedule #scheduleView { display: flex; }
 
       /* Mobile: schedule view shows one day at a time via dropdown */
-      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; }
-      #bossListPanel.view-schedule .schedule-column:first-child { border-right: none; }
+      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; border: none; }
       #bossListPanel.view-schedule[data-schedule-day="0"] .schedule-column[data-day="0"],
       #bossListPanel.view-schedule[data-schedule-day="1"] .schedule-column[data-day="1"],
       #bossListPanel.view-schedule[data-schedule-day="2"] .schedule-column[data-day="2"],
@@ -788,6 +787,7 @@
       #bossListPanel.view-schedule[data-schedule-day="4"] .schedule-column[data-day="4"],
       #bossListPanel.view-schedule[data-schedule-day="5"] .schedule-column[data-day="5"],
       #bossListPanel.view-schedule[data-schedule-day="6"] .schedule-column[data-day="6"] { display: flex; }
+      #bossListPanel.view-schedule .schedule-column .schedule-list { max-height: none; }
       #bossListPanel.view-schedule .view-toggle { display: none; }
       #bossListPanel.view-schedule .schedule-day-select { display: inline-flex; }
 
@@ -812,21 +812,7 @@
       }
     }
 
-    /* Narrow desktop: schedule view switches to single-column dropdown */
-    @media (max-width: 1150px) {
-      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; }
-      #bossListPanel.view-schedule .schedule-column:first-child { border-right: none; }
-      #bossListPanel.view-schedule[data-schedule-day="0"] .schedule-column[data-day="0"],
-      #bossListPanel.view-schedule[data-schedule-day="1"] .schedule-column[data-day="1"],
-      #bossListPanel.view-schedule[data-schedule-day="2"] .schedule-column[data-day="2"],
-      #bossListPanel.view-schedule[data-schedule-day="3"] .schedule-column[data-day="3"],
-      #bossListPanel.view-schedule[data-schedule-day="4"] .schedule-column[data-day="4"],
-      #bossListPanel.view-schedule[data-schedule-day="5"] .schedule-column[data-day="5"],
-      #bossListPanel.view-schedule[data-schedule-day="6"] .schedule-column[data-day="6"] { display: flex; }
-      #bossListPanel.view-schedule .view-toggle { display: none; }
-      #bossListPanel.view-schedule .schedule-day-select { display: inline-flex; }
-      #bossListPanel.view-schedule #scheduleView { overflow-x: visible; }
-    }
+
 
     .card {
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -1392,37 +1378,51 @@
 
     .settings-dropdown.hidden { display: none; }
 
-    /* Schedule view: 7-day columns with horizontal scroll on shrink */
+    /* Schedule view: 2-column day grid, scrollable on desktop */
     .schedule-view {
       display: none;
       flex: 1;
       flex-direction: row;
+      flex-wrap: wrap;
       min-height: 0;
-      overflow-x: auto;
+      overflow-y: auto;
       gap: 0;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(212,175,55,0.12) transparent;
-    }
-    .schedule-view::-webkit-scrollbar { height: 5px; }
-    .schedule-view::-webkit-scrollbar-track { background: transparent; }
-    .schedule-view::-webkit-scrollbar-thumb {
-      background: rgba(212,175,55,0.12);
-      border-radius: 3px;
     }
     .schedule-view:not(.hidden) { display: flex; }
     .schedule-column {
-      flex: 1 1 0%;
-      min-width: 140px;
-      max-width: 240px;
+      flex: 0 0 50%;
+      max-width: 50%;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
       background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .schedule-column:nth-child(odd) {
       border-right: 1px solid var(--border);
     }
     .schedule-column:last-child {
       border-right: none;
+    }
+    .schedule-column .schedule-list {
+      flex: 1;
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(212,175,55,0.12) transparent;
+    }
+    .schedule-column .schedule-list::-webkit-scrollbar { width: 4px; }
+    .schedule-column .schedule-list::-webkit-scrollbar-track { background: transparent; }
+    .schedule-column .schedule-list::-webkit-scrollbar-thumb {
+      background: rgba(212,175,55,0.12);
+      border-radius: 3px;
     }
     .schedule-column .schedule-list {
       flex: 1;
