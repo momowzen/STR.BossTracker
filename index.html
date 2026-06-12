@@ -812,6 +812,22 @@
       }
     }
 
+    /* Narrow desktop: schedule view switches to single-column dropdown */
+    @media (max-width: 1150px) {
+      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; }
+      #bossListPanel.view-schedule .schedule-column:first-child { border-right: none; }
+      #bossListPanel.view-schedule[data-schedule-day="0"] .schedule-column[data-day="0"],
+      #bossListPanel.view-schedule[data-schedule-day="1"] .schedule-column[data-day="1"],
+      #bossListPanel.view-schedule[data-schedule-day="2"] .schedule-column[data-day="2"],
+      #bossListPanel.view-schedule[data-schedule-day="3"] .schedule-column[data-day="3"],
+      #bossListPanel.view-schedule[data-schedule-day="4"] .schedule-column[data-day="4"],
+      #bossListPanel.view-schedule[data-schedule-day="5"] .schedule-column[data-day="5"],
+      #bossListPanel.view-schedule[data-schedule-day="6"] .schedule-column[data-day="6"] { display: flex; }
+      #bossListPanel.view-schedule .view-toggle { display: none; }
+      #bossListPanel.view-schedule .schedule-day-select { display: inline-flex; }
+      #bossListPanel.view-schedule #scheduleView { overflow-x: visible; }
+    }
+
     .card {
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
       border: 1px solid var(--border);
