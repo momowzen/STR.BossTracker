@@ -1604,8 +1604,8 @@
     }
 
     .boss-portrait {
-      width: 44px;
-      height: 58px;
+      width: 48px;
+      height: 74px;
       flex-shrink: 0;
       object-fit: cover;
       border-radius: var(--radius-sm);
@@ -1743,6 +1743,13 @@
       color: var(--accent-gold);
       background: rgba(212, 175, 55, 0.1);
       box-shadow: 0 0 16px rgba(212, 175, 55, 0.12);
+    }
+
+    .icon-btn[data-action="clear"]:hover {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+      background: rgba(231, 76, 60, 0.1);
+      box-shadow: 0 0 16px rgba(231, 76, 60, 0.15);
     }
 
   </style>
@@ -3156,6 +3163,17 @@
               </button>
               <span class="action-label">KILLED</span>
             </div>
+            ${sessionStorage.getItem("userMode") === "admin" ? `
+            <div class="action-btn">
+              <button class="kbtn icon-btn" title="Clear timer" data-action="clear" data-id="${b.id}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+              <span class="action-label">CLEAR</span>
+            </div>` : ""}
           </div>` : ""}
         `;
         return node;
@@ -3308,6 +3326,12 @@
 
       if (action === "set") {
         openTimeModal(id);
+      }
+
+      if (action === "clear") {
+        delete timers[id];
+        await saveTimersToFirestore();
+        renderBossList();
       }
     });
 
