@@ -3580,24 +3580,14 @@
       }
     }
 
-    let worldBossSoonCycle = null;
-    let worldBossSpawnCycle = null;
-
     async function handleWorldBossSoon() {
-      const cycle = getNextWorldBossTime();
-      if (worldBossSoonCycle === cycle) return;
-      worldBossSoonCycle = cycle;
-      console.log(`⚠️ world boss within 5min, sending notification`);
-      await sendDiscordEmbedOnce("world_soon", { id: "__world_boss__", name: "World Boss" });
+      console.log(`⚠️ world boss within 5min`);
     }
 
     async function handleWorldBossSpawn() {
-      const cycle = getNextWorldBossTime();
-      if (worldBossSpawnCycle === cycle) return;
-      worldBossSpawnCycle = cycle;
-      worldBossCooldownUntil = Date.now() + SPAWNED_DURATION_MS;
-      console.log(`🎉 world boss spawned, announcing`);
-      await sendDiscordEmbedOnce("world_spawn", { id: "__world_boss__", name: "World Boss" });
+      const now = Date.now();
+      worldBossCooldownUntil = now + SPAWNED_DURATION_MS;
+      console.log(`🎉 world boss spawned`);
     }
 
     // Lightweight visual update every second (no Firestore writes)
