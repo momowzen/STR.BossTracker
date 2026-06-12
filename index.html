@@ -938,44 +938,45 @@
       header.app-header {
         flex-wrap: nowrap;
         padding: 10px 16px;
+        justify-content: flex-start;
       }
 
       .header-top {
-        flex: 1 1 auto;
-        width: auto;
-        align-items: center;
+        display: contents;
       }
 
       .header-controls {
-        flex: 0 0 auto;
-        width: auto;
-        flex-wrap: nowrap;
-        margin-left: auto;
-        align-items: center;
-        gap: 10px;
+        display: contents;
       }
 
-      .header-actions {
-        margin-left: 0;
+      .app-title {
+        order: 1;
       }
 
       .search-wrapper {
+        order: 2;
         flex: 0 0 auto;
       }
 
-      .search {
-        width: 220px;
-        height: 34px;
-        font-size: 12px;
-      }
-
       .server-time {
+        order: 3;
         flex: 0 1 auto;
         height: 34px;
         padding: 4px 12px;
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
         background: var(--bg-primary);
+        font-size: 12px;
+      }
+
+      .header-actions {
+        order: 4;
+        margin-left: auto;
+      }
+
+      .search {
+        width: 220px;
+        height: 34px;
         font-size: 12px;
       }
 
@@ -1973,7 +1974,7 @@
   <div id="loadingOverlay" class="loading-overlay" role="status" aria-label="Loading">
     <div class="loading-container">
       <div class="loading-spinner"></div>
-      <div class="loading-word">STR4NG3RZ TIME TRACKER</div>
+      <div class="loading-word">GUILD COMMAND CENTER</div>
       <div class="loading-subtitle">Initializing Tracker</div>
     </div>
   </div>
