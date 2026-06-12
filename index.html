@@ -779,7 +779,7 @@
       #bossListPanel.view-schedule #scheduleView { display: flex; }
 
       /* Mobile: schedule view shows one day at a time via dropdown */
-      #bossListPanel.view-schedule .schedule-column { display: none; }
+      #bossListPanel.view-schedule .schedule-column { display: none; min-width: 0; max-width: none; flex: 1; }
       #bossListPanel.view-schedule .schedule-column:first-child { border-right: none; }
       #bossListPanel.view-schedule[data-schedule-day="0"] .schedule-column[data-day="0"],
       #bossListPanel.view-schedule[data-schedule-day="1"] .schedule-column[data-day="1"],
@@ -1447,12 +1447,18 @@
       font-family: var(--font-display);
       letter-spacing: 0.3px;
       text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
     .schedule-item .time-label {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--accent-gold);
       letter-spacing: 0.5px;
+      flex-shrink: 0;
+      margin-left: auto;
     }
     .schedule-empty {
       font-size: 11px;
@@ -4429,17 +4435,14 @@
     // === SERVER TIME UPDATE ===
     const serverTimeEl = document.getElementById("serverTime");
     function updateServerTime() {
-      const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: TIME_ZONE,
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      });
-      const parts = formatter.formatToParts(new Date());
-      serverTimeEl.textContent = parts.map(p => p.type === "month" ? p.value.toUpperCase() : p.value).join("");
+      const d = new Date(new Date().getTime() + TIME_ZONE_OFFSET_MS);
+      const month = d.toLocaleDateString("en-US", { timeZone: "UTC", month: "short" }).toUpperCase();
+      const wd = d.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short" }).toUpperCase();
+      const day = d.getUTCDate();
+      const hh = String(d.getUTCHours()).padStart(2, "0");
+      const mm = String(d.getUTCMinutes()).padStart(2, "0");
+      const ss = String(d.getUTCSeconds()).padStart(2, "0");
+      serverTimeEl.textContent = month + " " + day + ", " + wd + " " + hh + ":" + mm + ":" + ss;
     }
     updateServerTime();
     setInterval(updateServerTime, 1000);
