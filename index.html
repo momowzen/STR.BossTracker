@@ -276,12 +276,20 @@
       pointer-events: none;
     }
 
-    .alarm-btn.on,
-    .admin-auth-btn.on {
+    .alarm-btn.on {
       color: var(--accent-gold);
       border-color: var(--accent-gold);
       box-shadow: var(--glow-gold);
       background: rgba(212,175,55,0.08);
+    }
+
+    .admin-auth-btn.on {
+      color: var(--accent-gold);
+      background: rgba(212,175,55,0.08);
+    }
+
+    .admin-auth-btn.on .btn-icon {
+      filter: drop-shadow(0 0 4px var(--accent-gold));
     }
 
     .online-btn {
@@ -318,21 +326,7 @@
       font-family: var(--font-display);
     }
 
-    .server-time::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-green);
-      box-shadow: 0 0 6px rgba(46,204,113,0.5);
-      animation: pulse-dot 2s ease-in-out infinite;
-      flex-shrink: 0;
-    }
 
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
 
     #serverTime {
       text-align: center;
