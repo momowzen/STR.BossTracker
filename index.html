@@ -2161,6 +2161,40 @@
         ],
       },
 
+      // World bosses (daily spawns at 12:00 and 21:00 JST, excluded from boss list)
+      { id: "Ratan", name: "Ratan", level: 200, isWorldBoss: true,
+        weeklyRespawns: [
+          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
+          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
+          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
+          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
+          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
+          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
+          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
+        ],
+      },
+      { id: "Parto", name: "Parto", level: 200, isWorldBoss: true,
+        weeklyRespawns: [
+          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
+          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
+          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
+          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
+          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
+          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
+          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
+        ],
+      },
+      { id: "Nedra", name: "Nedra", level: 200, isWorldBoss: true,
+        weeklyRespawns: [
+          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
+          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
+          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
+          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
+          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
+          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
+          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
+        ],
+      },
     ];
     const LOCATIONS = {
       Venatus: "Corrupted River Stream",
@@ -2291,10 +2325,7 @@
     const localNotifCache = {}; // { "bossId_soon": timestamp, "bossId_spawn": timestamp }
     const LOCK_DURATION_MS = 3 * 60 * 1000; // 3 min lock for mark-dead button
 
-    // World boss notification state
-    let worldBossCooldownUntil = 0;
     const SPAWNED_DURATION_MS = 5 * 60 * 1000; // 5 min SPAWNED state for all bosses
-    let lastWorldBossSpawn = 0;
 
     const ALARM_STORAGE_KEY = "bossTrackerAlarmEnabled";
     let alarmEnabled = localStorage.getItem(ALARM_STORAGE_KEY) === "true";
@@ -3189,13 +3220,13 @@
         return diff !== 0 ? dir * diff : dir * a.name.localeCompare(b.name);
       }
 
-      const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns).sort(sortBosses);
+      const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns && !b.isWorldBoss).sort(sortBosses);
       for (const bb of weeklyBosses) {
         const node = buildBossCard(bb);
         if (node) weeklyBossListEl.appendChild(node);
       }
 
-      const timerBosses = BOSSES.filter(b => !b.weeklyRespawns).sort(sortBosses);
+      const timerBosses = BOSSES.filter(b => !b.weeklyRespawns && !b.isWorldBoss).sort(sortBosses);
       for (const bb of timerBosses) {
         const node = buildBossCard(bb);
         if (node) timerBossListEl.appendChild(node);
@@ -3394,11 +3425,11 @@
     function computeNextBoss() {
       const upcoming = [];
 
-      // Add manual timer deaths
+      // Add manual timer deaths (excluding world bosses)
       Object.entries(timers)
         .forEach(([id, info]) => {
           const boss = BOSSES.find((b) => b.id === id);
-          if (boss) {
+          if (boss && !boss.isWorldBoss) {
             upcoming.push({
               id,
               endTime: info.endTime,
@@ -3408,9 +3439,9 @@
           }
         });
 
-      // Add weekly respawns for bosses not in timers
+      // Add weekly respawns for bosses not in timers (excluding world bosses)
       BOSSES.forEach((boss) => {
-        if (!timers[boss.id] && boss.weeklyRespawns) {
+        if (!timers[boss.id] && boss.weeklyRespawns && !boss.isWorldBoss) {
           const nextWeeklyTime = getNextWeeklyRespawnTime(boss);
           if (nextWeeklyTime) {
             upcoming.push({
@@ -3452,8 +3483,6 @@
     }
 
     // == MAIN TICKUPDATE (polling loop, no setTimeout races) == //
-    let wbTimeout = null;
-
     async function tickUpdate() {
       const now = Date.now();
       const discordPromises = [];
@@ -3541,49 +3570,6 @@
       computeNextBoss();
     }
 
-    // World boss notification (setTimeout-based, not racy since user never manually triggers world boss)
-    function scheduleWorldBoss() {
-      if (wbTimeout) { clearTimeout(wbTimeout); wbTimeout = null; }
-
-      const now = Date.now();
-      const wbTime = getNextWorldBossTime();
-
-      if (wbTime !== lastWorldBossSpawn) {
-        if (!(worldBossCooldownUntil > now)) worldBossCooldownUntil = 0;
-        lastWorldBossSpawn = wbTime;
-      }
-
-      const wbRemaining = wbTime - now;
-
-      if (worldBossSoonCycle !== wbTime && wbRemaining > 5 * 60 * 1000) {
-        wbTimeout = setTimeout(() => { handleWorldBossSoon(); scheduleWorldBoss(); }, wbRemaining - 5 * 60 * 1000);
-      } else if (worldBossSoonCycle !== wbTime) {
-        handleWorldBossSoon();
-        if (wbRemaining > 0) { wbTimeout = setTimeout(() => { handleWorldBossSpawn(); scheduleWorldBoss(); }, wbRemaining); }
-        else { handleWorldBossSpawn(); scheduleWorldBoss(); }
-      } else if (worldBossSpawnCycle !== wbTime && wbRemaining > 0) {
-        wbTimeout = setTimeout(() => { handleWorldBossSpawn(); scheduleWorldBoss(); }, wbRemaining);
-      } else if (worldBossSpawnCycle !== wbTime) {
-        handleWorldBossSpawn(); scheduleWorldBoss();
-      } else if (worldBossCooldownUntil > now) {
-        wbTimeout = setTimeout(() => { worldBossCooldownUntil = 0; scheduleWorldBoss(); }, worldBossCooldownUntil - now);
-      } else {
-        const nextWb = wbTime + 6 * 60 * 60 * 1000;
-        const delay = nextWb - Date.now();
-        if (delay > 0) wbTimeout = setTimeout(scheduleWorldBoss, delay);
-      }
-    }
-
-    async function handleWorldBossSoon() {
-      console.log(`⚠️ world boss within 5min`);
-    }
-
-    async function handleWorldBossSpawn() {
-      const now = Date.now();
-      worldBossCooldownUntil = now + SPAWNED_DURATION_MS;
-      console.log(`🎉 world boss spawned`);
-    }
-
     // Lightweight visual update every second (no Firestore writes)
     function updateCountdownDisplay() {
       const now = Date.now();
@@ -3625,21 +3611,45 @@
         }
       }
 
-      // Update world boss
+      // Update world boss panel with soonest world boss timer
       updateWorldBossName();
       if (worldBossTimeEl) {
-        if (worldBossCooldownUntil > now) {
+        let wbSoonest = null;
+        for (const boss of BOSSES) {
+          if (!boss.isWorldBoss) continue;
+          const info = timers[boss.id];
+          if (!info || !info.endTime) continue;
+          if (info.cooldownUntil && now < info.cooldownUntil) {
+            wbSoonest = { remaining: 0, spawned: true };
+            break;
+          }
+          const remaining = info.endTime - now;
+          if (remaining > 0 && (wbSoonest === null || remaining < wbSoonest.remaining)) {
+            wbSoonest = { remaining, spawned: false };
+          }
+        }
+        if (wbSoonest && wbSoonest.spawned) {
           worldBossTimeEl.textContent = "SPAWNED";
+        } else if (wbSoonest && wbSoonest.remaining > 0) {
+          const s = Math.floor(wbSoonest.remaining / 1000);
+          const h = Math.floor(s / 3600);
+          const m = Math.floor((s % 3600) / 60);
+          const sec = s % 60;
+          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
         } else {
           const wbTime = getNextWorldBossTime();
-          const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
-          if (wbSec === 0) {
-            worldBossTimeEl.textContent = "SPAWNED";
+          if (wbTime) {
+            const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
+            if (wbSec === 0) {
+              worldBossTimeEl.textContent = "SPAWNED";
+            } else {
+              const h = Math.floor(wbSec / 3600);
+              const m = Math.floor((wbSec % 3600) / 60);
+              const s = wbSec % 60;
+              worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            }
           } else {
-            const h = Math.floor(wbSec / 3600);
-            const m = Math.floor((wbSec % 3600) / 60);
-            const s = wbSec % 60;
-            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            worldBossTimeEl.textContent = "--";
           }
         }
       }
@@ -3651,6 +3661,7 @@
         const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
         const tomorrowStart = todayStart + 86400000;
         const c = BOSSES.filter(b => {
+          if (b.isWorldBoss) return false;
           const info = timers[b.id];
           return info && info.endTime >= todayStart && info.endTime < tomorrowStart && info.endTime > now;
         }).length;
@@ -4209,22 +4220,45 @@
       updateWorldBossName();
       if (worldBossTimeEl) {
         const now = Date.now();
-        if (worldBossCooldownUntil > now) {
+        let wbSoonest = null;
+        for (const boss of BOSSES) {
+          if (!boss.isWorldBoss) continue;
+          const info = timers[boss.id];
+          if (!info || !info.endTime) continue;
+          if (info.cooldownUntil && now < info.cooldownUntil) {
+            wbSoonest = { remaining: 0, spawned: true };
+            break;
+          }
+          const remaining = info.endTime - now;
+          if (remaining > 0 && (wbSoonest === null || remaining < wbSoonest.remaining)) {
+            wbSoonest = { remaining, spawned: false };
+          }
+        }
+        if (wbSoonest && wbSoonest.spawned) {
           worldBossTimeEl.textContent = "SPAWNED";
+        } else if (wbSoonest && wbSoonest.remaining > 0) {
+          const s = Math.floor(wbSoonest.remaining / 1000);
+          const h = Math.floor(s / 3600);
+          const m = Math.floor((s % 3600) / 60);
+          const sec = s % 60;
+          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
         } else {
           const wbTime = getNextWorldBossTime();
-          const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
-          if (wbSec === 0) {
-            worldBossTimeEl.textContent = "SPAWNED";
+          if (wbTime) {
+            const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
+            if (wbSec === 0) {
+              worldBossTimeEl.textContent = "SPAWNED";
+            } else {
+              const h = Math.floor(wbSec / 3600);
+              const m = Math.floor((wbSec % 3600) / 60);
+              const s = wbSec % 60;
+              worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            }
           } else {
-            const h = Math.floor(wbSec / 3600);
-            const m = Math.floor((wbSec % 3600) / 60);
-            const s = wbSec % 60;
-            worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            worldBossTimeEl.textContent = "--";
           }
         }
       }
-      scheduleWorldBoss();
 
       console.log("✅ init completed successfully.");
     }
