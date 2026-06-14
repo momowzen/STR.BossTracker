@@ -2751,10 +2751,7 @@
         const ref = doc(db, "notifications", key);
 
         // Determine the unique cycle identifier for deduplication
-        let thisEndTimeMs = timers[boss.id]?.endTime || 0;
-        if (!thisEndTimeMs && boss.id === "__world_boss__") {
-          thisEndTimeMs = getNextWorldBossTime() || 0;
-        }
+        const thisEndTimeMs = timers[boss.id]?.endTime || 0;
 
         // Fast pre-check: if another user already wrote the same cycle, skip
         try {
@@ -2808,10 +2805,9 @@
           return;
         }
 
-        const wbSpawn = boss.id === "__world_boss__" ? getNextWorldBossTime() : 0;
         const endTimeMs = txResult?.endTimeMs || timers[boss.id]?.endTime || 0;
         const formattedTime = formatShortDateTime(
-          wbSpawn || endTimeMs || Date.now()
+          endTimeMs || Date.now()
         );
 
         // 🔔 Build appropriate embed
@@ -2843,20 +2839,6 @@
             message =
               `${boss.name} timer manually updated.\n` +
               `Next respawn: ${formattedTime}\n` +
-              `@here`;
-            break;
-
-          case "world_soon":
-            message =
-              `WORLD BOSS IS ABOUT TO SPAWN!\n` +
-              `Ratan · Parto · Nedra are preparing to fight.\n` +
-              `@here`;
-            break;
-
-          case "world_spawn":
-            message =
-              `WORLD BOSS HAS SPAWNED!\n` +
-              `Ratan · Parto · Nedra are now ready to fight!\n` +
               `@here`;
             break;
 
