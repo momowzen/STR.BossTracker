@@ -854,8 +854,8 @@
     }
 
     .boss.is-dead {
-      border-left: 3px solid var(--accent-red) !important;
-      padding-left: 9px !important;
+      border-left: 3px solid var(--accent-red);
+      padding-left: 9px;
     }
 
     .boss.is-dead.in-cooldown {
@@ -866,20 +866,26 @@
       0%, 100% { border-color: var(--accent-red); box-shadow: 0 0 8px rgba(231,76,60,0.2); }
       50% { border-color: #ff6b6b; box-shadow: 0 0 20px rgba(231,76,60,0.4); }
     }
-    
-    .boss.is-alive {
-      border-left: 3px solid var(--accent-gold) !important;
-      padding-left: 9px !important;
+
+    .boss.is-dead:hover {
+      border-left-color: var(--accent-red);
+      border-right-color: rgba(231,76,60,0.4);
+      border-top-color: rgba(231,76,60,0.4);
+      border-bottom-color: rgba(231,76,60,0.4);
+      box-shadow: 0 4px 16px rgba(231,76,60,0.15);
     }
     
-    .boss.is-dead:hover {
-      border-color: rgba(231, 76, 60, 0.4) !important;
-      box-shadow: 0 4px 16px rgba(231, 76, 60, 0.15) !important;
+    .boss.is-alive {
+      border-left: 3px solid var(--accent-gold);
+      padding-left: 9px;
     }
     
     .boss.is-alive:hover {
-      border-color: rgba(212, 175, 55, 0.4) !important;
-      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12) !important;
+      border-left-color: var(--accent-gold);
+      border-right-color: rgba(var(--accent-rgb),0.4);
+      border-top-color: rgba(var(--accent-rgb),0.4);
+      border-bottom-color: rgba(var(--accent-rgb),0.4);
+      box-shadow: 0 4px 16px rgba(var(--accent-rgb),0.12);
     }
 
     .boss .meta {
@@ -1189,28 +1195,7 @@
     }
 
     /* === TIME MODAL === */
-    #timeModal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 5000;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-    }
-
-    #timeModal .modal-content {
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px 20px;
-      width: min(360px, calc(100vw - 32px));
-      max-width: calc(100vw - 32px);
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    }
+    #timeModal { z-index: 5000; }
 
     #timeModal h3 {
       font-size: 16px;
@@ -1253,23 +1238,6 @@
       margin-top: 12px;
     }
 
-    #timeModal .kbtn {
-      flex: 1;
-      height: 36px;
-      padding: 0 14px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: border-color var(--transition), color var(--transition), background var(--transition);
-      font-family: var(--font-display);
-    }
-
     #timeModal .kbtn:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
@@ -1277,17 +1245,7 @@
     }
 
     /* === ADMIN PASSWORD MODAL === */
-    #adminPasswordBackdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10001;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-    }
+    #adminPasswordBackdrop { z-index: 10001; }
 
     #adminPasswordBackdrop.active { display: flex; }
     #adminPasswordBackdrop.hidden { display: none; }
@@ -2158,8 +2116,8 @@
     </main>
   </div>
   <!-- Time modal -->
-  <div aria-hidden="true" id="timeModal" role="dialog" aria-modal="true" aria-labelledby="modalBossName">
-    <div class="modal-content">
+  <div aria-hidden="true" id="timeModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalBossName">
+    <div class="modal">
       <h3 id="modalBossName"></h3>
       <div class="modal-subtitle">
         Set date and time of death (UTC+9 JST)
@@ -2247,251 +2205,8 @@
     // -------------------------
     // Data + constants (FULL BOSSES)
     // -------------------------
-    const BOSSES = [
-      { id: "Venatus", name: "Venatus", level: 60, respawn: 60 * 60 * 10 },
-      { id: "Viorent", name: "Viorent", level: 65, respawn: 60 * 60 * 10 },
-      { id: "Ego", name: "Ego", level: 70, respawn: 60 * 60 * 21 },
-      {
-        id: "Clemantis",
-        name: "Clemantis",
-        level: 70,
-        weeklyRespawns: [
-          { day: 1, hour: 12, minute: 30 },
-          { day: 4, hour: 20, minute: 0 },
-        ],
-      },
-      { id: "Livera", name: "Livera", level: 75, respawn: 60 * 60 * 24 },
-      { id: "Araneo", name: "Araneo", level: 75, respawn: 60 * 60 * 24 },
-      { id: "Undomiel", name: "Undomiel", level: 80, respawn: 60 * 60 * 24 },
-      {
-        id: "Saphirus",
-        name: "Saphirus",
-        level: 80,
-        weeklyRespawns: [
-          { day: 0, hour: 18, minute: 0 },
-          { day: 2, hour: 12, minute: 30 },
-        ],
-      },
-      {
-        id: "Neutro",
-        name: "Neutro",
-        level: 80,
-        weeklyRespawns: [
-          { day: 2, hour: 20, minute: 0 },
-          { day: 4, hour: 12, minute: 30 },
-        ],
-      },
-      { id: "LadyDalia", name: "Lady Dalia", level: 85, respawn: 60 * 60 * 18 },
-      {
-        id: "GeneralAquleus",
-        name: "General Aquleus",
-        level: 85,
-        respawn: 60 * 60 * 29,
-      },
-      {
-        id: "Thymele",
-        name: "Thymele",
-        level: 85,
-        weeklyRespawns: [
-          { day: 1, hour: 20, minute: 0 },
-          { day: 3, hour: 12, minute: 30 },
-        ],
-      },
-      { id: "Amentis", name: "Amentis", level: 88, respawn: 60 * 60 * 29 },
-      {
-        id: "BaronBraudmore",
-        name: "Baron Braudmore",
-        level: 88,
-        respawn: 60 * 60 * 32,
-      },
-      {
-        id: "Milavy",
-        name: "Milavy",
-        level: 90,
-        weeklyRespawns: [{ day: 6, hour: 16, minute: 0 }],
-      },
-      { id: "Wannitas", name: "Wannitas", level: 93, respawn: 60 * 60 * 48 },
-      { id: "Metus", name: "Metus", level: 93, respawn: 60 * 60 * 48 },
-      { id: "Duplican", name: "Duplican", level: 93, respawn: 60 * 60 * 48 },
-      { id: "Shuliar", name: "Shuliar", level: 95, respawn: 60 * 60 * 35 },
-      {
-        id: "Ringor",
-        name: "Ringor",
-        level: 95,
-        weeklyRespawns: [{ day: 6, hour: 18, minute: 0 }],
-      },
-      {
-        id: "Roderick",
-        name: "Roderick",
-        level: 95,
-        weeklyRespawns: [{ day: 5, hour: 20, minute: 0 }],
-      },
-      { id: "Gareth", name: "Gareth", level: 98, respawn: 60 * 60 * 32 },
-      { id: "Titore", name: "Titore", level: 98, respawn: 60 * 60 * 37 },
-      { id: "Larba", name: "Larba", level: 98, respawn: 60 * 60 * 35 },
-      { id: "Catena", name: "Catena", level: 100, respawn: 60 * 60 * 35 },
-      {
-        id: "Auraq",
-        name: "Auraq",
-        level: 100,
-        weeklyRespawns: [
-          { day: 5, hour: 23, minute: 0 },
-          { day: 3, hour: 22, minute: 0 },
-        ],
-      },
-      { id: "Secreta", name: "Secreta", level: 100, respawn: 60 * 60 * 62 },
-      { id: "Ordo", name: "Ordo", level: 100, respawn: 60 * 60 * 62 },
-      { id: "Asta", name: "Asta", level: 100, respawn: 60 * 60 * 62 },
-      { id: "Supore", name: "Supore", level: 100, respawn: 60 * 60 * 62 },
-      {
-        id: "Chaiflock",
-        name: "Chaiflock",
-        level: 120,
-        weeklyRespawns: [{ day: 0, hour: 16, minute: 0 }],
-      },
-      {
-        id: "Benji",
-        name: "Benji",
-        level: 120,
-        weeklyRespawns: [{ day: 0, hour: 22, minute: 0 }],
-      },
-	  {
-        id: "Libitina",
-        name: "Libitina",
-        level: 130,
-        weeklyRespawns: [
-          { day: 1, hour: 22, minute: 0 },
-          { day: 6, hour: 22, minute: 0 },
-        ],
-      },
-	  {
-        id: "Rakajeth",
-        name: "Rakajeth",
-        level: 130,
-        weeklyRespawns: [
-          { day: 2, hour: 23, minute: 0 },
-          { day: 0, hour: 20, minute: 0 },
-        ],
-      },	
-	  {
-        id: "Icaruthia",
-        name: "Icaruthia",
-        level: 135,
-        weeklyRespawns: [
-          { day: 2, hour: 22, minute: 0 },
-          { day: 5, hour: 22, minute: 0 },
-        ],
-      },	
-	  {
-        id: "Motti",
-        name: "Motti",
-        level: 135,
-        weeklyRespawns: [
-          { day: 3, hour: 20, minute: 0 },
-          { day: 6, hour: 20, minute: 0 },
-        ],
-      },
-	  {
-        id: "Nevaeh",
-        name: "Nevaeh",
-        level: 140,
-        weeklyRespawns: [
-          { day: 0, hour: 23, minute: 0 },
-        ],
-      },
-	  {
-        id: "Tumier",
-        name: "Tumier",
-        level: 140,
-        weeklyRespawns: [
-          { day: 0, hour: 20, minute: 0 },
-        ],
-      },
-	  {
-        id: "Lucus",
-        name: "Lucus",
-        level: 145,
-        weeklyRespawns: [
-          { day: 6, hour: 23, minute: 0 },
-        ],
-      },
-
-      // World bosses (daily spawns at 12:00 and 21:00 JST, excluded from boss list)
-      { id: "Ratan", name: "Ratan", level: 200, isWorldBoss: true,
-        weeklyRespawns: [
-          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
-          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
-          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
-          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
-          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
-          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
-          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
-        ],
-      },
-      { id: "Parto", name: "Parto", level: 200, isWorldBoss: true,
-        weeklyRespawns: [
-          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
-          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
-          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
-          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
-          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
-          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
-          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
-        ],
-      },
-      { id: "Nedra", name: "Nedra", level: 200, isWorldBoss: true,
-        weeklyRespawns: [
-          { day: 0, hour: 12, minute: 0 }, { day: 0, hour: 21, minute: 0 },
-          { day: 1, hour: 12, minute: 0 }, { day: 1, hour: 21, minute: 0 },
-          { day: 2, hour: 12, minute: 0 }, { day: 2, hour: 21, minute: 0 },
-          { day: 3, hour: 12, minute: 0 }, { day: 3, hour: 21, minute: 0 },
-          { day: 4, hour: 12, minute: 0 }, { day: 4, hour: 21, minute: 0 },
-          { day: 5, hour: 12, minute: 0 }, { day: 5, hour: 21, minute: 0 },
-          { day: 6, hour: 12, minute: 0 }, { day: 6, hour: 21, minute: 0 },
-        ],
-      },
-    ];
-    const LOCATIONS = {
-      Venatus: "Corrupted River Stream",
-      Viorent: "Gill Stream",
-      Ego: "Reclaimed Gathering Point",
-      Clemantis: "White Witch's Cradle",
-      Livera: "Black Storm Peninsula",
-      Araneo: "Lower Tomb of Tyriosa 1F",
-      Undomiel: "Test Subject Lab",
-      Saphirus: "Moonlight Shackle",
-      Neutro: "Battlefield of Love and Hatred",
-      LadyDalia: "Bloody Shadow",
-      GeneralAquleus: "Lower Tomb of Tyriosa 2F",
-      Thymele: "Mark of Rampage",
-      Amentis: "Limestone Cape",
-      BaronBraudmore: "Rosevine Bridge",
-      Milavy: "Lower Tomb of Tyriosa 3F",
-      Wannitas: "Snare Swamp",
-      Metus: "Follower's Field",
-      Duplican: "Open-Eyed Puppet's Throne",
-      Shuliar: "Masquerade of Hounds",
-      Ringor: "Torchlight Highway",
-      Roderick: "Garbana Underground Waterway 1F",
-      Gareth: "Deadman's Land District 1",
-      Titore: "Deadman's Land District 2",
-      Larba: "Garbana Reclaimed Land",
-      Catena: "Deadman's Land District 3",
-      Auraq: "Garbana Underground Waterway 2F",
-      Secreta: "Kallion's Tomb",
-      Ordo: "Successor's Paradise",
-      Asta: "Goldblood Plain",
-      Supore: "Goldblood Plain",
-      Chaiflock: "Kallion's Tomb",
-      Benji: "Nest of Vengeance",
-      Libitina: "Chapel of Eternal Vassalage",
-      Rakajeth: "Secreta's Punishment",
-      Icaruthia: "Royal Valley",
-      Motti: "Evelyn's Outer Court",
-      Nevaeh: "Celine's Courtyard",
-      Tumier: "Garbana Underground Waterway 3F",
-      Lucus: "Silent Smelter",
-    };
+    let BOSSES = [];
+    let LOCATIONS = {};
     // -------------------------
     // DOM refs
     // -------------------------
@@ -2726,6 +2441,15 @@
       return `${String(m).padStart(2, "0")}m`;
     }
 
+    function formatTimeFull(ms) {
+      if (ms <= 0) return "SPAWNED";
+      const s = Math.floor(ms / 1000);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    }
+
     function formatWeeklyRespawnSlot(slot) {
       const day = WEEKDAY_LABELS[slot.day] ?? WEEKDAY_LABELS[0];
       return `${day} ${String(slot.hour).padStart(2, "0")}:${String(
@@ -2814,13 +2538,14 @@
         const adjustedUtc = candidate.getTime() - TIME_ZONE_OFFSET_MS;
         if (!soonest || adjustedUtc < soonest) soonest = adjustedUtc;
       }
-      return soonest ?? fromTime;
+      return soonest;
     }
 
     // ✅ Import Firebase core and services
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import {
       getFirestore,
+      enableIndexedDbPersistence,
       doc,
       setDoc,
       getDoc,
@@ -2850,6 +2575,15 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Enable offline persistence (graceful fallback on failure)
+    enableIndexedDbPersistence(db).catch(function (err) {
+      if (err.code === "failed-precondition") {
+        console.warn("Multiple tabs open — offline persistence only in one tab.");
+      } else if (err.code === "unimplemented") {
+        console.warn("Browser does not support IndexedDB persistence.");
+      }
+    });
 
     // ✅ App Check — prevents unauthorized use of Firebase config
     initializeAppCheck(app, {
@@ -2916,6 +2650,7 @@
     // --- Real-time Discord webhook listener (syncs across all users) ---
     let webhookUnsub = null;
     function autoLoadWebhook() {
+      if (webhookUnsub) return;
       const docRef = doc(db, "config", "discordWebhook");
       webhookUnsub = onSnapshot(docRef, (snap) => {
         if (snap.metadata?.hasPendingWrites) return;
@@ -3621,36 +3356,8 @@
     // -------------------------
     // Function to calculate next weekly respawn time for a boss
     function getNextWeeklyRespawnTime(boss) {
-      if (!boss.weeklyRespawns || boss.weeklyRespawns.length === 0) {
-        return null;
-      }
-
-      const now = Date.now();
-      const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
-      const currentDay = jstNow.getUTCDay();
-      const currentHour = jstNow.getUTCHours();
-      const currentMinute = jstNow.getUTCMinutes();
-
-      let nextRespawnTime = null;
-
-      for (const slot of boss.weeklyRespawns) {
-        let slotDate = new Date(jstNow);
-        const daysUntilSlot = (slot.day - currentDay + 7) % 7;
-        slotDate.setUTCDate(slotDate.getUTCDate() + daysUntilSlot);
-        slotDate.setUTCHours(slot.hour, slot.minute, 0, 0);
-
-        if (daysUntilSlot === 0 && (currentHour > slot.hour ||
-          (currentHour === slot.hour && currentMinute > slot.minute))) {
-          slotDate.setUTCDate(slotDate.getUTCDate() + 7);
-        }
-
-        const slotMs = slotDate.getTime() - TIME_ZONE_OFFSET_MS;
-        if (!nextRespawnTime || slotMs < nextRespawnTime) {
-          nextRespawnTime = slotMs;
-        }
-      }
-
-      return nextRespawnTime;
+      if (!boss.weeklyRespawns || boss.weeklyRespawns.length === 0) return null;
+      return getNextWeeklyRespawn(boss.weeklyRespawns);
     }
 
     const WORLD_BOSS_NAMES = ["Ratan", "Parto", "Nedra"];
@@ -3724,19 +3431,9 @@
       const soon = upcoming[0];
       const now = Date.now();
       const remainingMs = Math.max(0, soon.endTime - now);
-      const totalSeconds = Math.floor(remainingMs / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = Math.floor(totalSeconds % 60);
 
       nextBossNameEl.textContent = soon.boss.name;
-      if (totalSeconds === 0) {
-        nextTimeEl.textContent = "SPAWNED";
-      } else {
-        nextTimeEl.textContent = `${String(hours).padStart(2, "0")}:${String(
-          minutes
-        ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-      }
+      nextTimeEl.textContent = formatTimeFull(remainingMs);
 
     }
 
@@ -3889,23 +3586,12 @@
         if (wbSoonest && wbSoonest.spawned) {
           worldBossTimeEl.textContent = "SPAWNED";
         } else if (wbSoonest && wbSoonest.remaining > 0) {
-          const s = Math.floor(wbSoonest.remaining / 1000);
-          const h = Math.floor(s / 3600);
-          const m = Math.floor((s % 3600) / 60);
-          const sec = s % 60;
-          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+          worldBossTimeEl.textContent = formatTimeFull(wbSoonest.remaining);
         } else {
           const wbTime = getNextWorldBossTime();
           if (wbTime) {
-            const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
-            if (wbSec === 0) {
-              worldBossTimeEl.textContent = "SPAWNED";
-            } else {
-              const h = Math.floor(wbSec / 3600);
-              const m = Math.floor((wbSec % 3600) / 60);
-              const s = wbSec % 60;
-              worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-            }
+            const wbMs = Math.max(0, wbTime - now);
+            worldBossTimeEl.textContent = wbMs === 0 ? "SPAWNED" : formatTimeFull(wbMs);
           } else {
             worldBossTimeEl.textContent = "--";
           }
@@ -4316,18 +4002,6 @@
       console.log("🔔 deadLocks updated from Firestore:", deadLocks);
     });
 
-    // Periodically re-check (every 10s)
-    setInterval(() => {
-      const now = Date.now();
-      document
-        .querySelectorAll('.kbtn[data-action="mark"]')
-        .forEach((btn) => {
-          const bossId = btn.getAttribute("data-id");
-          const lockedUntil = deadLocks[bossId] || 0;
-          btn.disabled = now < lockedUntil;
-        });
-    }, 10000);
-
     webhookSave.addEventListener("click", async () => {
       const url = webhookInput.value.trim();
       if (!url) {
@@ -4366,6 +4040,16 @@
             once: true,
           });
       });
+
+      // Load boss data from external JSON
+      try {
+        const res = await fetch("./bosses_data.json?t=" + Date.now());
+        const data = await res.json();
+        BOSSES = data.bosses;
+        LOCATIONS = data.locations;
+      } catch (e) {
+        console.warn("Failed to load bosses_data.json, using inline fallback.");
+      }
 
       weeklyBossListEl.innerHTML = "";
       timerBossListEl.innerHTML = "";
@@ -4477,47 +4161,6 @@
       await autoLoadWebhook();
 
       updateWorldBossName();
-      if (worldBossTimeEl) {
-        const now = Date.now();
-        let wbSoonest = null;
-        for (const boss of BOSSES) {
-          if (!boss.isWorldBoss) continue;
-          const info = timers[boss.id];
-          if (!info || !info.endTime) continue;
-          if (info.cooldownUntil && now < info.cooldownUntil) {
-            wbSoonest = { remaining: 0, spawned: true };
-            break;
-          }
-          const remaining = info.endTime - now;
-          if (remaining > 0 && (wbSoonest === null || remaining < wbSoonest.remaining)) {
-            wbSoonest = { remaining, spawned: false };
-          }
-        }
-        if (wbSoonest && wbSoonest.spawned) {
-          worldBossTimeEl.textContent = "SPAWNED";
-        } else if (wbSoonest && wbSoonest.remaining > 0) {
-          const s = Math.floor(wbSoonest.remaining / 1000);
-          const h = Math.floor(s / 3600);
-          const m = Math.floor((s % 3600) / 60);
-          const sec = s % 60;
-          worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-        } else {
-          const wbTime = getNextWorldBossTime();
-          if (wbTime) {
-            const wbSec = Math.max(0, Math.round((wbTime - now) / 1000));
-            if (wbSec === 0) {
-              worldBossTimeEl.textContent = "SPAWNED";
-            } else {
-              const h = Math.floor(wbSec / 3600);
-              const m = Math.floor((wbSec % 3600) / 60);
-              const s = wbSec % 60;
-              worldBossTimeEl.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-            }
-          } else {
-            worldBossTimeEl.textContent = "--";
-          }
-        }
-      }
 
       console.log("✅ init completed successfully.");
     }
