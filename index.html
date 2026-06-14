@@ -2545,7 +2545,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import {
       getFirestore,
-      enableIndexedDbPersistence,
       doc,
       setDoc,
       getDoc,
@@ -2575,15 +2574,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // Enable offline persistence (graceful fallback on failure)
-    enableIndexedDbPersistence(db).catch(function (err) {
-      if (err.code === "failed-precondition") {
-        console.warn("Multiple tabs open — offline persistence only in one tab.");
-      } else if (err.code === "unimplemented") {
-        console.warn("Browser does not support IndexedDB persistence.");
-      }
-    });
 
     // ✅ App Check — prevents unauthorized use of Firebase config
     initializeAppCheck(app, {
