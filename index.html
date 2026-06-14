@@ -23,6 +23,7 @@
       --text-secondary: #AAB4C3;
       --text-muted: #6B7A8F;
       --accent-gold: #D4AF37;
+      --accent-rgb: 212,175,55;
       --accent-blue: #4A90E2;
       --accent-green: #2ECC71;
       --accent-orange: #F39C12;
@@ -48,9 +49,9 @@
     }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.12); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.25); }
-    html { scrollbar-width: thin; scrollbar-color: rgba(212,175,55,0.12) transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb),0.12); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(var(--accent-rgb),0.25); }
+    html { scrollbar-width: thin; scrollbar-color: rgba(var(--accent-rgb),0.12) transparent; }
 
     html {
       height: 100%;
@@ -65,7 +66,7 @@
       font-family: var(--font-sans);
       background-color: var(--bg-primary);
       background-image: radial-gradient(ellipse at 20% 50%, rgba(74,144,226,0.03) 0%, transparent 70%),
-                        radial-gradient(ellipse at 80% 20%, rgba(212,175,55,0.02) 0%, transparent 70%);
+                        radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb),0.02) 0%, transparent 70%);
       color: var(--text-primary);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -95,7 +96,7 @@
       gap: 8px;
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
       border: 1px solid var(--border);
-      border-bottom: 2px solid rgba(212,175,55,0.15);
+      border-bottom: 2px solid rgba(var(--accent-rgb),0.15);
       padding: 6px 12px;
       border-radius: var(--radius-lg);
       position: relative;
@@ -108,7 +109,7 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent);
+      background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb),0.3), transparent);
     }
 
     .header-top {
@@ -144,7 +145,7 @@
       width: auto;
       display: block;
       object-fit: contain;
-      filter: drop-shadow(0 0 6px rgba(212,175,55,0.2));
+      filter: drop-shadow(0 0 6px rgba(var(--accent-rgb),0.2));
     }
 
     .main-title {
@@ -464,7 +465,7 @@
       color: var(--accent-gold);
       line-height: 1;
       letter-spacing: 2px;
-      text-shadow: 0 0 20px rgba(212,175,55,0.2);
+      text-shadow: 0 0 20px rgba(var(--accent-rgb),0.2);
     }
 
     #activeStatCard {
@@ -491,7 +492,7 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb),0.2), transparent);
     }
 
     .view-toggle {
@@ -516,7 +517,7 @@
     .view-toggle:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(212,175,55,0.08);
+      background: rgba(var(--accent-rgb),0.08);
     }
 
     .header-sort {
@@ -661,7 +662,7 @@
       flex-shrink: 0;
     }
 
-    .label-dot.active { background: var(--accent-gold); box-shadow: 0 0 6px rgba(212,175,55,0.5); }
+    .label-dot.active { background: var(--accent-gold); box-shadow: 0 0 6px rgba(var(--accent-rgb),0.5); }
     .label-dot.weekly { background: var(--accent-purple); box-shadow: 0 0 6px rgba(155,89,182,0.5); }
     #scheduleDay0 .label-dot.active { background: var(--accent-green); box-shadow: 0 0 6px rgba(46,204,113,0.5); }
     #scheduleDay1 .label-dot.weekly { background: var(--accent-red); box-shadow: 0 0 6px rgba(231,76,60,0.5); }
@@ -678,20 +679,24 @@
       padding: 8px;
       scroll-behavior: smooth;
       scrollbar-width: thin;
-      scrollbar-color: rgba(212,175,55,0.12) transparent;
+      scrollbar-color: rgba(var(--accent-rgb),0.12) transparent;
       background: rgba(0,0,0,0.35);
     }
     .boss-column .scrollable::-webkit-scrollbar { width: 5px; }
     .boss-column .scrollable::-webkit-scrollbar-track { background: transparent; }
     .boss-column .scrollable::-webkit-scrollbar-thumb {
-      background: rgba(212,175,55,0.12);
+      background: rgba(var(--accent-rgb),0.12);
       border-radius: 3px;
     }
-    .boss-column .scrollable::-webkit-scrollbar-thumb:hover {
-      background: rgba(212,175,55,0.25);
-    }
+      .boss-column .scrollable::-webkit-scrollbar-thumb:hover {
+        background: rgba(var(--accent-rgb),0.25);
+      }
 
-    @keyframes fadeSlideRight {
+      .boss.stagger-enter {
+        animation: fadeSlideRight 0.3s ease both;
+      }
+
+      @keyframes fadeSlideRight {
       from { opacity: 0; transform: translateX(-12px); }
       to { opacity: 1; transform: translateX(0); }
     }
@@ -755,7 +760,65 @@
       }
     }
 
+    @media (max-width: 600px) {
+      #app {
+        padding: 8px;
+        gap: 8px;
+      }
 
+      .header-left { gap: 6px; }
+      .header-left h1 { font-size: 13px; letter-spacing: 1.5px; }
+      .header-controls { gap: 4px; }
+
+      .top-panels-row {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .top-panels-row .stat-card {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+        padding: 8px 10px;
+      }
+      .top-panels-row .stat-card .stat-value { font-size: 16px; }
+      .top-panels-row .stat-card .stat-label { font-size: 9px; }
+
+      .boss-column .column-label { font-size: 9px; letter-spacing: 1px; }
+      .boss-column .scrollable { padding: 4px; }
+
+      .boss { padding: 8px 10px; font-size: 11px; }
+      .boss .level-badge { font-size: 9px; min-width: 18px; height: 18px; }
+      .boss .sub { font-size: 9px; }
+      .boss .location { font-size: 9px; }
+      .boss .spawn-time { font-size: 8px; }
+      .boss .time-remaining { font-size: 10px; }
+
+      .action-label { display: none; }
+      .action-btn .kbtn { width: 28px; height: 28px; }
+      .action-btn .kbtn svg { width: 14px; height: 14px; }
+
+      #nextBossPanel { padding: 8px 12px; gap: 6px; }
+      #nextBossPanel .next-title { font-size: 10px; }
+      #nextBossPanel .next-boss-name { font-size: 13px; }
+      #nextBossPanel .next-boss-timer { font-size: 18px; }
+
+      #worldBossPanel { padding: 8px 12px; gap: 4px; }
+      #worldBossPanel .wb-header { font-size: 10px; }
+      #worldBossPanel .wb-name { font-size: 11px; }
+      #worldBossPanel .wb-timer { font-size: 15px; }
+
+      .modal-content { width: 92%; padding: 20px; }
+      .modal-content h2 { font-size: 14px; }
+
+      #timeModal .shortcut-grid { gap: 6px; }
+      #timeModal .shortcut-grid button { font-size: 12px; padding: 8px; }
+
+      .settings-item { gap: 10px; }
+      .toggle-switch { width: 36px; height: 20px; }
+      .toggle-switch::after { width: 16px; height: 16px; }
+
+      #toastContainer { bottom: 12px; right: 12px; left: 12px; }
+      .toast { max-width: 100%; font-size: 12px; }
+    }
 
     .card {
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -795,16 +858,25 @@
       padding-left: 9px !important;
     }
 
+    .boss.is-dead.in-cooldown {
+      animation: boss-spawned-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes boss-spawned-glow {
+      0%, 100% { border-color: var(--accent-red); box-shadow: 0 0 8px rgba(231,76,60,0.2); }
+      50% { border-color: #ff6b6b; box-shadow: 0 0 20px rgba(231,76,60,0.4); }
+    }
+    
     .boss.is-alive {
       border-left: 3px solid var(--accent-gold) !important;
       padding-left: 9px !important;
     }
-
+    
     .boss.is-dead:hover {
       border-color: rgba(231, 76, 60, 0.4) !important;
       box-shadow: 0 4px 16px rgba(231, 76, 60, 0.15) !important;
     }
-
+    
     .boss.is-alive:hover {
       border-color: rgba(212, 175, 55, 0.4) !important;
       box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12) !important;
@@ -904,8 +976,8 @@
     .kbtn:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(212,175,55,0.06);
-      box-shadow: 0 0 12px rgba(212,175,55,0.1);
+      background: rgba(var(--accent-rgb),0.06);
+      box-shadow: 0 0 12px rgba(var(--accent-rgb),0.1);
     }
 
     /* === DESKTOP (wider screens) === */
@@ -1113,7 +1185,7 @@
     .modal .kbtn:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(212,175,55,0.06);
+      background: rgba(var(--accent-rgb),0.06);
     }
 
     /* === TIME MODAL === */
@@ -1201,7 +1273,7 @@
     #timeModal .kbtn:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(212,175,55,0.06);
+      background: rgba(var(--accent-rgb),0.06);
     }
 
     /* === ADMIN PASSWORD MODAL === */
@@ -1290,7 +1362,7 @@
     .admin-password-modal .password-btn:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(212,175,55,0.06);
+      background: rgba(var(--accent-rgb),0.06);
     }
 
     .admin-password-modal .password-btn.cancel-btn { background: var(--bg-primary); }
@@ -1350,13 +1422,13 @@
       flex-direction: column;
       gap: 4px;
       scrollbar-width: thin;
-      scrollbar-color: rgba(212,175,55,0.12) transparent;
+      scrollbar-color: rgba(var(--accent-rgb),0.12) transparent;
       background: rgba(0,0,0,0.35);
     }
     .schedule-column .schedule-list::-webkit-scrollbar { width: 5px; }
     .schedule-column .schedule-list::-webkit-scrollbar-track { background: transparent; }
     .schedule-column .schedule-list::-webkit-scrollbar-thumb {
-      background: rgba(212,175,55,0.12);
+      background: rgba(var(--accent-rgb),0.12);
       border-radius: 3px;
     }
 
@@ -1480,6 +1552,121 @@
       flex: 1;
     }
 
+    .settings-section {
+      padding: 8px 12px 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .settings-section-label {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    /* === TOAST NOTIFICATIONS === */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 320px;
+      line-height: 1.4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success { border-left: 3px solid var(--accent-green); }
+    .toast.toast-error { border-left: 3px solid var(--accent-red); }
+    .toast.toast-info { border-left: 3px solid var(--accent-gold); }
+
+    /* === SKELETON LOADING === */
+    @keyframes skeleton-shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .boss-skeleton {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      margin-bottom: 6px;
+      height: 54px;
+    }
+
+    .boss-skeleton .sk-portrait {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--bg-secondary) 75%);
+      background-size: 200px 100%;
+      animation: skeleton-shimmer 1.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .boss-skeleton .sk-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .boss-skeleton .sk-line {
+      height: 10px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--bg-secondary) 75%);
+      background-size: 200px 100%;
+      animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    }
+
+    .boss-skeleton .sk-line:first-child { width: 55%; }
+    .boss-skeleton .sk-line:last-child { width: 35%; }
+
+    /* === ACCENT COLOR PICKER === */
+    .accent-picker {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .accent-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .accent-swatch:hover { border-color: var(--text-muted); }
+    .accent-swatch.active { border-color: var(--text-primary); }
+
     /* === LOADING OVERLAY === */
     .loading-overlay {
       position: fixed;
@@ -1489,7 +1676,7 @@
       justify-content: center;
       z-index: 9999;
       background: var(--bg-primary);
-      background-image: radial-gradient(ellipse at center, rgba(212,175,55,0.03) 0%, transparent 70%);
+      background-image: radial-gradient(ellipse at center, rgba(var(--accent-rgb),0.03) 0%, transparent 70%);
     }
 
     .loading-container {
@@ -1585,10 +1772,16 @@
       background: var(--bg-tertiary);
     }
 
+    .portrait-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 48px;
+      height: 74px;
+    }
+
     .boss-portrait {
       width: 48px;
       height: 74px;
-      flex-shrink: 0;
       object-fit: cover;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
@@ -1597,6 +1790,20 @@
 
     .boss:hover .boss-portrait {
       border-color: var(--border-hover);
+    }
+
+    .progress-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .boss:hover .progress-ring {
+      opacity: 1;
     }
 
     .info {
@@ -1738,6 +1945,81 @@
 </head>
 
 <body>
+  <!-- SVG icon sprite -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <defs>
+      <!-- 24x24 icons (header + action buttons) -->
+      <symbol id="icon-alarm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </symbol>
+      <symbol id="icon-schedule" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </symbol>
+      <symbol id="icon-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12,7 12,12 16,12"/>
+      </symbol>
+      <symbol id="icon-skull" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"/>
+        <circle cx="9" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+        <circle cx="15" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+        <path d="M8 16h8" stroke-width="1.5" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </symbol>
+      <!-- 16x16 icons (sort + settings) -->
+      <symbol id="icon-sort" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 5l5-3 5 3"/>
+        <path d="M3 11l5 3 5-3"/>
+      </symbol>
+      <symbol id="icon-sort-dir" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2v12M4 6l4-4 4 4"/>
+      </symbol>
+      <symbol id="icon-sort-dir-desc" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 14V2M4 10l4 4 4-4"/>
+      </symbol>
+      <symbol id="icon-view-toggle" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4L1 8L4 12"/>
+        <path d="M12 4L15 8L12 12"/>
+      </symbol>
+      <symbol id="icon-settings-gear" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1.5v1.5M8 13v1.5M3.4 3.4l1.06 1.06M11.54 11.54l1.06 1.06M1.5 8H3M13 8h1.5M3.4 12.6l1.06-1.06M11.54 4.46l1.06-1.06"/>
+      </symbol>
+      <symbol id="icon-export" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 1.5v9M4.5 7L8 10.5 11.5 7"/>
+        <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
+      </symbol>
+      <symbol id="icon-import" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 10.5v-9M4.5 5L8 1.5 11.5 5"/>
+        <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
+      </symbol>
+      <symbol id="icon-reset" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 8a6 6 0 0 1 11.4-2.8"/>
+        <path d="M14 8a6 6 0 0 1-11.4 2.8"/>
+        <path d="M13.5 1.5v3.7H9.8"/>
+        <path d="M2.5 14.5v-3.7h3.7"/>
+      </symbol>
+      <symbol id="icon-webhook" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.5 3a3.5 3.5 0 0 0-3.5 3.5v1A3.5 3.5 0 0 0 6.5 11h.5"/>
+        <path d="M9.5 3a3.5 3.5 0 0 1 3.5 3.5v1a3.5 3.5 0 0 1-3.5 3.5h-.5"/>
+        <path d="M6 8.5h4"/>
+      </symbol>
+    </defs>
+  </svg>
   <!-- Admin password modal -->
   <div class="modal-backdrop hidden" id="adminPasswordBackdrop">
     <div class="admin-password-modal" role="dialog" aria-labelledby="adminPasswordTitle">
@@ -1778,37 +2060,19 @@
 
           <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
             aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
+            <svg class="btn-icon" aria-hidden="true"><use href="#icon-alarm"/></svg>
           </button>
           <button type="button" class="alarm-btn" id="scheduleBtn" aria-label="View spawn schedule"
             title="Spawn schedule">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
+            <svg class="btn-icon" aria-hidden="true"><use href="#icon-schedule"/></svg>
           </button>
           <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
             title="Admin">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
+            <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
           </button>
           <button type="button" class="settings-btn hidden" id="settingsBtn" aria-label="Settings"
             title="Settings">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path
-                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
+            <svg class="btn-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
           </button>
         </div>
       </nav>
@@ -1843,11 +2107,11 @@
           FIELD BOSS LIST
           <span class="header-sort" id="sortContainer">
             <button class="sort-btn" id="sortBtn">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l5-3 5 3"/><path d="M3 11l5 3 5-3"/></svg>
+              <svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg>
               <span id="sortLabel">Time</span>
             </button>
             <button class="sort-dir-btn" id="sortDirBtn" title="Ascending">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+              <svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg>
             </button>
             <div class="sort-dropdown hidden" id="sortDropdown">
               <button class="sort-option" data-sort="time">Time</button>
@@ -1856,20 +2120,28 @@
             </div>
           </span>
           <button class="view-toggle" id="viewToggle" aria-label="Toggle view">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 4L1 8L4 12"/>
-              <path d="M12 4L15 8L12 12"/>
-            </svg>
+            <svg width="14" height="14" aria-hidden="true"><use href="#icon-view-toggle"/></svg>
           </button>
         </h2>
         <div id="bossList">
           <div class="boss-column" id="intervalColumn" role="tabpanel" aria-label="Fixed interval bosses">
             <div class="column-label"><span class="label-dot active" aria-hidden="true"></span> FIXED INTERVAL</div>
-            <div class="scrollable" id="timerBossList"></div>
+            <div class="scrollable" id="timerBossList">
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+            </div>
           </div>
           <div class="boss-column" id="weeklyColumn" role="tabpanel" aria-label="Fixed schedule bosses">
             <div class="column-label"><span class="label-dot weekly" aria-hidden="true"></span> FIXED SCHEDULE</div>
-            <div class="scrollable" id="weeklyBossList"></div>
+            <div class="scrollable" id="weeklyBossList">
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+              <div class="boss-skeleton"><div class="sk-portrait"></div><div class="sk-lines"><div class="sk-line"></div><div class="sk-line"></div></div></div>
+            </div>
           </div>
           <div id="scheduleView" class="schedule-view hidden" role="tabpanel" aria-label="Spawn schedule">
             <div class="schedule-column" id="scheduleDay0">
@@ -1899,6 +2171,9 @@
       </div>
     </div>
   </div>
+  <!-- Toast container -->
+  <div id="toastContainer"></div>
+
   <!-- Webhook modal â€” compact cyber panel -->
   <div class="modal-backdrop" id="webhookModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="webhookTitle">
     <div class="modal">
@@ -1928,44 +2203,36 @@
   
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
-      <svg class="settings-header-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="8" cy="8" r="2.5"/>
-        <path d="M8 1.5v1.5M8 13v1.5M3.4 3.4l1.06 1.06M11.54 11.54l1.06 1.06M1.5 8H3M13 8h1.5M3.4 12.6l1.06-1.06M11.54 4.46l1.06-1.06"/>
-      </svg>
+      <svg class="settings-header-icon" aria-hidden="true"><use href="#icon-settings-gear"/></svg>
       <span class="settings-header-title">Settings</span>
     </div>
     <div class="settings-list">
       <button class="settings-item" id="exportBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M8 1.5v9M4.5 7L8 10.5 11.5 7"/>
-          <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
-        </svg>
+        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-export"/></svg>
         <span class="label">Export JSON</span>
       </button>
       <button class="settings-item" id="importBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M8 10.5v-9M4.5 5L8 1.5 11.5 5"/>
-          <path d="M1.5 11v2a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5v-2"/>
-        </svg>
+        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-import"/></svg>
         <span class="label">Import JSON</span>
       </button>
       <button class="settings-item" id="resetBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M2 8a6 6 0 0 1 11.4-2.8"/>
-          <path d="M14 8a6 6 0 0 1-11.4 2.8"/>
-          <path d="M13.5 1.5v3.7H9.8"/>
-          <path d="M2.5 14.5v-3.7h3.7"/>
-        </svg>
+        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-reset"/></svg>
         <span class="label">Reset Timers</span>
       </button>
       <button class="settings-item" id="discordWebhookBtn">
-        <svg class="settings-item-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6.5 3a3.5 3.5 0 0 0-3.5 3.5v1A3.5 3.5 0 0 0 6.5 11h.5"/>
-          <path d="M9.5 3a3.5 3.5 0 0 1 3.5 3.5v1a3.5 3.5 0 0 1-3.5 3.5h-.5"/>
-          <path d="M6 8.5h4"/>
-        </svg>
+        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-webhook"/></svg>
         <span class="label">Webhook URL</span>
       </button>
+      <div class="settings-section">
+        <div class="settings-section-label">ACCENT</div>
+        <div class="accent-picker">
+          <div class="accent-swatch active" data-accent="gold" style="background:#d4af37" title="Gold"></div>
+          <div class="accent-swatch" data-accent="red" style="background:#e74c3c" title="Red"></div>
+          <div class="accent-swatch" data-accent="purple" style="background:#9b59b6" title="Purple"></div>
+          <div class="accent-swatch" data-accent="blue" style="background:#3498db" title="Blue"></div>
+          <div class="accent-swatch" data-accent="green" style="background:#2ecc71" title="Green"></div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay" role="status" aria-label="Loading">
@@ -2336,15 +2603,17 @@
 
     async function requestNotificationPermission() {
       if (!("Notification" in window)) {
-        alert(
-          "This browser does not support desktop notifications. Alarm sound will still work."
+        showToast(
+          "This browser does not support desktop notifications. Alarm sound will still work.",
+          "info"
         );
         return true;
       }
       if (Notification.permission === "granted") return true;
       if (Notification.permission === "denied") {
-        alert(
-          "Notifications are blocked. Enable them in your browser site settings to receive tray alerts."
+        showToast(
+          "Notifications are blocked. Enable them in your browser site settings to receive tray alerts.",
+          "error"
         );
         return false;
       }
@@ -2625,6 +2894,25 @@
       }
     }
 
+    // === TOAST ===
+    function showToast(msg, type, duration) {
+      if (type === undefined) type = "info";
+      if (duration === undefined) duration = 3000;
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+      const el = document.createElement("div");
+      el.className = "toast toast-" + type;
+      el.textContent = msg;
+      container.appendChild(el);
+      requestAnimationFrame(function () {
+        el.classList.add("show");
+      });
+      setTimeout(function () {
+        el.classList.remove("show");
+        setTimeout(function () { el.remove(); }, 300);
+      }, duration);
+    }
+
     // --- Real-time Discord webhook listener (syncs across all users) ---
     let webhookUnsub = null;
     function autoLoadWebhook() {
@@ -2656,11 +2944,10 @@
         await setDoc(doc(db, "config", "discordWebhook"), { url });
         cachedWebhookUrl = url;
         webhookInput.value = url;
-        alert("✅ Webhook saved.");
         console.log("✅ Webhook saved to Firestore.");
       } catch (e) {
         console.warn("save webhook err", e);
-        alert("❌ Failed to save webhook.");
+        showToast("Failed to save webhook.", "error");
       }
     }
 
@@ -2669,11 +2956,11 @@
         await deleteDoc(doc(db, "config", "discordWebhook"));
         cachedWebhookUrl = null;
         webhookInput.value = "";
-        alert("✅ Webhook cleared.");
+        showToast("Webhook cleared.", "success");
         console.log("✅ Webhook cleared from Firestore.");
       } catch (e) {
         console.warn("clear webhook err", e);
-        alert("❌ Failed to clear webhook.");
+        showToast("Failed to clear webhook.", "error");
       }
     }
 
@@ -2846,7 +3133,7 @@
 
     async function testWebhook() {
       if (!cachedWebhookUrl && !webhookInput.value.trim()) {
-        alert("No webhook URL configured.");
+        showToast("No webhook URL configured.", "error");
         return;
       }
       if (!cachedWebhookUrl) cachedWebhookUrl = webhookInput.value.trim();
@@ -2854,7 +3141,7 @@
         "Webhook test successful!\n" +
         "Tracker notifications are working."
       );
-      alert("Test sent (check your Discord).");
+      showToast("Test sent (check your Discord).", "success");
     }
 
     // -------------------------
@@ -2980,11 +3267,11 @@
       try {
         await setDoc(doc(db, "timers", "global"), { timers }); // overwrite entire timers doc
         renderBossList();
-        alert("✅ All non-weekly timers reset (Firestore updated).");
+        showToast("All non-weekly timers reset.", "success");
         console.log("🔁 resetAll: fully reset timers and updated Firestore.");
       } catch (e) {
         console.warn("❌ resetAll Firestore update failed", e);
-        alert("⚠️  Failed to update Firestore.");
+        showToast("Failed to update Firestore.", "error");
       }
     }
 
@@ -3014,7 +3301,7 @@
 
       const parsed = parseDatetimeLocalAsJst(input);
       if (!parsed) {
-        alert("Invalid date format.");
+        showToast("Invalid date format.", "error");
         return;
       }
 
@@ -3043,16 +3330,18 @@
         renderBossList();
         sendDiscordEmbedOnce("manual", boss);
         console.log(`Manual time saved: ${boss.name}`);
-        alert(`Manual time saved and synced for ${boss.name}.`);
+        showToast(`Time saved for ${boss.name}.`, "success");
       } catch (err) {
         console.error("Failed to record manual time:", err);
-        alert("Failed to record manual time to Firestore.");
+        showToast("Failed to record manual time.", "error");
       }
     });
 
     // -------------------------
     // Render functions
     // -------------------------
+    let _isFirstRender = true;
+
     function renderBossList() {
       // FLIP: capture old positions
       const oldRects = {};
@@ -3109,16 +3398,32 @@
         }
 
         const isDeadState = countingDown || (!inCooldown && isExpired);
+        const isSpawned = inCooldown || isExpired;
         const node = document.createElement("div");
-        node.className = isDeadState ? "boss is-dead" : "boss is-alive";
+        node.className = (isDeadState ? "boss is-dead" : "boss is-alive") + (isSpawned ? " in-cooldown" : "");
         node.setAttribute("data-id", b.id);
 
         const nameClass = isDeadState ? "name dead" : "name";
 
+        // Progress ring for counting-down bosses
+        let ringHtml = "";
+        if (countingDown && t?.endTime) {
+          const totalSec = (t.endTime - t.startedAt) / 1000;
+          const remainSec = Math.max(0, (t.endTime - now) / 1000);
+          const pct = totalSec > 0 ? remainSec / totalSec : 0;
+          const r = 14;
+          const circ = 2 * Math.PI * r;
+          const offset = circ * (1 - pct);
+          ringHtml = `<svg class="progress-ring" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/><circle cx="17" cy="17" r="${r}" fill="none" stroke="var(--accent-gold)" stroke-width="3" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 17 17)"/></svg>`;
+        }
+
         node.innerHTML = `
           <div class="meta">
             <div class="portrait-meta">
-              <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
+              <div class="portrait-wrap">
+                <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
+                ${ringHtml}
+              </div>
               <div class="info">
                 <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge" style="background:${getLevelColor(b.level)}">${b.level}</span>` : ""}</div>
                 <div class="sub">${subText}</div>
@@ -3131,34 +3436,20 @@
           <div class="actions">
             <div class="action-btn">
               <button class="kbtn icon-btn" title="Set date and time manually" data-action="set" data-id="${b.id}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="9"></circle>
-                  <polyline points="12,7 12,12 16,12"></polyline>
-                </svg>
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-clock"/></svg>
               </button>
               <span class="action-label">SET</span>
             </div>
             <div class="action-btn">
               <button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2C7 2 3 6 3 11c0 3 2 6 5 7v2c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2c3-1 5-4 5-7 0-5-4-9-9-9z"></path>
-                  <circle cx="9" cy="11" r="1.5" fill="currentColor" stroke="none"></circle>
-                  <circle cx="15" cy="11" r="1.5" fill="currentColor" stroke="none"></circle>
-                  <path d="M8 16h8" stroke-width="1.5" stroke-linecap="round"></path>
-                </svg>
+                <svg width="20" height="20" aria-hidden="true"><use href="#icon-skull"/></svg>
               </button>
               <span class="action-label">KILLED</span>
             </div>
             ${sessionStorage.getItem("userMode") === "admin" ? `
             <div class="action-btn">
               <button class="kbtn icon-btn" title="Clear timer" data-action="clear" data-id="${b.id}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-trash"/></svg>
               </button>
               <span class="action-label">CLEAR</span>
             </div>` : ""}
@@ -3186,16 +3477,30 @@
       }
 
       const weeklyBosses = BOSSES.filter(b => b.weeklyRespawns && !b.isWorldBoss).sort(sortBosses);
-      for (const bb of weeklyBosses) {
+      weeklyBosses.forEach((bb, i) => {
         const node = buildBossCard(bb);
-        if (node) weeklyBossListEl.appendChild(node);
-      }
+        if (node) {
+          if (_isFirstRender) {
+            node.classList.add("stagger-enter");
+            node.style.animationDelay = (i * 0.04) + "s";
+          }
+          weeklyBossListEl.appendChild(node);
+        }
+      });
 
       const timerBosses = BOSSES.filter(b => !b.weeklyRespawns && !b.isWorldBoss).sort(sortBosses);
-      for (const bb of timerBosses) {
+      timerBosses.forEach((bb, i) => {
         const node = buildBossCard(bb);
-        if (node) timerBossListEl.appendChild(node);
-      }
+        if (node) {
+          if (_isFirstRender) {
+            node.classList.add("stagger-enter");
+            node.style.animationDelay = ((weeklyBosses.length + i) * 0.04) + "s";
+          }
+          timerBossListEl.appendChild(node);
+        }
+      });
+
+      _isFirstRender = false;
 
       const activeCountEl = document.getElementById("activeCount");
       if (activeCountEl) {
@@ -3897,8 +4202,8 @@
       sortLabel.textContent = sortLabels[currentSort] || "Time";
       sortDirBtn.title = sortAsc ? "Ascending" : "Descending";
       sortDirBtn.innerHTML = sortAsc
-        ? `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>`
-        : `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14V2M4 10l4 4 4-4"/></svg>`;
+        ? `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg>`
+        : `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir-desc"/></svg>`;
       sortOptions?.forEach(opt => opt.classList.toggle("active", opt.dataset.sort === currentSort));
     }
 
@@ -3967,10 +4272,10 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        alert("✅ Timers exported successfully.");
-        console.log("ðŸ“¤ Exported timers.json");
+        showToast("Timers exported.", "success");
+        console.log("📤 Exported timers.json");
       } catch (e) {
-        alert("❌ Failed to export timers.");
+        showToast("Failed to export timers.", "error");
       }
     });
 
@@ -3989,11 +4294,11 @@
             timers = imported;
             await saveTimers();
             renderBossList();
-            alert("✅ Timers imported successfully.");
+            showToast("Timers imported.", "success");
             console.log("ðŸ“¥ Imported timers from file.");
           }
         } catch (e) {
-          alert("❌ Invalid JSON file.");
+          showToast("Invalid JSON file.", "error");
         }
       };
       input.click();
@@ -4038,10 +4343,11 @@
     webhookSave.addEventListener("click", async () => {
       const url = webhookInput.value.trim();
       if (!url) {
-        alert("Please paste a webhook URL");
+        showToast("Please paste a webhook URL", "error");
         return;
       }
       await saveWebhookToFirestore(url);
+      showToast("Webhook saved", "success");
     });
 
     webhookTest.addEventListener("click", async () => {
@@ -4331,6 +4637,37 @@
 
     updateAuthUI();
     if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
+
+    // === ACCENT PICKER ===
+    const ACCENT_MAP = {
+      gold: { "--accent-gold": "#d4af37", "--accent-rgb": "212,175,55" },
+      red: { "--accent-gold": "#e74c3c", "--accent-rgb": "231,76,60" },
+      purple: { "--accent-gold": "#9b59b6", "--accent-rgb": "155,89,182" },
+      blue: { "--accent-gold": "#3498db", "--accent-rgb": "52,152,219" },
+      green: { "--accent-gold": "#2ecc71", "--accent-rgb": "46,204,113" },
+    };
+
+    function applyAccent(name) {
+      const vars = ACCENT_MAP[name];
+      if (!vars) return;
+      const root = document.documentElement;
+      root.style.setProperty("--accent-gold", vars["--accent-gold"]);
+      root.style.setProperty("--accent-rgb", vars["--accent-rgb"]);
+      localStorage.setItem("bossTrackerAccent", name);
+      document.querySelectorAll(".accent-swatch").forEach(function (s) {
+        s.classList.toggle("active", s.getAttribute("data-accent") === name);
+      });
+    }
+
+    document.querySelectorAll(".accent-swatch").forEach(function (s) {
+      s.addEventListener("click", function () {
+        applyAccent(this.getAttribute("data-accent"));
+      });
+    });
+
+    var savedAccent = localStorage.getItem("bossTrackerAccent");
+    if (savedAccent && ACCENT_MAP[savedAccent]) applyAccent(savedAccent);
+
     window.addEventListener("load", () => {
       init();
       checkForUpdates();
