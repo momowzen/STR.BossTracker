@@ -2829,7 +2829,7 @@
           case "soon":
             message =
               `${boss.name} will respawn soon!\n` +
-              `Respawn time: ${formattedTime}\n` +
+              (boss.isWorldBoss ? "" : `Respawn time: ${formattedTime}\n`) +
               `@here`;
             break;
 
