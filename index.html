@@ -3502,18 +3502,6 @@
 
       _isFirstRender = false;
 
-      const activeCountEl = document.getElementById("activeCount");
-      if (activeCountEl) {
-        const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
-        const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
-        const tomorrowStart = todayStart + 86400000;
-        const c = BOSSES.filter(b => {
-          const info = timers[b.id];
-          return info && info.endTime >= todayStart && info.endTime < tomorrowStart;
-        }).length;
-        activeCountEl.textContent = c;
-      }
-
       // FLIP: animate cards from old to new positions
       const moved = [];
       document.querySelectorAll(".boss").forEach(el => {
