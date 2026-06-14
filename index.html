@@ -3538,7 +3538,7 @@
           if (remainingMs <= 5 * 60 * 1000 && !localNotifCache[`${id}_soon`]) {
             localNotifCache[`${id}_soon`] = Date.now();
             triggerBossAlarm(boss);
-            if (!boss.isWorldBoss) discordPromises.push(sendDiscordEmbedOnce("soon", boss));
+            discordPromises.push(sendDiscordEmbedOnce("soon", boss));
           }
           continue;
         }
@@ -3552,7 +3552,7 @@
           // Condition 8: send spawn notification (firestore-deduped, condition 13)
           if (!localNotifCache[`${id}_spawn`]) {
             localNotifCache[`${id}_spawn`] = Date.now();
-            if (!boss.isWorldBoss) discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
+            discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
           // Condition 10: enter SPAWNED cooldown
@@ -3568,21 +3568,6 @@
       // Fire all Discord notifications (Firestore dedupe prevents spam — condition 13)
       if (discordPromises.length) {
         await Promise.allSettled(discordPromises);
-      }
-
-      // World boss notifications in BOSSES order (Ratan → Parto → Nedra)
-      for (const boss of BOSSES) {
-        if (!boss.isWorldBoss) continue;
-        const soonKey = `${boss.id}_soon`;
-        const spawnKey = `${boss.id}_spawn`;
-        if (localNotifCache[soonKey] && localNotifCache[soonKey] !== "sent") {
-          await sendDiscordEmbedOnce("soon", boss);
-          localNotifCache[soonKey] = "sent";
-        }
-        if (localNotifCache[spawnKey] && localNotifCache[spawnKey] !== "sent") {
-          await sendDiscordEmbedOnce("spawn", boss);
-          localNotifCache[spawnKey] = "sent";
-        }
       }
 
       computeNextBoss();
