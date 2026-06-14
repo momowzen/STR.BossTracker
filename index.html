@@ -239,8 +239,7 @@
 
     .admin-auth-btn,
     .alarm-btn,
-    .settings-btn,
-    .online-btn {
+    .settings-btn {
       width: 36px;
       height: 36px;
       min-width: 36px;
@@ -268,8 +267,7 @@
 
     .admin-auth-btn .btn-icon,
     .alarm-btn .btn-icon,
-    .settings-btn .btn-icon,
-    .online-btn .btn-icon {
+    .settings-btn .btn-icon {
       width: 16px;
       height: 16px;
       display: block;
@@ -290,18 +288,6 @@
 
     .admin-auth-btn.on .btn-icon {
       filter: drop-shadow(0 0 2px var(--accent-gold));
-    }
-
-    .online-btn {
-      cursor: default !important;
-    }
-
-    .btn-count {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent-green);
-      line-height: 1;
     }
 
     .settings-btn {
@@ -980,8 +966,7 @@
 
       .admin-auth-btn,
       .alarm-btn,
-      .settings-btn,
-      .online-btn {
+      .settings-btn {
         width: 34px;
         height: 34px;
         min-width: 34px;
@@ -3140,7 +3125,6 @@
                 <div class="location">${LOCATIONS[b.id] || ""}</div>
                 <div class="spawn-time">${spawnTimeText}</div>
                 <div class="time-remaining">${remainingText}</div>
-        </h4>
             </div>
           </div>
           ${!isWeekly ? `
