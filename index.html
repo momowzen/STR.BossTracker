@@ -3573,10 +3573,16 @@
       // World boss notifications in BOSSES order (Ratan → Parto → Nedra)
       for (const boss of BOSSES) {
         if (!boss.isWorldBoss) continue;
-        const notifSoon = localNotifCache[`${boss.id}_soon`];
-        const notifSpawn = localNotifCache[`${boss.id}_spawn`];
-        if (notifSoon) await sendDiscordEmbedOnce("soon", boss);
-        if (notifSpawn) await sendDiscordEmbedOnce("spawn", boss);
+        const soonKey = `${boss.id}_soon`;
+        const spawnKey = `${boss.id}_spawn`;
+        if (localNotifCache[soonKey] && localNotifCache[soonKey] !== "sent") {
+          await sendDiscordEmbedOnce("soon", boss);
+          localNotifCache[soonKey] = "sent";
+        }
+        if (localNotifCache[spawnKey] && localNotifCache[spawnKey] !== "sent") {
+          await sendDiscordEmbedOnce("spawn", boss);
+          localNotifCache[spawnKey] = "sent";
+        }
       }
 
       computeNextBoss();
