@@ -3987,6 +3987,7 @@
     const deadLockRef = doc(db, "meta", "deadLocks");
     onSnapshot(deadLockRef, (snapshot) => {
       if (snapshot.metadata?.hasPendingWrites) return;
+      if (snapshot.metadata.fromCache) return;
       deadLocks = snapshot.data() || {};
       const now = Date.now();
 
@@ -4067,6 +4068,7 @@
           }
 
           if (snap.metadata?.hasPendingWrites) return;
+          if (snap.metadata.fromCache) return;
 
           applyTimersFromSnapshot(snap.data().timers || {});
 
