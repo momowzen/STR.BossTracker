@@ -1131,6 +1131,203 @@
       background: rgba(212,175,55,0.06);
     }
 
+    /* === BOSS DETAIL FLOATING PANEL === */
+    .boss-detail-backdrop {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 11000;
+    }
+    .boss-detail-backdrop.hidden { display: none; }
+
+    .boss-detail-panel {
+      width: min(420px, calc(100vw - 32px));
+      max-height: calc(100vh - 40px);
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .boss-detail-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 10;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .boss-detail-close:hover { color: var(--text-primary); }
+
+    .boss-detail-image-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 420 / 320;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .boss-detail-portrait {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .boss-detail-image-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 75%;
+      background: linear-gradient(to top, var(--bg-primary) 0%, var(--bg-primary) 25%, transparent 75%);
+      pointer-events: none;
+    }
+
+    .boss-detail-info {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .boss-detail-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .boss-detail-level {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .boss-detail-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+    }
+
+    .boss-detail-location {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .boss-detail-timer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 16px 16px 8px;
+      position: relative;
+    }
+
+    .boss-detail-circle {
+      width: 80px;
+      height: 80px;
+      transform: rotate(-90deg);
+    }
+
+    .boss-detail-circle-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 6;
+    }
+
+    .boss-detail-circle-progress {
+      fill: none;
+      stroke: var(--accent-gold);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 282.74;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .boss-detail-circle-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 8px;
+    }
+
+    .boss-detail-circle-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: var(--font-display);
+    }
+
+    .boss-detail-actions {
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px 16px;
+    }
+
+    .boss-detail-actions .kbtn {
+      flex: 1;
+      height: 40px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), color var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .boss-detail-actions .kbtn:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-tertiary);
+    }
+
+    .boss-detail-actions .kbtn[data-action="set"]:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    .boss-detail-actions .kbtn[data-action="mark"]:hover {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    .boss-detail-actions .kbtn[data-action="clear"]:hover {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+
     /* === TIME MODAL === */
     #timeModal {
       position: fixed;
@@ -1940,6 +2137,32 @@
     </div>
   </div>
 
+  <!-- Boss detail floating panel -->
+  <div class="modal-backdrop boss-detail-backdrop hidden" id="bossDetailBackdrop">
+    <div class="boss-detail-panel" id="bossDetailPanel">
+      <button class="boss-detail-close" id="bossDetailClose">&times;</button>
+      <div class="boss-detail-image-wrap">
+        <img class="boss-detail-portrait" id="bossDetailPortrait" src="" alt="">
+        <div class="boss-detail-image-fade"></div>
+        <div class="boss-detail-info">
+          <div class="boss-detail-name" id="bossDetailName"></div>
+          <div class="boss-detail-level" id="bossDetailLevel"></div>
+          <div class="boss-detail-sub" id="bossDetailSub"></div>
+          <div class="boss-detail-location" id="bossDetailLocation"></div>
+        </div>
+      </div>
+      <div class="boss-detail-timer">
+        <svg class="boss-detail-circle" viewBox="0 0 100 100">
+          <circle class="boss-detail-circle-bg" cx="50" cy="50" r="45"/>
+          <circle class="boss-detail-circle-progress" id="bossDetailCircleProgress" cx="50" cy="50" r="45"/>
+        </svg>
+        <div class="boss-detail-circle-text" id="bossDetailCircleText">--</div>
+        <div class="boss-detail-circle-label">RESPAWNING IN</div>
+      </div>
+      <div class="boss-detail-actions" id="bossDetailActions"></div>
+    </div>
+  </div>
+
   
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
@@ -2284,6 +2507,17 @@
     const clearSearch = document.getElementById("clearSearch");
     const modal = document.getElementById("timeModal");
     const modalName = document.getElementById("modalBossName");
+    const bossDetailBackdrop = document.getElementById("bossDetailBackdrop");
+    const bossDetailClose = document.getElementById("bossDetailClose");
+    const bossDetailPortrait = document.getElementById("bossDetailPortrait");
+    const bossDetailName = document.getElementById("bossDetailName");
+    const bossDetailLevel = document.getElementById("bossDetailLevel");
+    const bossDetailSub = document.getElementById("bossDetailSub");
+    const bossDetailLocation = document.getElementById("bossDetailLocation");
+    const bossDetailCircleText = document.getElementById("bossDetailCircleText");
+    const bossDetailCircleProgress = document.getElementById("bossDetailCircleProgress");
+    const bossDetailActions = document.getElementById("bossDetailActions");
+    let currentDetailBossId = null;
     const killTimeInput = document.getElementById("killTimeInput");
     const cancelTimeBtn = document.getElementById("cancelTimeBtn");
     const saveTimeBtn = document.getElementById("saveTimeBtn");
@@ -3251,7 +3485,14 @@
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
       const btn = e.target.closest(".kbtn");
-      if (!btn) return;
+      if (!btn) {
+        const card = e.target.closest(".boss");
+        if (card) {
+          const id = card.getAttribute("data-id");
+          if (id) openBossDetailPanel(id);
+        }
+        return;
+      }
 
       // Prevent click event from bubbling to parent boss card
       e.stopPropagation();
@@ -3332,6 +3573,103 @@
         openTimeModal(id);
       }
 
+      if (action === "clear") {
+        delete timers[id];
+        await saveTimersToFirestore();
+        renderBossList();
+      }
+    });
+
+    // Boss detail floating panel
+    function openBossDetailPanel(id) {
+      const boss = BOSSES.find(b => b.id === id);
+      if (!boss) return;
+      currentDetailBossId = id;
+      bossDetailPortrait.src = `https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${boss.id}.png`;
+      bossDetailPortrait.alt = boss.name;
+      bossDetailName.textContent = boss.name;
+      bossDetailLevel.textContent = `Lv. ${boss.level}`;
+      const isWeekly = !!boss.weeklyRespawns;
+      bossDetailSub.textContent = isWeekly
+        ? "Schedule: " + boss.weeklyRespawns.map(formatWeeklyRespawnSlot).join(", ")
+        : "Interval: " + boss.respawn / 3600 + " hr";
+      bossDetailLocation.textContent = LOCATIONS[boss.id] || "";
+      bossDetailActions.innerHTML = "";
+      if (!isWeekly) {
+        const btns = [
+          { action: "set", label: "SET" },
+          { action: "mark", label: "KILLED" },
+        ];
+        if (sessionStorage.getItem("userMode") === "admin") {
+          btns.push({ action: "clear", label: "CLEAR" });
+        }
+        for (const b of btns) {
+          const btn = document.createElement("button");
+          btn.className = "kbtn";
+          btn.setAttribute("data-action", b.action);
+          btn.setAttribute("data-id", id);
+          btn.textContent = b.label;
+          bossDetailActions.appendChild(btn);
+        }
+      }
+      updateBossDetailTimer();
+      bossDetailBackdrop.classList.remove("hidden");
+    }
+
+    function closeBossDetailPanel() {
+      bossDetailBackdrop.classList.add("hidden");
+      currentDetailBossId = null;
+    }
+
+    function updateBossDetailTimer() {
+      if (!currentDetailBossId) return;
+      const now = Date.now();
+      const info = timers[currentDetailBossId];
+      const boss = BOSSES.find(b => b.id === currentDetailBossId);
+      if (!boss) return;
+      let endTime = info?.endTime;
+      if (!endTime && boss.weeklyRespawns) {
+        endTime = getNextWeeklyRespawnTime(boss);
+      }
+      if (!endTime) {
+        bossDetailCircleText.textContent = "--";
+        bossDetailCircleProgress.style.strokeDashoffset = "282.74";
+        return;
+      }
+      const co = info?.cooldownUntil;
+      const inCooldown = co && co > now;
+      const remaining = inCooldown ? 0 : Math.max(0, endTime - now);
+      const totalSec = Math.floor(remaining / 1000);
+      if (inCooldown || totalSec === 0) {
+        bossDetailCircleText.textContent = "NOW";
+        bossDetailCircleProgress.style.strokeDashoffset = "0";
+        return;
+      }
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      bossDetailCircleText.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      const pct = 1 - remaining / Math.max(endTime - (info?.startedAt || endTime - 86400000), 1);
+      const offset = 282.74 * (1 - Math.min(Math.max(pct, 0), 1));
+      bossDetailCircleProgress.style.strokeDashoffset = String(offset);
+    }
+
+    bossDetailClose.addEventListener("click", closeBossDetailPanel);
+    bossDetailBackdrop.addEventListener("click", (e) => {
+      if (e.target === bossDetailBackdrop) closeBossDetailPanel();
+    });
+    bossDetailActions.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".kbtn");
+      if (!btn) return;
+      const action = btn.getAttribute("data-action");
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+      closeBossDetailPanel();
+      if (action === "set") openTimeModal(id);
+      if (action === "mark") {
+        const markBtn = document.querySelector(`.kbtn[data-id="${id}"][data-action="mark"]`);
+        if (markBtn) markBtn.click();
+      }
       if (action === "clear") {
         delete timers[id];
         await saveTimersToFirestore();
@@ -3651,6 +3989,7 @@
 
       // Update next boss countdown
       computeNextBoss();
+      updateBossDetailTimer();
     }
 
     // fast visual refresh (every 1s, no overlapping tickUpdate calls)
