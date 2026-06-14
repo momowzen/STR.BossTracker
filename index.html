@@ -2459,7 +2459,6 @@
       const h = Math.floor(s / 3600);
       s %= 3600;
       const m = Math.floor(s / 60);
-      const sec = Math.floor(s % 60);
       if (d > 0)
         return `${d}d ${String(h).padStart(2, "0")}h ${String(m).padStart(
           2,
@@ -2470,10 +2469,7 @@
           2,
           "0"
         )}m`;
-      return `${String(m).padStart(2, "0")}m ${String(sec).padStart(
-        2,
-        "0"
-      )}s`;
+      return `${String(m).padStart(2, "0")}m`;
     }
 
     function formatWeeklyRespawnSlot(slot) {
