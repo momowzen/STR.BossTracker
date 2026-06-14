@@ -3538,7 +3538,8 @@
           if (remainingMs <= 5 * 60 * 1000 && !localNotifCache[`${id}_soon`]) {
             localNotifCache[`${id}_soon`] = Date.now();
             triggerBossAlarm(boss);
-            discordPromises.push(sendDiscordEmbedOnce("soon", boss));
+            const p = sendDiscordEmbedOnce("soon", boss);
+            if (boss.isWorldBoss) await p; else discordPromises.push(p);
           }
           continue;
         }
@@ -3552,7 +3553,8 @@
           // Condition 8: send spawn notification (firestore-deduped, condition 13)
           if (!localNotifCache[`${id}_spawn`]) {
             localNotifCache[`${id}_spawn`] = Date.now();
-            discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
+            const p = sendDiscordEmbedOnce("spawn", boss);
+            if (boss.isWorldBoss) await p; else discordPromises.push(p);
           }
 
           // Condition 10: enter SPAWNED cooldown
