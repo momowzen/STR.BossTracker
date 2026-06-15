@@ -1304,7 +1304,16 @@
     }
 
     .admin-password-modal .password-input:focus { border-color: var(--accent-gold); box-shadow: var(--glow-gold); }
+    .admin-password-modal .password-input.has-error { border-color: var(--accent-red); box-shadow: 0 0 12px rgba(231,76,60,0.3); animation: shake-input 0.4s ease; }
     .admin-password-modal .password-input::placeholder { color: var(--text-muted); }
+
+    @keyframes shake-input {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
 
     .admin-password-modal .password-buttons {
       display: flex;
@@ -4212,7 +4221,10 @@
         adminPasswordBackdrop.classList.remove("hidden");
         adminPasswordBackdrop.classList.add("active");
       }
-      if (adminPasswordInput) adminPasswordInput.value = "";
+      if (adminPasswordInput) {
+        adminPasswordInput.value = "";
+        adminPasswordInput.classList.remove("has-error");
+      }
       if (passwordError) passwordError.classList.remove("show");
       if (adminPasswordInput) adminPasswordInput.focus();
     }
@@ -4222,7 +4234,10 @@
         adminPasswordBackdrop.classList.remove("active");
         adminPasswordBackdrop.classList.add("hidden");
       }
-      if (adminPasswordInput) adminPasswordInput.value = "";
+      if (adminPasswordInput) {
+        adminPasswordInput.value = "";
+        adminPasswordInput.classList.remove("has-error");
+      }
       if (passwordError) passwordError.classList.remove("show");
     }
 
@@ -4250,12 +4265,17 @@
         } else {
           if (passwordError) passwordError.classList.add("show");
           if (adminPasswordInput) {
+            adminPasswordInput.classList.add("has-error");
             adminPasswordInput.value = "";
             adminPasswordInput.focus();
           }
         }
       });
       if (adminPasswordInput) {
+        adminPasswordInput.addEventListener("input", () => {
+          adminPasswordInput.classList.remove("has-error");
+          if (passwordError) passwordError.classList.remove("show");
+        });
         adminPasswordInput.addEventListener("keypress", (e) => {
           if (e.key === "Enter") adminPasswordBtn.click();
         });
