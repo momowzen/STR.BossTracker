@@ -1733,13 +1733,10 @@
       line-height: 1;
       user-select: none;
       z-index: 2;
-      padding: 4px 8px;
-      background: var(--bg-primary);
-      border: 1px solid transparent;
-      border-radius: 4px;
+      padding: 6px;
       display: flex;
       align-items: center;
-      transition: opacity 0.15s ease, color var(--transition), border-color var(--transition), background var(--transition);
+      transition: opacity 0.15s ease, color 0.15s ease;
     }
     .clear-icon.visible { opacity: 1; pointer-events: auto; }
 
@@ -1749,9 +1746,7 @@
     }
 
     .clear-icon:hover {
-      color: var(--text-primary);
-      border-color: var(--border-hover);
-      background: var(--bg-tertiary);
+      color: var(--accent-red);
     }
 
     .portrait-wrap {
