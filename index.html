@@ -3838,6 +3838,15 @@
         renderSchedule();
         bossListPanel.classList.remove("view-weekly");
         bossListPanel.classList.remove("view-schedule-day");
+      } else {
+        // Re-stagger boss cards when returning from schedule view
+        const cards = bossListPanel.querySelectorAll(".boss");
+        cards.forEach((card, i) => {
+          card.classList.remove("stagger-enter");
+          void card.offsetHeight;
+          card.classList.add("stagger-enter");
+          card.style.animationDelay = (i * 0.04) + "s";
+        });
       }
     });
 
