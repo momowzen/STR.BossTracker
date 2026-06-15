@@ -1766,18 +1766,26 @@
       border-color: var(--border-hover);
     }
 
-    .progress-ring {
+    .boss-progress-bar {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--border);
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      overflow: hidden;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s;
     }
-
-    .boss:hover .progress-ring {
-      opacity: 1;
+    .boss.counting-down .boss-progress-bar { opacity: 1; }
+    .boss-progress-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-green));
+      transition: width 1s linear;
+      border-radius: 0 0 0 var(--radius-md);
     }
 
     .info {
@@ -3141,21 +3149,19 @@
         const isDeadState = countingDown || (!inCooldown && isExpired);
         const isSpawned = inCooldown || isExpired;
         const node = document.createElement("div");
-        node.className = (isDeadState ? "boss is-dead" : "boss is-alive") + (isSpawned ? " in-cooldown" : "");
+        node.className = (isDeadState ? "boss is-dead" : "boss is-alive") + (isSpawned ? " in-cooldown" : "") + (countingDown ? " counting-down" : "");
         node.setAttribute("data-id", b.id);
 
         const nameClass = isDeadState ? "name dead" : "name";
 
-        // Progress ring for counting-down bosses
-        let ringHtml = "";
+        // Progress bar at card bottom
+        let pct = 0;
+        let totalSec = 0;
+        let remainSec = 0;
         if (countingDown && t?.endTime) {
-          const totalSec = (t.endTime - t.startedAt) / 1000;
-          const remainSec = Math.max(0, (t.endTime - now) / 1000);
-          const pct = totalSec > 0 ? remainSec / totalSec : 0;
-          const r = 14;
-          const circ = 2 * Math.PI * r;
-          const offset = circ * (1 - pct);
-          ringHtml = `<svg class="progress-ring" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/><circle cx="17" cy="17" r="${r}" fill="none" stroke="var(--accent-gold)" stroke-width="3" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 17 17)"/></svg>`;
+          totalSec = (t.endTime - t.startedAt) / 1000;
+          remainSec = Math.max(0, (t.endTime - now) / 1000);
+          pct = totalSec > 0 ? remainSec / totalSec : 0;
         }
 
         node.innerHTML = `
@@ -3163,7 +3169,6 @@
             <div class="portrait-meta">
               <div class="portrait-wrap">
                 <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
-                ${ringHtml}
               </div>
               <div class="info">
                 <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge" style="background:${getLevelColor(b.level)}">${b.level}</span>` : ""}</div>
@@ -3195,6 +3200,7 @@
               <span class="action-label">CLEAR</span>
             </div>` : ""}
           </div>` : ""}
+          <div class="boss-progress-bar"><div class="boss-progress-fill" style="width:${pct * 100}%"></div></div>
         `;
         return node;
       }
@@ -3546,6 +3552,11 @@
         const timeEl = el.querySelector(".time-remaining");
         if (timeEl) {
           timeEl.innerHTML = remainingSec === 0 ? "<span class=\"spawned-text\">SPAWNED</span>" : "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
+        }
+        const fillEl = el.querySelector(".boss-progress-fill");
+        if (fillEl && info?.startedAt) {
+          const pct = info.endTime > now ? Math.max(0, (info.endTime - now) / (info.endTime - info.startedAt)) : 0;
+          fillEl.style.width = (pct * 100) + "%";
         }
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
