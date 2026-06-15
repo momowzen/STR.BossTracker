@@ -534,9 +534,8 @@
       gap: 4px;
       height: 28px;
       padding: 0 8px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md) 0 0 var(--radius-md);
-      background: var(--bg-primary);
+      border: none;
+      background: none;
       color: var(--text-muted);
       font-size: 10px;
       font-weight: 700;
@@ -545,13 +544,11 @@
       cursor: pointer;
       font-family: var(--font-display);
       outline: none;
-      transition: border-color var(--transition), color var(--transition), background var(--transition);
+      transition: color var(--transition);
     }
     .sort-btn:hover,
     .sort-btn.open {
-      border-color: var(--border-hover);
-      color: var(--text-primary);
-      background: var(--bg-tertiary);
+      color: var(--accent-gold);
     }
 
     .sort-dir-btn {
@@ -560,19 +557,15 @@
       justify-content: center;
       width: 28px;
       height: 28px;
-      border: 1px solid var(--border);
-      border-left: none;
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      background: var(--bg-primary);
+      border: none;
+      background: none;
       color: var(--text-muted);
       cursor: pointer;
       outline: none;
-      transition: border-color var(--transition), color var(--transition), background var(--transition);
+      transition: color var(--transition);
     }
     .sort-dir-btn:hover {
-      border-color: var(--border-hover);
-      color: var(--text-primary);
-      background: var(--bg-tertiary);
+      color: var(--accent-gold);
     }
 
     .sort-dropdown {
