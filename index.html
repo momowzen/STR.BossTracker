@@ -1766,28 +1766,6 @@
       border-color: var(--border-hover);
     }
 
-    .boss-progress-bar {
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--border);
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
-      overflow: hidden;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .boss.counting-down .boss-progress-bar { opacity: 1; }
-    .boss-progress-fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-green));
-      transition: width 1s linear;
-      border-radius: 0 0 0 var(--radius-md);
-    }
-
     .info {
       display: flex;
       flex-direction: column;
@@ -3149,20 +3127,10 @@
         const isDeadState = countingDown || (!inCooldown && isExpired);
         const isSpawned = inCooldown || isExpired;
         const node = document.createElement("div");
-        node.className = (isDeadState ? "boss is-dead" : "boss is-alive") + (isSpawned ? " in-cooldown" : "") + (countingDown ? " counting-down" : "");
+        node.className = (isDeadState ? "boss is-dead" : "boss is-alive") + (isSpawned ? " in-cooldown" : "");
         node.setAttribute("data-id", b.id);
 
         const nameClass = isDeadState ? "name dead" : "name";
-
-        // Progress bar at card bottom
-        let pct = 0;
-        let totalSec = 0;
-        let remainSec = 0;
-        if (countingDown && t?.endTime) {
-          totalSec = (t.endTime - t.startedAt) / 1000;
-          remainSec = Math.max(0, (t.endTime - now) / 1000);
-          pct = totalSec > 0 ? remainSec / totalSec : 0;
-        }
 
         node.innerHTML = `
           <div class="meta">
@@ -3200,7 +3168,6 @@
               <span class="action-label">CLEAR</span>
             </div>` : ""}
           </div>` : ""}
-          <div class="boss-progress-bar"><div class="boss-progress-fill" style="width:${pct * 100}%"></div></div>
         `;
         return node;
       }
@@ -3552,11 +3519,6 @@
         const timeEl = el.querySelector(".time-remaining");
         if (timeEl) {
           timeEl.innerHTML = remainingSec === 0 ? "<span class=\"spawned-text\">SPAWNED</span>" : "Respawning in <span class=\"time-value\">" + formatSec(remainingSec) + "</span>";
-        }
-        const fillEl = el.querySelector(".boss-progress-fill");
-        if (fillEl && info?.startedAt) {
-          const pct = info.endTime > now ? Math.max(0, (info.endTime - now) / (info.endTime - info.startedAt)) : 0;
-          fillEl.style.width = (pct * 100) + "%";
         }
         const spawnEl = el.querySelector(".spawn-time");
         if (spawnEl && !spawnEl.dataset.spawnSet) {
