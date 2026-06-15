@@ -686,7 +686,8 @@
         background: rgba(var(--accent-rgb),0.25);
       }
 
-      .boss.stagger-enter {
+      .boss.stagger-enter,
+      .schedule-item.stagger-enter {
         animation: fadeSlideRight 0.3s ease both;
       }
 
@@ -3821,6 +3822,10 @@
               <span class="time-label">${formatTimeOnly(s.time)}</span>
             </div>`
           ).join("");
+          el.querySelectorAll(".schedule-item").forEach((item, i) => {
+            item.classList.add("stagger-enter");
+            item.style.animationDelay = (i * 0.05) + "s";
+          });
         }
       }
     }
