@@ -1122,8 +1122,10 @@
     .modal-backdrop.hidden { opacity: 0; pointer-events: none; }
 
     .modal {
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,34,51,0.75) 0%, rgba(19,26,38,0.75) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(var(--accent-rgb),0.15);
       border-radius: var(--radius-lg);
       padding: 24px 20px;
       width: min(360px, calc(100vw - 32px));
@@ -1260,8 +1262,10 @@
     #adminPasswordBackdrop.hidden { display: none; }
 
     .admin-password-modal {
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,34,51,0.75) 0%, rgba(19,26,38,0.75) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(var(--accent-rgb),0.15);
       border-radius: var(--radius-lg);
       padding: 28px 20px;
       width: min(360px, calc(100vw - 32px));
