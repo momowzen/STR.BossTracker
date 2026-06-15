@@ -3588,18 +3588,30 @@
         }
       }
 
-      // Update remaining boss count
+      // Update remaining boss count (includes timer-based + weekly schedule spawns)
       const activeCountEl = document.getElementById("activeCount");
       if (activeCountEl) {
         const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
         const todayStart = new Date(Date.UTC(jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate())).getTime() - TIME_ZONE_OFFSET_MS;
         const tomorrowStart = todayStart + 86400000;
-        const c = BOSSES.filter(b => {
-          if (b.isWorldBoss) return false;
+        const counted = new Set();
+        BOSSES.forEach(b => {
+          if (b.isWorldBoss) return;
           const info = timers[b.id];
-          return info && info.endTime >= todayStart && info.endTime < tomorrowStart && info.endTime > now;
-        }).length;
-        activeCountEl.textContent = c;
+          let et = info?.endTime;
+          if (et && et >= todayStart && et < tomorrowStart && et > now) {
+            counted.add(b.id);
+            return;
+          }
+          // Weekly boss without a timer — check if next spawn falls within today
+          if (!info && b.weeklyRespawns) {
+            const nextTime = getNextWeeklyRespawnTime(b);
+            if (nextTime && nextTime >= todayStart && nextTime < tomorrowStart && nextTime > now) {
+              counted.add(b.id);
+            }
+          }
+        });
+        activeCountEl.textContent = counted.size;
       }
 
       // Update next boss countdown
