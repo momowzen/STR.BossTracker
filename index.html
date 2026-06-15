@@ -3219,7 +3219,7 @@
 
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".kbtn");
+      const btn = e.target.closest(".kbtn, .action-pill");
       if (!btn) return;
 
       // Prevent click event from bubbling to parent boss card
@@ -3269,7 +3269,7 @@
           // We acquired lock: update local memory immediately and disable all mark buttons for this boss
           deadLocks[id] = lockUntil;
           document
-            .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"]`)
+            .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"], .action-pill[data-id="${id}"][data-action="mark"]`)
             .forEach((b) => (b.disabled = true));
           console.log(
             `🔒 Acquired lock for ${id} until ${new Date(
@@ -3960,7 +3960,7 @@
       const now = Date.now();
 
       document
-        .querySelectorAll('.kbtn[data-action="mark"]')
+        .querySelectorAll('.kbtn[data-action="mark"], .action-pill[data-action="mark"]')
         .forEach((btn) => {
           const bossId = btn.getAttribute("data-id");
           const lockedUntil = deadLocks[bossId] || 0;
