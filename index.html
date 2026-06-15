@@ -792,9 +792,9 @@
       .boss .spawn-time { font-size: 8px; }
       .boss .time-remaining { font-size: 10px; }
 
-      .action-pill { height: 20px; border-radius: 3px; font-size: 0; gap: 0; }
-      .action-pill svg { width: 12px; height: 12px; }
-      .actions { gap: 1px; margin-top: 3px; }
+      .action-label { display: none; }
+      .action-btn .kbtn { width: 28px; height: 28px; }
+      .action-btn .kbtn svg { width: 14px; height: 14px; }
 
       #nextBossPanel { padding: 8px 12px; gap: 6px; }
       #nextBossPanel .next-title { font-size: 10px; }
@@ -833,9 +833,10 @@
     /* === BOSS LIST ITEMS === */
     .boss {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
       width: 100%;
-      padding: 10px 12px 4px;
+      padding: 10px 12px;
       border-radius: var(--radius-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -1824,65 +1825,80 @@
 
     .actions {
       display: flex;
-      align-items: stretch;
-      gap: 1px;
-      width: 100%;
-      margin-top: 4px;
-    }
-
-    .action-pill {
-      display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 4px;
-      flex: 1;
-      height: 22px;
-      padding: 0 4px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 9px;
-      font-weight: 700;
-      font-family: var(--font-display);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: border-color var(--transition), color var(--transition), background var(--transition), box-shadow var(--transition);
-    }
-
-    .action-pill svg {
-      width: 11px;
-      height: 11px;
       flex-shrink: 0;
     }
 
-    .action-pill[data-action="mark"]:hover {
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .action-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      line-height: 1;
+      text-transform: uppercase;
+      max-width: 36px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      min-height: 34px;
+      padding: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .icon-btn[data-action="mark"]:hover {
       border-color: var(--accent-red);
       color: var(--accent-red);
       background: rgba(231, 76, 60, 0.1);
-      box-shadow: 0 0 12px rgba(231, 76, 60, 0.15);
+      box-shadow: 0 0 16px rgba(231, 76, 60, 0.15);
     }
 
-    .action-pill[data-action="mark"]:disabled {
+    .icon-btn[data-action="mark"]:disabled {
       opacity: 0.3;
       cursor: not-allowed;
       box-shadow: none !important;
     }
 
-    .action-pill[data-action="set"]:hover {
+    .icon-btn[data-action="set"]:hover {
       border-color: var(--accent-gold);
       color: var(--accent-gold);
       background: rgba(212, 175, 55, 0.1);
-      box-shadow: 0 0 12px rgba(212, 175, 55, 0.12);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.12);
     }
 
-    .action-pill[data-action="clear"]:hover {
-      border-color: var(--accent-orange);
-      color: var(--accent-orange);
+    .icon-btn[data-action="clear"]:hover {
+      border-color: #F39C12;
+      color: #F39C12;
       background: rgba(243, 156, 18, 0.1);
-      box-shadow: 0 0 12px rgba(243, 156, 18, 0.12);
+      box-shadow: 0 0 16px rgba(243, 156, 18, 0.15);
     }
 
   </style>
@@ -3132,19 +3148,25 @@
           </div>
           ${!isWeekly ? `
           <div class="actions">
-            <button class="action-pill" title="Set date and time manually" data-action="set" data-id="${b.id}">
-              <svg aria-hidden="true"><use href="#icon-clock"/></svg>
-              SET
-            </button>
-            <button class="action-pill" title="Mark Dead" data-action="mark" data-id="${b.id}">
-              <svg aria-hidden="true"><use href="#icon-skull"/></svg>
-              KILL
-            </button>
+            <div class="action-btn">
+              <button class="kbtn icon-btn" title="Set date and time manually" data-action="set" data-id="${b.id}">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-clock"/></svg>
+              </button>
+              <span class="action-label">SET</span>
+            </div>
+            <div class="action-btn">
+              <button class="kbtn icon-btn" title="Mark Dead" data-action="mark" data-id="${b.id}">
+                <svg width="20" height="20" aria-hidden="true"><use href="#icon-skull"/></svg>
+              </button>
+              <span class="action-label">KILLED</span>
+            </div>
             ${sessionStorage.getItem("userMode") === "admin" ? `
-            <button class="action-pill" title="Clear timer" data-action="clear" data-id="${b.id}">
-              <svg aria-hidden="true"><use href="#icon-trash"/></svg>
-              CLR
-            </button>` : ""}
+            <div class="action-btn">
+              <button class="kbtn icon-btn" title="Clear timer" data-action="clear" data-id="${b.id}">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-trash"/></svg>
+              </button>
+              <span class="action-label">CLEAR</span>
+            </div>` : ""}
           </div>` : ""}
         `;
         return node;
@@ -3219,7 +3241,7 @@
 
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".kbtn, .action-pill");
+      const btn = e.target.closest(".kbtn");
       if (!btn) return;
 
       // Prevent click event from bubbling to parent boss card
@@ -3269,7 +3291,7 @@
           // We acquired lock: update local memory immediately and disable all mark buttons for this boss
           deadLocks[id] = lockUntil;
           document
-            .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"], .action-pill[data-id="${id}"][data-action="mark"]`)
+            .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"]`)
             .forEach((b) => (b.disabled = true));
           console.log(
             `🔒 Acquired lock for ${id} until ${new Date(
@@ -3960,7 +3982,7 @@
       const now = Date.now();
 
       document
-        .querySelectorAll('.kbtn[data-action="mark"], .action-pill[data-action="mark"]')
+        .querySelectorAll('.kbtn[data-action="mark"]')
         .forEach((btn) => {
           const bossId = btn.getAttribute("data-id");
           const lockedUntil = deadLocks[bossId] || 0;
