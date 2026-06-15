@@ -499,9 +499,8 @@
       display: none;
       height: 28px;
       padding: 0 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--bg-primary);
+      border: none;
+      background: none;
       color: var(--text-muted);
       font-size: 10px;
       font-weight: 700;
@@ -510,14 +509,12 @@
       cursor: pointer;
       flex-shrink: 0;
       margin-left: auto;
-      transition: border-color var(--transition), color var(--transition), background var(--transition);
+      transition: color var(--transition);
       font-family: var(--font-display);
     }
 
     .view-toggle:hover {
-      border-color: var(--accent-gold);
       color: var(--accent-gold);
-      background: rgba(var(--accent-rgb),0.08);
     }
 
     .header-sort {
