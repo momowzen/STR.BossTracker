@@ -792,9 +792,9 @@
       .boss .spawn-time { font-size: 8px; }
       .boss .time-remaining { font-size: 10px; }
 
-      .action-pill { padding: 0 6px; height: 24px; border-radius: 12px; font-size: 0; gap: 0; }
-      .action-pill svg { width: 14px; height: 14px; }
-      .actions { gap: 3px; }
+      .action-pill { height: 20px; border-radius: 3px; font-size: 0; gap: 0; }
+      .action-pill svg { width: 12px; height: 12px; }
+      .actions { gap: 2px; margin-top: 6px; }
 
       #nextBossPanel { padding: 8px 12px; gap: 6px; }
       #nextBossPanel .next-title { font-size: 10px; }
@@ -833,10 +833,9 @@
     /* === BOSS LIST ITEMS === */
     .boss {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px 12px 6px;
       border-radius: var(--radius-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -1825,23 +1824,26 @@
 
     .actions {
       display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
+      align-items: stretch;
+      gap: 2px;
+      width: 100%;
+      margin-top: 8px;
     }
 
     .action-pill {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      height: 26px;
-      padding: 0 10px;
-      border-radius: 13px;
+      flex: 1;
+      height: 22px;
+      padding: 0 4px;
+      border-radius: 4px;
       border: 1px solid var(--border);
       background: var(--bg-primary);
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       font-family: var(--font-display);
       letter-spacing: 0.5px;
@@ -1851,8 +1853,8 @@
     }
 
     .action-pill svg {
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       flex-shrink: 0;
     }
 
