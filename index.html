@@ -1106,17 +1106,20 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10000;
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
     }
 
-    .modal-backdrop.active { display: flex; }
-    .modal-backdrop.hidden { display: none; }
+    .modal-backdrop.active { opacity: 1; pointer-events: auto; }
+    .modal-backdrop.hidden { opacity: 0; pointer-events: none; }
 
     .modal {
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -1127,7 +1130,13 @@
       max-width: calc(100vw - 32px);
       text-align: center;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transform: scale(0.95) translateY(8px);
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      opacity: 0;
     }
+
+    .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
+    .modal-backdrop.active .admin-password-modal { transform: scale(1) translateY(0); opacity: 1; }
 
     .modal h3 {
       margin: 0 0 10px;
@@ -1259,6 +1268,9 @@
       max-width: calc(100vw - 32px);
       text-align: center;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transform: scale(0.95) translateY(8px);
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      opacity: 0;
     }
 
     .admin-password-modal h3 {
@@ -3010,11 +3022,11 @@
       modalName.textContent = boss.name;
       const nowJstValue = formatDatetimeLocalJst(Date.now());
       killTimeInput.value = nowJstValue || "";
-      modal.style.display = "flex";
+      modal.classList.add("active");
     }
 
     function closeTimeModal() {
-      modal.style.display = "none";
+      modal.classList.remove("active");
       currentBossForTime = null;
     }
 
@@ -3922,13 +3934,12 @@
       e.stopPropagation();
       settingsDropdown.classList.add("hidden");
       loadWebhookIntoInput();
-      webhookBackdrop.style.display = "flex";
-      console.log("🔧 open webhook modal");
+      webhookBackdrop.classList.add("active");
     });
 
     webhookBackdrop.addEventListener("click", (ev) => {
       if (ev.target === webhookBackdrop)
-        webhookBackdrop.style.display = "none";
+        webhookBackdrop.classList.remove("active");
     });
 
     const exportBtn = document.getElementById("exportBtn");
