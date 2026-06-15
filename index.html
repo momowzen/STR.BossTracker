@@ -3823,6 +3823,7 @@
 
         const spawns = [];
         for (const boss of BOSSES) {
+          if (boss.isWorldBoss) continue;
           const bossSpawns = getSpawnsInRange(boss, start, end);
           spawns.push(...bossSpawns);
         }
