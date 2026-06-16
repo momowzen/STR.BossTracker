@@ -567,14 +567,14 @@
 
     .sort-dropdown {
       position: absolute;
-      top: calc(100% + 4px);
+      top: 100%;
       left: 0;
       min-width: auto;
       white-space: nowrap;
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 4px 0;
+      overflow: hidden;
       z-index: 100;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       opacity: 1;
@@ -600,10 +600,16 @@
       font-family: var(--font-display);
       transition: background var(--transition), color var(--transition);
     }
-    .sort-option:hover,
-    .sort-option.active {
+    .sort-option:hover {
       background: var(--bg-tertiary);
       color: var(--accent-gold);
+    }
+    .sort-option.active {
+      color: var(--accent-gold);
+      background: rgba(var(--accent-rgb),0.08);
+      border-bottom: 1px solid var(--border);
+      cursor: default;
+      pointer-events: none;
     }
 
     #bossList {
@@ -3889,6 +3895,10 @@
         ? `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg>`
         : `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir-desc"/></svg>`;
       sortOptions?.forEach(opt => opt.classList.toggle("active", opt.dataset.sort === currentSort));
+      const active = sortDropdown?.querySelector(".sort-option.active");
+      if (active && active.parentNode) {
+        active.parentNode.prepend(active);
+      }
     }
 
     if (sortBtn) {
