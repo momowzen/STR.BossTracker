@@ -2569,7 +2569,6 @@
       limit,
       getDocs,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check.js";
 
     // ✅ Initialize Firebase app
     const firebaseConfig = {
@@ -2583,12 +2582,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // ✅ App Check — prevents unauthorized use of Firebase config
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider("6LeeSQktAAAAAMrJxNP_pFdmzJjO8TNIA764vaNN"),
-      isTokenAutoRefreshEnabled: true,
-    });
 
     // ✅ Auto-detect page updates by polling index.html hash
     let lastPageHash = null;
