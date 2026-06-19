@@ -5172,6 +5172,7 @@
     let ghActivityLog = [];
     let ghSortMode = 'name';
     let ghSortOrder = 'asc';
+    let ghAdminUnsub = null;
 
     // ─── DOM refs ───
     const ghMemberList = $('ghMemberList');
@@ -5250,6 +5251,24 @@
           activityLog: ghActivityLog,
         });
       } catch (e) { console.warn("saveAdminData:", e); }
+    }
+
+    function subscribeAdminData() {
+      if (ghAdminUnsub) { ghAdminUnsub(); ghAdminUnsub = null; }
+      ghAdminUnsub = onSnapshot(ADMIN_DOC, (snap) => {
+        if (snap.metadata?.hasPendingWrites) return;
+        if (!snap.exists()) return;
+        const d = snap.data();
+        ghMembers = d.members || [];
+        ghBossPoints = d.bossPoints || {};
+        ghMemberPoints = d.memberPoints || {};
+        ghWeaponMastery = d.weaponMastery || {};
+        ghActivityLog = d.activityLog || [];
+        ghRenderMemberList(ghMemberSearch.value);
+        ghRenderBossConfig(ghBossConfigSearch.value);
+        ghRenderLeaderboard();
+        ghRenderActivity();
+      });
     }
 
     // ─── Admin Tab Switching ───
@@ -5792,6 +5811,7 @@
     // ─── Init admin features ───
     async function ghInit() {
       await loadAdminData();
+      subscribeAdminData();
       ghRenderMemberList();
       ghRenderBossConfig();
       ghRenderLeaderboard();
