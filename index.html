@@ -2739,7 +2739,10 @@
       <div class="admin-panel" id="panelMembers">
         <div class="admin-panel-header">
           <span>Member List (<span id="ghMemberCount">0</span>)</span>
-          <button class="kbtn" id="ghToggleAddMember">ADD MEMBER</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="kbtn" id="ghToggleGivePoints">GIVE POINTS</button>
+            <button class="kbtn" id="ghToggleAddMember">ADD MEMBER</button>
+          </div>
         </div>
         <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
           <div style="flex-shrink:0">
@@ -2934,6 +2937,27 @@
           <button class="kbtn" id="ghBulkImportBtn">Import Names</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ─── GIVE POINTS POPUP ─── -->
+  <div id="ghPointsOverlay" class="party-overlay" style="display:none"></div>
+  <div id="ghPointsPopup" class="party-popup add-member-popup" style="display:none">
+    <div class="party-popup-header">
+      <span>Give Points</span>
+      <button class="party-popup-close" id="ghPointsPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="party-popup-body">
+      <div class="party-search-row">
+        <input class="search" id="ghPointsSearch" placeholder="Search member..." style="flex:1;min-width:0;height:28px;font-size:11px;text-transform:none;letter-spacing:0">
+      </div>
+      <div class="party-panel all-panel" id="ghPointsAllMembers" style="max-height:200px;overflow-y:auto"></div>
+      <hr class="admin-divider">
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points</label>
+        <input type="number" id="ghPointsInput" min="0" value="1" style="width:100%;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
+      </div>
+      <button class="kbtn" id="ghPointsConfirm" style="width:100%;justify-content:center">CONFIRM</button>
     </div>
   </div>
 
@@ -5194,6 +5218,14 @@
     const ghBulkImportArea = $('ghBulkImportArea');
     const ghBulkImportBtn = $('ghBulkImportBtn');
     const ghToggleAddMember = $('ghToggleAddMember');
+    const ghToggleGivePoints = $('ghToggleGivePoints');
+    const ghPointsOverlay = $('ghPointsOverlay');
+    const ghPointsPopup = $('ghPointsPopup');
+    const ghPointsPopupClose = $('ghPointsPopupClose');
+    const ghPointsSearch = $('ghPointsSearch');
+    const ghPointsAllMembers = $('ghPointsAllMembers');
+    const ghPointsInput = $('ghPointsInput');
+    const ghPointsConfirm = $('ghPointsConfirm');
     const ghResetBossConfig = $('ghResetBossConfig');
     const ghResetLeaderboard = $('ghResetLeaderboard');
     const ghClearActivity = $('ghClearActivity');
@@ -5458,6 +5490,58 @@
       ghRenderMemberList(ghMemberSearch.value);
     });
     ghMemberSearch.addEventListener('input', () => ghRenderMemberList(ghMemberSearch.value));
+
+    // ─── Give Points ───
+    let ghPointsSelectedMembers = new Set();
+    function ghRenderPointsMembers() {
+      const container = ghPointsAllMembers;
+      const filter = (ghPointsSearch.value || '').toLowerCase();
+      let filtered = filter ? ghMembers.filter(m => m.toLowerCase().includes(filter)) : ghMembers;
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:12px;font-style:italic">No members match filter.</div>';
+        return;
+      }
+      let html = '';
+      for (const m of filtered) {
+        const sel = ghPointsSelectedMembers.has(m) ? ' selected' : '';
+        html += `<span class="pill${sel}" data-name="${escapeHtml(m)}">${escapeHtml(m)}</span>`;
+      }
+      container.innerHTML = html;
+      container.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const name = pill.dataset.name;
+          if (ghPointsSelectedMembers.has(name)) ghPointsSelectedMembers.delete(name);
+          else ghPointsSelectedMembers.add(name);
+          ghRenderPointsMembers();
+        });
+      });
+    }
+    ghToggleGivePoints.addEventListener('click', () => {
+      ghPointsSelectedMembers.clear();
+      ghPointsSearch.value = '';
+      ghPointsInput.value = '1';
+      ghPointsPopup.style.display = 'flex';
+      ghPointsOverlay.style.display = 'block';
+      ghRenderPointsMembers();
+    });
+    ghPointsPopupClose.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
+    ghPointsOverlay.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
+    ghPointsSearch.addEventListener('input', ghRenderPointsMembers);
+    ghPointsConfirm.addEventListener('click', () => {
+      const selected = [...ghPointsSelectedMembers];
+      const pts = parseInt(ghPointsInput.value) || 0;
+      if (selected.length === 0) { showToast('Select at least one member.', 'error'); return; }
+      if (pts <= 0) { showToast('Points must be greater than 0.', 'error'); return; }
+      for (const name of selected) {
+        ghMemberPoints[name] = (ghMemberPoints[name] || 0) + pts;
+      }
+      saveAdminData();
+      ghRenderLeaderboard();
+      ghAddActivity('Manually awarded ' + pts + ' pts to ' + selected.join(', '));
+      ghPointsPopup.style.display = 'none';
+      ghPointsOverlay.style.display = 'none';
+      showToast('Awarded ' + pts + ' pts to ' + selected.length + ' member(s)', 'success');
+    });
 
     // ─── Boss Config ───
     function ghRenderBossConfig(filter) {
@@ -5795,12 +5879,14 @@
     confirmKillBtn.addEventListener('click', () => {
       const ptsPer = ghCurrentBossId ? (ghBossPoints[ghCurrentBossId] || 0) : 0;
       if (ghSelectedMembers.size === 0) return;
+      const bossObj = BOSSES.find(b => b.id === ghCurrentBossId);
+      const bossName = bossObj ? bossObj.name : ghCurrentBossId;
       for (const name of ghSelectedMembers) {
         ghMemberPoints[name] = (ghMemberPoints[name] || 0) + ptsPer;
       }
       const names = [...ghSelectedMembers];
       saveAdminData();
-      ghAddActivity('Awarded ' + ptsPer + ' pts to ' + names.join(', '));
+      ghAddActivity('Killed ' + bossName + '. Awarded ' + ptsPer + ' pts to ' + names.join(', '));
       showToast('Awarded ' + ptsPer + ' pts to ' + names.length + ' member(s)', 'success');
       ghSelectedMembers.clear();
       hidePartyPanel();
