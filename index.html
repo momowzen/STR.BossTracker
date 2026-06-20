@@ -2948,13 +2948,32 @@
       <button class="party-popup-close" id="ghPointsPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="party-popup-body">
+      <div class="section-title">Upload Screenshot</div>
+      <div class="screenshot-upload" id="ghPointsScreenshotUpload">
+        <div class="su-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="su-text">Click or drop</div>
+        <input type="file" accept="image/*" id="ghPointsScreenshotInput" multiple>
+      </div>
+      <div class="screenshot-thumbs" id="ghPointsScreenshotThumbs"></div>
+      <div class="ocr-status" id="ghPointsOcrStatus">
+        <div class="ocr-spinner"></div>
+        <span id="ghPointsOcrStatusText">Waiting for screenshot...</span>
+      </div>
+      <hr class="admin-divider">
+      <div class="section-title">Party Members</div>
+      <div class="party-panel selected-panel" id="ghPointsSelectedPanel">
+        <div class="pill-list" id="ghPointsSelectedPillList"><span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span></div>
+        <div class="unrecognized-list" id="ghPointsUnrecognizedList" style="display:none"></div>
+      </div>
       <div class="party-search-row">
         <input class="search" id="ghPointsSearch" placeholder="Search member..." style="flex:1;min-width:0;height:28px;font-size:11px;text-transform:none;letter-spacing:0">
       </div>
       <div class="party-panel all-panel" id="ghPointsAllMembers" style="max-height:200px;overflow-y:auto"></div>
       <hr class="admin-divider">
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points</label>
+        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points per member</label>
         <input type="number" id="ghPointsInput" min="0" value="1" style="width:100%;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
       </div>
       <button class="kbtn" id="ghPointsConfirm" style="width:100%;justify-content:center">CONFIRM</button>
@@ -5226,6 +5245,13 @@
     const ghPointsAllMembers = $('ghPointsAllMembers');
     const ghPointsInput = $('ghPointsInput');
     const ghPointsConfirm = $('ghPointsConfirm');
+    const ghPointsScreenshotUpload = $('ghPointsScreenshotUpload');
+    const ghPointsScreenshotInput = $('ghPointsScreenshotInput');
+    const ghPointsScreenshotThumbs = $('ghPointsScreenshotThumbs');
+    const ghPointsOcrStatus = $('ghPointsOcrStatus');
+    const ghPointsOcrStatusText = $('ghPointsOcrStatusText');
+    const ghPointsSelectedPillList = $('ghPointsSelectedPillList');
+    const ghPointsUnrecognizedList = $('ghPointsUnrecognizedList');
     const ghResetBossConfig = $('ghResetBossConfig');
     const ghResetLeaderboard = $('ghResetLeaderboard');
     const ghClearActivity = $('ghClearActivity');
@@ -5493,6 +5519,10 @@
 
     // ─── Give Points ───
     let ghPointsSelectedMembers = new Set();
+    let ghPointsScreenshotDataUrls = [];
+    let ghPointsScanResults = null;
+    let ghPointsOcrRunning = false;
+
     function ghRenderPointsMembers() {
       const container = ghPointsAllMembers;
       const filter = (ghPointsSearch.value || '').toLowerCase();
@@ -5513,16 +5543,201 @@
           if (ghPointsSelectedMembers.has(name)) ghPointsSelectedMembers.delete(name);
           else ghPointsSelectedMembers.add(name);
           ghRenderPointsMembers();
+          ghRenderPointsSelectedMembers();
         });
       });
     }
+
+    function ghRenderPointsSelectedMembers() {
+      const list = ghPointsSelectedPillList;
+      if (ghPointsSelectedMembers.size === 0) {
+        list.innerHTML = '<span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span>';
+        return;
+      }
+      let html = '';
+      for (const name of ghPointsSelectedMembers) {
+        html += `<span class="pill selected" data-name="${escapeHtml(name)}">${escapeHtml(name)}<button class="pill-x" data-name="${escapeHtml(name)}">✕</button></span>`;
+      }
+      list.innerHTML = html;
+      list.querySelectorAll('.pill-x').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          ghPointsSelectedMembers.delete(btn.dataset.name);
+          ghRenderPointsMembers();
+          ghRenderPointsSelectedMembers();
+        });
+      });
+    }
+
+    function ghPointsClearScreenshot() {
+      if (ghPointsScanResults) {
+        for (const n of (ghPointsScanResults.matched || [])) ghPointsSelectedMembers.delete(n);
+        ghPointsScanResults = null;
+      }
+      ghPointsScreenshotDataUrls = [];
+      ghPointsScreenshotThumbs.innerHTML = '';
+      ghPointsOcrStatus.className = 'ocr-status';
+      ghPointsOcrStatusText.textContent = 'Waiting for screenshot...';
+      ghRenderPointsMembers();
+      ghRenderPointsSelectedMembers();
+    }
+
+    function ghRenderPointsThumbnails() {
+      let html = '';
+      ghPointsScreenshotDataUrls.forEach((url, i) => {
+        html += `<div class="screenshot-thumb"><img src="${url}"><button class="thumb-remove" data-idx="${i}">✕</button></div>`;
+      });
+      ghPointsScreenshotThumbs.innerHTML = html;
+      ghPointsScreenshotThumbs.querySelectorAll('.thumb-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          ghPointsScreenshotDataUrls.splice(idx, 1);
+          ghRenderPointsThumbnails();
+          if (ghPointsScreenshotDataUrls.length === 0) ghPointsClearScreenshot();
+        });
+      });
+    }
+
+    async function ghRunPointsOcr() {
+      if (ghPointsOcrRunning) return;
+      ghPointsOcrRunning = true;
+      ghPointsOcrStatus.className = 'ocr-status visible ocr-loading';
+      ghPointsOcrStatusText.textContent = 'Running OCR on ' + ghPointsScreenshotDataUrls.length + ' screenshot(s)...';
+
+      let allText = '';
+      try {
+        for (let idx = 0; idx < ghPointsScreenshotDataUrls.length; idx++) {
+          ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + '/' + ghPointsScreenshotDataUrls.length + '...';
+          const result = await Tesseract.recognize(ghPointsScreenshotDataUrls[idx], 'eng+jpn', { logger: m => {
+            if (m.status === 'recognizing text') ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + ' reading... ' + Math.round(m.progress * 100) + '%';
+          }});
+          allText += result.data.text + '\n';
+        }
+      } catch (err) {
+        ghPointsOcrStatus.className = 'ocr-status visible ocr-error';
+        ghPointsOcrStatusText.textContent = 'OCR failed: ' + err.message;
+        ghPointsOcrRunning = false;
+        return;
+      }
+
+      const tokens = allText.split(/[\s,]+/).map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, '')).filter(Boolean);
+
+      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
+      const merged = [];
+      let cjkBuf = '';
+      for (const t of tokens) {
+        if (reCjkRun.test(t)) { cjkBuf += t; }
+        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
+      }
+      if (cjkBuf) merged.push(cjkBuf);
+      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
+
+      function ocrNorm(s) {
+        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/4/g, 'A').replace(/5/g, 'S').replace(/8/g, 'B').replace(/Q/g, 'O');
+      }
+      const memberMap = new Map();
+      const normalizedMap = new Map();
+      for (const m of ghMembers) {
+        const key = m.toUpperCase();
+        memberMap.set(key, m);
+        const norm = ocrNorm(key);
+        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
+      }
+
+      const matched = new Set();
+      const unrecognized = [];
+
+      for (const token of unique) {
+        if (matched.has(token)) continue;
+        if (memberMap.has(token)) { matched.add(memberMap.get(token)); continue; }
+        const norm = ocrNorm(token);
+        if (normalizedMap.has(norm)) { matched.add(normalizedMap.get(norm)); continue; }
+        unrecognized.push(token);
+      }
+
+      for (const name of matched) ghPointsSelectedMembers.add(name);
+      ghPointsScanResults = { matched: [...matched], unrecognized };
+
+      ghPointsOcrStatus.className = 'ocr-status visible ' + (matched.size > 0 ? 'ocr-done' : 'ocr-warning');
+      ghPointsOcrStatusText.textContent = matched.size > 0
+        ? 'Matched ' + matched.size + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
+        : 'No recognizable names found.';
+
+      if (unrecognized.length > 0) {
+        let html = '';
+        for (const name of unrecognized) {
+          html += `<span class="pill" data-name="${escapeHtml(name)}">${escapeHtml(name)}<button class="pill-add" data-name="${escapeHtml(name)}">+</button></span>`;
+        }
+        ghPointsUnrecognizedList.innerHTML = html;
+        ghPointsUnrecognizedList.style.display = 'block';
+        ghPointsUnrecognizedList.querySelectorAll('.pill-add').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const name = btn.dataset.name;
+            if (!ghMembers.some(m => m.toLowerCase() === name.toLowerCase())) {
+              ghMembers.push(name);
+              saveAdminData();
+              ghRenderMemberList(ghMemberSearch.value);
+              ghRenderPointsMembers();
+              ghRenderLeaderboard();
+              ghAddActivity('Added member from scan: ' + name);
+              showToast('Added "' + name + '" to guild.', 'success');
+              btn.closest('.pill').remove();
+            }
+          });
+        });
+      } else {
+        ghPointsUnrecognizedList.style.display = 'none';
+      }
+
+      ghRenderPointsMembers();
+      ghRenderPointsSelectedMembers();
+      ghPointsOcrRunning = false;
+    }
+
+    ghPointsScreenshotInput.addEventListener('change', (e) => {
+      for (const file of e.target.files) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          ghPointsScreenshotDataUrls.push(ev.target.result);
+          ghRenderPointsThumbnails();
+          ghRunPointsOcr();
+        };
+        reader.readAsDataURL(file);
+      }
+      e.target.value = '';
+    });
+
+    ghPointsScreenshotUpload.addEventListener('dragover', (e) => { e.preventDefault(); ghPointsScreenshotUpload.classList.add('dragover'); });
+    ghPointsScreenshotUpload.addEventListener('dragleave', () => { ghPointsScreenshotUpload.classList.remove('dragover'); });
+    ghPointsScreenshotUpload.addEventListener('drop', (e) => {
+      e.preventDefault(); ghPointsScreenshotUpload.classList.remove('dragover');
+      for (const file of e.dataTransfer.files) {
+        if (!file.type.startsWith('image/')) continue;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          ghPointsScreenshotDataUrls.push(ev.target.result);
+          ghRenderPointsThumbnails();
+          ghRunPointsOcr();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
     ghToggleGivePoints.addEventListener('click', () => {
       ghPointsSelectedMembers.clear();
+      ghPointsScreenshotDataUrls = [];
+      ghPointsScanResults = null;
+      ghPointsScreenshotThumbs.innerHTML = '';
+      ghPointsUnrecognizedList.innerHTML = '';
+      ghPointsUnrecognizedList.style.display = 'none';
+      ghPointsOcrStatus.className = 'ocr-status';
+      ghPointsOcrStatusText.textContent = 'Waiting for screenshot...';
       ghPointsSearch.value = '';
       ghPointsInput.value = '1';
       ghPointsPopup.style.display = 'flex';
       ghPointsOverlay.style.display = 'block';
       ghRenderPointsMembers();
+      ghRenderPointsSelectedMembers();
     });
     ghPointsPopupClose.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
     ghPointsOverlay.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
