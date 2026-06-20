@@ -2973,8 +2973,11 @@
       <div class="party-panel all-panel" id="ghPointsAllMembers" style="max-height:200px;overflow-y:auto"></div>
       <hr class="admin-divider">
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points per member</label>
-        <input type="number" id="ghPointsInput" min="0" value="1" style="width:100%;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
+        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points per member <span id="ghPointsSignLabel" style="color:var(--accent-gold)">+</span></label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="kbtn" id="ghPointsSignToggle" style="width:32px;min-width:32px;height:28px;padding:0;font-size:14px;font-weight:700">+</button>
+          <input type="number" id="ghPointsInput" value="1" style="flex:1;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
+        </div>
       </div>
       <button class="kbtn" id="ghPointsConfirm" style="width:100%;justify-content:center">CONFIRM</button>
     </div>
@@ -5245,6 +5248,8 @@
     const ghPointsAllMembers = $('ghPointsAllMembers');
     const ghPointsInput = $('ghPointsInput');
     const ghPointsConfirm = $('ghPointsConfirm');
+    const ghPointsSignToggle = $('ghPointsSignToggle');
+    const ghPointsSignLabel = $('ghPointsSignLabel');
     const ghPointsScreenshotUpload = $('ghPointsScreenshotUpload');
     const ghPointsScreenshotInput = $('ghPointsScreenshotInput');
     const ghPointsScreenshotThumbs = $('ghPointsScreenshotThumbs');
@@ -5734,28 +5739,39 @@
       ghPointsOcrStatusText.textContent = 'Waiting for screenshot...';
       ghPointsSearch.value = '';
       ghPointsInput.value = '1';
+      ghPointsSignToggle.textContent = '+';
+      ghPointsSignLabel.textContent = '+';
       ghPointsPopup.style.display = 'flex';
       ghPointsOverlay.style.display = 'block';
       ghRenderPointsMembers();
       ghRenderPointsSelectedMembers();
+    });
+    ghPointsSignToggle.addEventListener('click', () => {
+      const isNeg = ghPointsSignToggle.textContent === '-';
+      ghPointsSignToggle.textContent = isNeg ? '+' : '-';
+      ghPointsSignLabel.textContent = isNeg ? '+' : '-';
+      ghPointsSignLabel.style.color = isNeg ? 'var(--accent-gold)' : 'var(--accent-red)';
+      ghPointsSignToggle.style.color = isNeg ? '' : 'var(--accent-red)';
     });
     ghPointsPopupClose.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
     ghPointsOverlay.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
     ghPointsSearch.addEventListener('input', ghRenderPointsMembers);
     ghPointsConfirm.addEventListener('click', () => {
       const selected = [...ghPointsSelectedMembers];
-      const pts = parseInt(ghPointsInput.value) || 0;
+      let pts = parseInt(ghPointsInput.value) || 0;
+      if (ghPointsSignToggle.textContent === '-') pts = -Math.abs(pts);
       if (selected.length === 0) { showToast('Select at least one member.', 'error'); return; }
-      if (pts <= 0) { showToast('Points must be greater than 0.', 'error'); return; }
+      if (pts === 0) { showToast('Points must not be 0.', 'error'); return; }
       for (const name of selected) {
         ghMemberPoints[name] = (ghMemberPoints[name] || 0) + pts;
       }
       saveAdminData();
       ghRenderLeaderboard();
-      ghAddActivity('Manually awarded ' + pts + ' pts to ' + selected.join(', '));
+      const verb = pts > 0 ? 'awarded' : 'deducted';
+      ghAddActivity('Manually ' + verb + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.join(', '));
       ghPointsPopup.style.display = 'none';
       ghPointsOverlay.style.display = 'none';
-      showToast('Awarded ' + pts + ' pts to ' + selected.length + ' member(s)', 'success');
+      showToast((pts > 0 ? 'Awarded' : 'Deducted') + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.length + ' member(s)', 'success');
     });
 
     // ─── Boss Config ───
