@@ -58,33 +58,23 @@ The app uses Discord OAuth2 to restrict access to guild members.
 
 #### 1. Discord Developer Portal
 
-1. Go to https://discord.com/developers/applications and create a new application
-2. Go to **OAuth2** → **General**
-3. Add a redirect URL: `https://discord-auth.YOUR_SUBDOMAIN.workers.dev` (replace after deploying the Worker)
-4. Copy the **Client ID** and **Client Secret**
+1. Go to https://discord.com/developers/applications → **OAuth2** → **General**
+2. Add a redirect URL: `https://us-central1-bosstracker-a290e.cloudfunctions.net/discord-callback`
+3. Copy the **Client ID** and **Client Secret**
 
-#### 2. Deploy the Cloudflare Worker
+#### 2. Deploy the Firebase Function
 
-1. Go to https://dash.cloudflare.com → **Workers & Pages** → **Create Worker**
-2. Paste the contents of `worker/index.js` into the editor
-3. Go to **Settings** → **Variables**:
-   - Add **plain text** variable: `DISCORD_CLIENT_ID` = `1518260560766963912`
-   - Add **plain text** variable: `DISCORD_GUILD_ID` = `1405710246655164557`
-   - Add **secret** variable: `DISCORD_CLIENT_SECRET` = your Discord client secret
-4. Deploy the Worker
-5. Copy the Worker URL (e.g. `https://discord-auth.YOUR_SUBDOMAIN.workers.dev`)
+```bash
+cd functions
+npm install
+cd ..
+firebase functions:config:set discord.client_id="YOUR_CLIENT_ID" discord.client_secret="YOUR_CLIENT_SECRET" discord.guild_id="YOUR_GUILD_ID" --project bosstracker-a290e
+firebase deploy --only functions --project bosstracker-a290e
+```
 
 #### 3. Update Redirect URL in Discord
 
-Back in Discord Developer Portal → **OAuth2** → **General**, set the redirect URL to your Worker URL.
-
-#### 4. Update Frontend Config
-
-In `index.html`, update these values:
-
-```js
-const DISCORD_REDIRECT_URI = 'https://discord-auth.YOUR_SUBDOMAIN.workers.dev';
-```
+If you changed the redirect URL during Cloudflare testing, change it back to: `https://us-central1-bosstracker-a290e.cloudfunctions.net/discord-callback`
 
 ### Admin Password
 
