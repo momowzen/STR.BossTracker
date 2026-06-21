@@ -5625,7 +5625,8 @@
       try {
         for (let idx = 0; idx < ghPointsScreenshotDataUrls.length; idx++) {
           ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + '/' + ghPointsScreenshotDataUrls.length + '...';
-          const result = await Tesseract.recognize(ghPointsScreenshotDataUrls[idx], 'eng+jpn', { logger: m => {
+          const processed = await preprocessImage(ghPointsScreenshotDataUrls[idx]);
+          const result = await Tesseract.recognize(processed, 'eng+jpn', { logger: m => {
             if (m.status === 'recognizing text') ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + ' reading... ' + Math.round(m.progress * 100) + '%';
           }});
           allText += result.data.text + '\n';
@@ -5637,7 +5638,12 @@
         return;
       }
 
-      const tokens = allText.split(/[\s,]+/).map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, '')).filter(Boolean);
+      const circledMap = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
+      const circledRe = /[\u2460-\u2468]/g;
+      const tokens = allText.split(/[\s,]+/)
+        .map(t => t.replace(circledRe, m => circledMap[m]))
+        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
+        .filter(Boolean);
 
       const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
       const merged = [];
@@ -5650,7 +5656,7 @@
       const unique = [...new Set(merged.map(t => t.toUpperCase()))];
 
       function ocrNorm(s) {
-        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/4/g, 'A').replace(/5/g, 'S').replace(/8/g, 'B').replace(/Q/g, 'O');
+        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
       }
       const memberMap = new Map();
       const normalizedMap = new Map();
@@ -6023,6 +6029,38 @@
       ghUpdateConfirmSummary();
     }
 
+    function preprocessImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          let min = 255, max = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            data[i] = data[i + 1] = data[i + 2] = gray;
+            if (gray < min) min = gray;
+            if (gray > max) max = gray;
+          }
+          const range = max - min;
+          if (range > 0) {
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = data[i + 1] = data[i + 2] = (data[i] - min) / range * 255;
+            }
+          }
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL());
+        };
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+    }
+
     async function ghRunOcr() {
       if (ghOcrRunning) return;
       ghOcrRunning = true;
@@ -6033,7 +6071,8 @@
       try {
         for (let idx = 0; idx < ghScreenshotDataUrls.length; idx++) {
           ocrStatusText.textContent = 'Screenshot ' + (idx + 1) + '/' + ghScreenshotDataUrls.length + '...';
-          const result = await Tesseract.recognize(ghScreenshotDataUrls[idx], 'eng+jpn', { logger: m => {
+          const processed = await preprocessImage(ghScreenshotDataUrls[idx]);
+          const result = await Tesseract.recognize(processed, 'eng+jpn', { logger: m => {
             if (m.status === 'recognizing text') ocrStatusText.textContent = 'Screenshot ' + (idx + 1) + ' reading... ' + Math.round(m.progress * 100) + '%';
           }});
           allText += result.data.text + '\n';
@@ -6045,10 +6084,13 @@
         return;
       }
 
-      // Parse tokens — keep CJK (kanji, hiragana, katakana) and ASCII alphanumeric
-      const tokens = allText.split(/[\s,]+/).map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, '')).filter(Boolean);
+      const circledMap = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
+      const circledRe = /[\u2460-\u2468]/g;
+      const tokens = allText.split(/[\s,]+/)
+        .map(t => t.replace(circledRe, m => circledMap[m]))
+        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
+        .filter(Boolean);
 
-      // Merge adjacent CJK/kana characters into single tokens
       const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
       const merged = [];
       let cjkBuf = '';
@@ -6059,9 +6101,8 @@
       if (cjkBuf) merged.push(cjkBuf);
       const unique = [...new Set(merged.map(t => t.toUpperCase()))];
 
-      // Build member lookup
       function ocrNorm(s) {
-        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/4/g, 'A').replace(/5/g, 'S').replace(/8/g, 'B').replace(/Q/g, 'O');
+        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
       }
       const memberMap = new Map();
       const normalizedMap = new Map();
