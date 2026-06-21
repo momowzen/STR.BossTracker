@@ -5353,6 +5353,23 @@
       const loginBtn = document.getElementById('loginBtn');
       const loginError = document.getElementById('loginError');
 
+      // Check URL hash for auth data from Discord redirect (cross-origin)
+      if (window.location.hash && window.location.hash.startsWith('#discordAuth=')) {
+        try {
+          const encoded = window.location.hash.replace('#discordAuth=', '');
+          const data = JSON.parse(atob(encoded));
+          if (data.error) {
+            ls().setItem('discordAuthError', data.error);
+            ls().removeItem('discordAuth');
+          } else {
+            ls().setItem('discordAuth', JSON.stringify(data));
+            ls().removeItem('discordAuthError');
+          }
+        } catch (e) {}
+        window.location.hash = '';
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+
       const auth = getAuth();
       const authError = ls().getItem('discordAuthError');
 

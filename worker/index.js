@@ -5,13 +5,12 @@ export default {
     const errParam = url.searchParams.get('error');
 
     if (errParam) {
-      return respond({ error: 'Authorization was denied.' });
+      return redirect({ error: 'Authorization was denied.' });
     }
     if (!code) {
-      return respond({ error: 'No authorization code provided.' });
+      return redirect({ error: 'No authorization code provided.' });
     }
 
-    // Use the exact origin (no trailing slash) to match Discord's registered redirect URI
     const REDIRECT_URI = url.origin;
 
     try {
@@ -30,7 +29,7 @@ export default {
       if (!tokenResp.ok) {
         const errText = await tokenResp.text();
         console.error('Token exchange failed:', errText);
-        return respond({ error: 'Authentication failed.' });
+        return redirect({ error: 'Authentication failed.' });
       }
 
       const tokenData = await tokenResp.json();
@@ -48,7 +47,7 @@ export default {
 
       const guildMember = guilds.some(g => g.id === env.DISCORD_GUILD_ID);
 
-      return respond({
+      return redirect({
         userId: user.id,
         username: user.username,
         displayName: user.global_name || user.username,
@@ -59,37 +58,15 @@ export default {
       });
     } catch (err) {
       console.error('Worker error:', err.message);
-      return respond({ error: 'Authentication failed. Please try again.' });
+      return redirect({ error: 'Authentication failed. Please try again.' });
     }
   },
 };
 
-function respond(data) {
-  const json = JSON.stringify(data);
-  const html = `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Redirecting...</title></head>
-<body>
-<script>
-try {
-  const auth = ${json};
-  if (auth.error) {
-    localStorage.setItem('discordAuthError', auth.error);
-    localStorage.removeItem('discordAuth');
-  } else {
-    localStorage.setItem('discordAuth', JSON.stringify(auth));
-    localStorage.removeItem('discordAuthError');
-  }
-} catch(e) {}
-window.location.href = 'https://momowzen.github.io/STR.BossTracker/';
-<\/script>
-<noscript>
-  <p>JavaScript is required to complete login.</p>
-  <p><a href="https://momowzen.github.io/STR.BossTracker/">Return to Boss Tracker</a></p>
-</noscript>
-</body>
-</html>`;
-  return new Response(html, {
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
-  });
+function redirect(data) {
+  const encoded = btoa(JSON.stringify(data));
+  return Response.redirect(
+    `https://momowzen.github.io/STR.BossTracker/#discordAuth=${encoded}`,
+    302
+  );
 }
