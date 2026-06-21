@@ -33,6 +33,9 @@ Real-time collaborative field boss & world boss respawn timer for the STR4NG3RZ 
 | `index.html` | The full application (single HTML file, ~4300 lines) |
 | `bosses_data.json` | Boss definitions (id, name, level, respawn/ schedule, location) |
 | `assets/images/*.png` | Boss portraits (hosted on GitHub raw) |
+| `functions/` | Firebase Cloud Function for Discord OAuth2 callback |
+| `firebase.json` | Firebase project config |
+| `.firebaserc` | Firebase default project alias |
 
 ## Setup
 
@@ -49,9 +52,45 @@ If you want your own Firebase project:
 3. Replace `firebaseConfig` in `index.html` and the reCAPTCHA site key in `initializeAppCheck()`
 4. Set Firestore security rules to allow read/write (App Check handles abuse prevention)
 
-### Admin Password
+### Discord Login
 
-The default admin password hash is hardcoded. To change it, compute the SHA-256 hash of your new password and replace the value in `index.html`.
+The app uses Discord OAuth2 to restrict access to guild members.
+
+#### 1. Discord Developer Portal
+
+1. Go to https://discord.com/developers/applications and create a new application
+2. Go to **OAuth2** → **General**
+3. Add a redirect URL: `https://us-central1-bosstracker-a290e.cloudfunctions.net/discord-callback`
+4. Copy the **Client ID** and **Client Secret**
+
+#### 2. Set Firebase Secrets
+
+```bash
+firebase login
+firebase functions:secrets:set DISCORD_CLIENT_ID
+# paste your Discord client ID
+firebase functions:secrets:set DISCORD_CLIENT_SECRET
+# paste your Discord client secret
+firebase functions:secrets:set DISCORD_GUILD_ID
+# paste your Discord server (guild) ID
+```
+
+#### 3. Deploy the Function
+
+```bash
+firebase deploy --only functions
+```
+
+#### 4. Update Frontend Config
+
+In `index.html`, replace these placeholders:
+
+```js
+const DISCORD_CLIENT_ID = 'YOUR_DISCORD_CLIENT_ID';
+const DISCORD_GUILD_ID = 'YOUR_DISCORD_SERVER_ID';
+```
+
+### Admin Password
 
 ### Timezone
 

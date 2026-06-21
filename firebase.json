@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "source": "functions",
+    "codebase": "discord-auth",
+    "ignore": ["node_modules", ".git"]
+  }
+}
