@@ -2747,7 +2747,10 @@
         <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
           <div style="flex-shrink:0">
             <div class="ml-toolbar">
-              <input class="search" id="ghMemberSearch" placeholder="Search member name...">
+               <div class="search-wrapper" style="flex:1;min-width:0">
+                <input class="search" id="ghMemberSearch" placeholder="Search member name..." style="padding-right:26px">
+                <span class="clear-icon" id="clearMemberSearch" role="button" tabindex="0" aria-label="Clear search" style="right:4px"><svg aria-hidden="true" style="width:12px;height:12px"><use href="#icon-x"/></svg></span>
+              </div>
               <div class="ml-toolbar-right">
                 <button class="kbtn" id="ghSortBtn" style="min-width:70px">Name</button>
                 <button class="kbtn" id="ghOrderBtn" style="width:32px;min-width:32px"><span id="ghOrderIcon">↑</span></button>
@@ -2768,7 +2771,10 @@
         <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
           <div style="flex-shrink:0">
             <div class="ml-toolbar" style="margin-bottom:8px">
-              <input class="search" id="ghBossConfigSearch" placeholder="search boss name..." style="flex:1;height:28px;font-size:11px">
+              <div class="search-wrapper" style="flex:1;min-width:0">
+                <input class="search" id="ghBossConfigSearch" placeholder="search boss name..." style="flex:1;height:28px;font-size:11px;padding-right:26px">
+                <span class="clear-icon" id="clearBossConfigSearch" role="button" tabindex="0" aria-label="Clear search" style="right:4px"><svg aria-hidden="true" style="width:12px;height:12px"><use href="#icon-x"/></svg></span>
+              </div>
             </div>
             <div class="form-group flex-center" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <span style="font-size:11px;color:var(--text-muted)">Set points (0–100) per boss kill</span>
@@ -5223,12 +5229,14 @@
     // ─── DOM refs ───
     const ghMemberList = $('ghMemberList');
     const ghMemberSearch = $('ghMemberSearch');
+    const clearMemberSearch = $('clearMemberSearch');
     const ghMemberCount = $('ghMemberCount');
     const ghSortBtn = $('ghSortBtn');
     const ghOrderBtn = $('ghOrderBtn');
     const ghOrderIcon = $('ghOrderIcon');
     const ghBossConfigList = $('ghBossConfigList');
     const ghBossConfigSearch = $('ghBossConfigSearch');
+    const clearBossConfigSearch = $('clearBossConfigSearch');
     const ghLeaderboardList = $('ghLeaderboardList');
     const ghActivityLogEl = $('ghActivityLog');
     const ghMemberOverlay = $('ghMemberOverlay');
@@ -5520,7 +5528,12 @@
       ghOrderIcon.textContent = ghSortOrder === 'asc' ? '↑' : '↓';
       ghRenderMemberList(ghMemberSearch.value);
     });
-    ghMemberSearch.addEventListener('input', () => ghRenderMemberList(ghMemberSearch.value));
+    const updateMemberClear = () => clearMemberSearch.classList.toggle("visible", !!ghMemberSearch.value);
+    ghMemberSearch.addEventListener("input", () => { ghRenderMemberList(ghMemberSearch.value); updateMemberClear(); });
+    ghMemberSearch.addEventListener("focus", updateMemberClear);
+    ghMemberSearch.addEventListener("blur", updateMemberClear);
+    clearMemberSearch.addEventListener("click", () => { ghMemberSearch.value = ""; updateMemberClear(); ghRenderMemberList(""); });
+    updateMemberClear();
 
     // ─── Give Points ───
     let ghPointsSelectedMembers = new Set();
@@ -5818,7 +5831,12 @@
       });
     }
 
-    ghBossConfigSearch.addEventListener('input', () => ghRenderBossConfig(ghBossConfigSearch.value));
+    const updateBossConfigClear = () => clearBossConfigSearch.classList.toggle("visible", !!ghBossConfigSearch.value);
+    ghBossConfigSearch.addEventListener("input", () => { ghRenderBossConfig(ghBossConfigSearch.value); updateBossConfigClear(); });
+    ghBossConfigSearch.addEventListener("focus", updateBossConfigClear);
+    ghBossConfigSearch.addEventListener("blur", updateBossConfigClear);
+    clearBossConfigSearch.addEventListener("click", () => { ghBossConfigSearch.value = ""; updateBossConfigClear(); ghRenderBossConfig(""); });
+    updateBossConfigClear();
     ghResetBossConfig.addEventListener('click', () => { ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success'); });
 
     // ─── Leaderboard ───
