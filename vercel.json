@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/discord-callback.js": { "memory": 128, "maxDuration": 10 }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+}

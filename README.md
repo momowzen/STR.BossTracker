@@ -56,25 +56,29 @@ If you want your own Firebase project:
 
 The app uses Discord OAuth2 to restrict access to guild members.
 
-#### 1. Discord Developer Portal
+#### 1. Vercel Setup
+
+1. Go to https://vercel.com and sign in with GitHub
+2. Click **Add New** → **Project** → import `momowzen/STR.BossTracker`
+3. In **Environment Variables**, add:
+   - `DISCORD_CLIENT_ID` = `1518260560766963912`
+   - `DISCORD_CLIENT_SECRET` = your Discord client secret
+   - `DISCORD_GUILD_ID` = `1405710246655164557`
+4. Click **Deploy**
+5. Copy your project URL (e.g. `https://str-bosstracker.vercel.app`)
+
+#### 2. Discord Developer Portal
 
 1. Go to https://discord.com/developers/applications → **OAuth2** → **General**
-2. Add a redirect URL: `https://us-central1-bosstracker-a290e.cloudfunctions.net/discord-callback`
+2. Add a redirect URL: `https://YOUR_VERCEL_APP.vercel.app/api/discord-callback`
 3. Copy the **Client ID** and **Client Secret**
 
-#### 2. Deploy the Firebase Function
+#### 3. Update Frontend
 
-```bash
-cd functions
-npm install
-cd ..
-firebase functions:config:set discord.client_id="YOUR_CLIENT_ID" discord.client_secret="YOUR_CLIENT_SECRET" discord.guild_id="YOUR_GUILD_ID" --project bosstracker-a290e
-firebase deploy --only functions --project bosstracker-a290e
+In `index.html`, update the redirect URI:
+```js
+const DISCORD_REDIRECT_URI = 'https://YOUR_VERCEL_APP.vercel.app/api/discord-callback';
 ```
-
-#### 3. Update Redirect URL in Discord
-
-If you changed the redirect URL during Cloudflare testing, change it back to: `https://us-central1-bosstracker-a290e.cloudfunctions.net/discord-callback`
 
 ### Admin Password
 
