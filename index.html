@@ -2510,130 +2510,10 @@
     }
     .add-member-popup .party-popup-body textarea:focus { border-color: var(--accent-gold); box-shadow: var(--glow-gold); }
 
-    /* ─── Discord Login Screen ─── */
-    #loginScreen {
-      position: fixed; inset: 0; z-index: 99999;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--bg-primary);
-    }
-    #loginScreen.hidden { display: none; }
-    .login-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 48px 40px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    .login-card .logo-img {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      margin-bottom: 16px;
-    }
-    .login-card h1 {
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 22px;
-      color: var(--accent-gold);
-      margin: 0 0 4px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .login-card p {
-      color: var(--text-muted);
-      font-size: 13px;
-      margin: 0 0 28px;
-      line-height: 1.5;
-    }
-    .login-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: #5865F2; color: #fff;
-      border: none; border-radius: 8px;
-      padding: 12px 28px;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: opacity var(--transition), transform var(--transition);
-    }
-    .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .login-btn:active { transform: translateY(0); }
-    .login-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .login-error {
-      color: var(--accent-red);
-      font-size: 12px;
-      margin-top: 16px;
-      display: none;
-    }
-    .login-error.visible { display: block; }
-    .login-loading {
-      display: none;
-      margin-top: 16px;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-    .login-loading.visible { display: block; }
-
-    /* ─── Discord User Badge ─── */
-    .discord-user {
-      display: none; align-items: center; gap: 8px;
-      margin-left: auto; padding: 4px 10px 4px 4px;
-      border-radius: 20px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
-    }
-    .discord-user.visible { display: flex; }
-    .discord-user .avatar {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--bg-primary);
-      flex-shrink: 0;
-    }
-    .discord-user .name {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      max-width: 100px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .discord-user .logout-btn {
-      background: none; border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 2px 4px;
-      font-size: 11px;
-      transition: color var(--transition);
-    }
-    .discord-user .logout-btn:hover { color: var(--accent-red); }
-
   </style>
 </head>
 
 <body>
-  <!-- Discord Login Screen -->
-  <div id="loginScreen">
-    <div class="login-card">
-      <img class="logo-img" alt="STR4NG3RZ"
-        src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png" />
-      <h1>COMMAND CENTER</h1>
-      <p>Sign in with your Discord account to access the boss tracker.</p>
-      <button class="login-btn" id="loginBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 12l2 2 4-4"/>
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-        Login with Discord
-      </button>
-      <div class="login-error" id="loginError"></div>
-      <div class="login-loading" id="loginLoading">Verifying...</div>
-    </div>
-  </div>
-
   <!-- SVG icon sprite -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
     <defs>
@@ -2766,11 +2646,6 @@
           title="Admin">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
         </button>
-        <div class="discord-user" id="discordUser">
-          <img class="avatar" id="discordAvatar" src="" alt="" />
-          <span class="name" id="discordName"></span>
-          <button class="logout-btn" id="logoutBtn" title="Log out">✕</button>
-        </div>
       </div>
     </header>
     <main class="main" role="main">
@@ -5322,87 +5197,10 @@
 
 
 
-    // ─── Discord Auth ───
-    const DISCORD_CLIENT_ID = '1518260560766963912';
-    const DISCORD_GUILD_ID = '1405710246655164557';
-    const DISCORD_REDIRECT_URI = 'https://YOUR_VERCEL_APP.vercel.app/api/discord-callback'; // TODO: replace after Vercel deploy
-
-    const ls = () => window.localStorage;
-    function getAuth() {
-      try { return JSON.parse(ls().getItem('discordAuth')); } catch { return null; }
-    }
-    function setAuth(data) { ls().setItem('discordAuth', JSON.stringify(data)); }
-    function clearAuth() { ls().removeItem('discordAuth'); ls().removeItem('discordAuthError'); }
-
-    function updateUserBadge(auth) {
-      const el = document.getElementById('discordUser');
-      if (!el) return;
-      if (auth && auth.guildMember) {
-        el.classList.add('visible');
-        const avatar = document.getElementById('discordAvatar');
-        const name = document.getElementById('discordName');
-        if (avatar) avatar.src = auth.avatar || '';
-        if (name) name.textContent = auth.displayName || auth.username;
-      } else {
-        el.classList.remove('visible');
-      }
-    }
-
     window.addEventListener("load", () => {
-      const loginScreen = document.getElementById('loginScreen');
-      const loginBtn = document.getElementById('loginBtn');
-      const loginError = document.getElementById('loginError');
-
-      // Check URL hash for auth data from Discord redirect (cross-origin)
-      if (window.location.hash && window.location.hash.startsWith('#discordAuth=')) {
-        try {
-          const encoded = window.location.hash.replace('#discordAuth=', '');
-          const data = JSON.parse(atob(encoded));
-          if (data.error) {
-            ls().setItem('discordAuthError', data.error);
-            ls().removeItem('discordAuth');
-          } else {
-            ls().setItem('discordAuth', JSON.stringify(data));
-            ls().removeItem('discordAuthError');
-          }
-        } catch (e) {}
-        window.location.hash = '';
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
-
-      const auth = getAuth();
-      const authError = ls().getItem('discordAuthError');
-
-      if (auth && auth.guildMember) {
-        loginScreen.classList.add('hidden');
-        updateUserBadge(auth);
-        init();
-        checkForUpdates();
-        setInterval(checkForUpdates, 30000);
-      } else {
-        if (auth && !auth.guildMember) {
-          loginError.textContent = 'You are not a member of the STR4NG3RZ Discord server.';
-          loginError.classList.add('visible');
-        } else if (authError) {
-          loginError.textContent = authError;
-          loginError.classList.add('visible');
-        }
-        loginBtn.addEventListener('click', () => {
-          const url = 'https://discord.com/api/oauth2/authorize'
-            + '?client_id=' + DISCORD_CLIENT_ID
-            + '&redirect_uri=' + encodeURIComponent(DISCORD_REDIRECT_URI)
-            + '&response_type=code'
-            + '&scope=identify%20guilds';
-          window.location.href = url;
-        });
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
-        clearAuth();
-        location.reload();
-      }
+      init();
+      checkForUpdates();
+      setInterval(checkForUpdates, 30000);
     });
 
 

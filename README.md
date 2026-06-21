@@ -33,9 +33,6 @@ Real-time collaborative field boss & world boss respawn timer for the STR4NG3RZ 
 | `index.html` | The full application (single HTML file, ~4300 lines) |
 | `bosses_data.json` | Boss definitions (id, name, level, respawn/ schedule, location) |
 | `assets/images/*.png` | Boss portraits (hosted on GitHub raw) |
-| `functions/` | Firebase Cloud Function for Discord OAuth2 callback |
-| `firebase.json` | Firebase project config |
-| `.firebaserc` | Firebase default project alias |
 
 ## Setup
 
@@ -51,34 +48,6 @@ If you want your own Firebase project:
 2. Enable App Check with reCAPTCHA v3
 3. Replace `firebaseConfig` in `index.html` and the reCAPTCHA site key in `initializeAppCheck()`
 4. Set Firestore security rules to allow read/write (App Check handles abuse prevention)
-
-### Discord Login
-
-The app uses Discord OAuth2 to restrict access to guild members.
-
-#### 1. Vercel Setup
-
-1. Go to https://vercel.com and sign in with GitHub
-2. Click **Add New** → **Project** → import `momowzen/STR.BossTracker`
-3. In **Environment Variables**, add:
-   - `DISCORD_CLIENT_ID` = `1518260560766963912`
-   - `DISCORD_CLIENT_SECRET` = your Discord client secret
-   - `DISCORD_GUILD_ID` = `1405710246655164557`
-4. Click **Deploy**
-5. Copy your project URL (e.g. `https://str-bosstracker.vercel.app`)
-
-#### 2. Discord Developer Portal
-
-1. Go to https://discord.com/developers/applications → **OAuth2** → **General**
-2. Add a redirect URL: `https://YOUR_VERCEL_APP.vercel.app/api/discord-callback`
-3. Copy the **Client ID** and **Client Secret**
-
-#### 3. Update Frontend
-
-In `index.html`, update the redirect URI:
-```js
-const DISCORD_REDIRECT_URI = 'https://YOUR_VERCEL_APP.vercel.app/api/discord-callback';
-```
 
 ### Admin Password
 
