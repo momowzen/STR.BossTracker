@@ -2,14 +2,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const error = url.searchParams.get('error');
+    const errParam = url.searchParams.get('error');
 
-    if (error) {
+    if (errParam) {
       return respond({ error: 'Authorization was denied.' });
     }
     if (!code) {
       return respond({ error: 'No authorization code provided.' });
     }
+
+    // Use the exact origin (no trailing slash) to match Discord's registered redirect URI
+    const REDIRECT_URI = url.origin;
 
     try {
       const tokenResp = await fetch('https://discord.com/api/oauth2/token', {
@@ -20,7 +23,7 @@ export default {
           client_secret: env.DISCORD_CLIENT_SECRET,
           code,
           grant_type: 'authorization_code',
-          redirect_uri: url.origin + url.pathname,
+          redirect_uri: REDIRECT_URI,
         }),
       });
 

@@ -5363,7 +5363,10 @@
         checkForUpdates();
         setInterval(checkForUpdates, 30000);
       } else {
-        if (authError && loginError) {
+        if (auth && !auth.guildMember) {
+          loginError.textContent = 'You are not a member of the STR4NG3RZ Discord server.';
+          loginError.classList.add('visible');
+        } else if (authError) {
           loginError.textContent = authError;
           loginError.classList.add('visible');
         }
