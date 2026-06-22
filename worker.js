@@ -1,12 +1,6 @@
 // Cloudflare Worker — Discord OAuth callback
 // Deploy via Cloudflare Dashboard (NOT connected to GitHub Pages)
 //
-// ── Discord App Credentials ──────────────────────────────
-// For production, move these to env vars.
-const DISCORD_CLIENT_ID = "1518260560766963912";
-const DISCORD_CLIENT_SECRET = "yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH";
-const DISCORD_REDIRECT_URI = "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback";
-
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -68,11 +62,11 @@ async function handleCallback(url) {
 
 async function exchangeCode(code) {
   const body = new URLSearchParams({
-    client_id: DISCORD_CLIENT_ID,
-    client_secret: DISCORD_CLIENT_SECRET,
+    client_id: "1518260560766963912",
+    client_secret: "yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH",
     grant_type: "authorization_code",
-    code,
-    redirect_uri: DISCORD_REDIRECT_URI,
+    code: code,
+    redirect_uri: "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback",
   });
 
   const res = await fetch("https://discord.com/api/oauth2/token", {
