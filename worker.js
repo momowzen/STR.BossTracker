@@ -96,13 +96,15 @@ async function exchangeCode(code, env) {
 }
 
 async function fetchDiscord(path, accessToken) {
-  const res = await fetch(`https://discord.com${path}`, {
+  const url = `https://discord.com${path.replace("@", "%40")}`;
+  const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "User-Agent": "STR.BossTracker/1.0",
     },
   });
   const data = await res.json();
-  if (data.error || !res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
+  if (data.error || !res.ok)
+    throw new Error(`Discord ${path} → ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
   return data;
 }
