@@ -33,7 +33,11 @@ async function handleCallback(url) {
     // 2. Fetch user info
     const user = await fetchDiscord("/api/users/@me", token.access_token);
 
-    // 3. Build result
+    // 3. Check guild membership
+    const guilds = await fetchDiscord("/api/users/@me/guilds", token.access_token);
+    const inGuild = Array.isArray(guilds) && guilds.some((g) => g.id === "1405710246655164557");
+
+    // 4. Build result
     const tag =
       user.discriminator && user.discriminator !== "0"
         ? `#${user.discriminator}`
@@ -41,6 +45,7 @@ async function handleCallback(url) {
     const result = {
       username: `${user.global_name || user.username}${tag}`,
       id: user.id,
+      inGuild,
     };
 
     // 5. Return HTML that posts to opener and closes
