@@ -214,32 +214,61 @@
       align-items: center;
       gap: 6px;
       height: 36px;
+      min-width: 36px;
+      min-height: 36px;
       padding: 0 8px;
       border: 1px solid rgba(88,101,242,0.35);
       border-radius: var(--radius-md);
       background: rgba(88,101,242,0.1);
       color: var(--text-muted);
       cursor: pointer;
-      transition: width 0.25s ease, border-color var(--transition), background var(--transition), color var(--transition);
+      transition: max-width 0.25s ease, border-color var(--transition), background var(--transition), color var(--transition);
       overflow: hidden;
-      width: 36px;
+      max-width: 36px;
+      width: fit-content;
       flex-shrink: 0;
     }
     .discord-badge-btn:hover {
-      width: 140px;
+      max-width: 220px;
       border-color: rgba(88,101,242,0.6);
       background: rgba(88,101,242,0.18);
       color: var(--text-primary);
     }
     .discord-badge-btn .discord-badge-icon {
-      width: 18px; height: 18px; flex-shrink: 0;
-      color: #5865F2;
+      width: 16px; height: 16px; flex-shrink: 0;
+      color: #5865F2; display: block; pointer-events: none;
     }
     .discord-badge-btn .discord-badge-name {
       font-size: 12px; white-space: nowrap;
       opacity: 0; transition: opacity 0.15s ease 0.1s;
+      overflow: hidden; text-overflow: ellipsis;
     }
     .discord-badge-btn:hover .discord-badge-name { opacity: 1; }
+
+    .discord-dropdown {
+      position: absolute; top: 100%; right: 0; z-index: 9999;
+      min-width: 150px;
+      padding: 4px 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: none;
+    }
+    .discord-dropdown.show { display: block; }
+    .discord-dropdown-item {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 8px 14px;
+      border: none; background: none;
+      color: var(--text-secondary); font-size: 12px; font-family: var(--font-display);
+      cursor: pointer; transition: background var(--transition), color var(--transition);
+      text-align: left;
+    }
+    .discord-dropdown-item:hover { background: rgba(88,101,242,0.12); color: var(--text-primary); }
+    .discord-dropdown-item .dropdown-icon {
+      width: 14px; height: 14px; flex-shrink: 0;
+      color: currentColor; display: block;
+    }
 
     .admin-auth-btn,
     .alarm-btn,
@@ -776,8 +805,8 @@
         min-width: 28px;
         min-height: 28px;
       }
-      .discord-badge-btn { height: 28px; width: 28px; padding: 0 5px; }
-      .discord-badge-btn:hover { width: 110px; }
+      .discord-badge-btn { height: 28px; min-width: 28px; min-height: 28px; padding: 0 5px; max-width: 28px; }
+      .discord-badge-btn:hover { max-width: 150px; }
       .discord-badge-btn .discord-badge-icon { width: 14px; height: 14px; }
       .discord-badge-btn .discord-badge-name { font-size: 10px; }
       .app-title { gap: 6px; }
@@ -2712,10 +2741,18 @@
           title="Admin">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
         </button>
-        <button type="button" class="discord-badge-btn" id="discordBadgeBtn" title="Discord" aria-label="Discord">
-          <svg class="discord-badge-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
-          <span class="discord-badge-name" id="discordBadgeName"></span>
-        </button>
+        <div style="position:relative">
+          <button type="button" class="discord-badge-btn" id="discordBadgeBtn" title="Discord" aria-label="Discord">
+            <svg class="discord-badge-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
+            <span class="discord-badge-name" id="discordBadgeName"></span>
+          </button>
+          <div class="discord-dropdown" id="discordDropdown">
+            <button type="button" class="discord-dropdown-item" id="discordDisconnectBtn">
+              <svg class="dropdown-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10 11l3-3-3-3M13 8H6"/></svg>
+              Disconnect
+            </button>
+          </div>
+        </div>
       </div>
     </header>
     <main class="main" role="main">
@@ -5160,13 +5197,27 @@
       if (auth && auth.inGuild) {
         nameEl.textContent = auth.username;
         badge.style.display = "flex";
+        // auto-shrink font if name overflows hover max-width (~170px avail after icon/gap/padding)
+        nameEl.style.fontSize = "12px";
+        const availW = 170;
+        let fs = 12;
+        while (fs > 7 && nameEl.scrollWidth > availW) {
+          fs -= 0.5;
+          nameEl.style.fontSize = fs + "px";
+        }
       } else {
         badge.style.display = "none";
       }
     }
 
-    document.getElementById("discordBadgeBtn").addEventListener("click", () => {
+    // ── Discord dropdown ────────────────────────────
+    document.getElementById("discordBadgeBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
       if (!getDiscordAuth()) return;
+      document.getElementById("discordDropdown").classList.toggle("show");
+    });
+    document.getElementById("discordDisconnectBtn").addEventListener("click", () => {
+      document.getElementById("discordDropdown").classList.remove("show");
       sessionStorage.removeItem("discordAuthData");
       sessionStorage.removeItem("discordOAuthState");
       sessionStorage.setItem("userMode", "member");
@@ -5175,6 +5226,9 @@
       document.getElementById("loginStatus").textContent = "Login with Discord to access the Command Center.";
       document.getElementById("loginStartBtn").style.display = "inline-flex";
       updateDiscordBadge();
+    });
+    document.addEventListener("click", () => {
+      document.getElementById("discordDropdown").classList.remove("show");
     });
 
     async function logAction(action, details = {}) {
