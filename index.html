@@ -5219,8 +5219,7 @@
     }
 
     // ── Discord dropdown ────────────────────────────
-    document.getElementById("discordBadgeBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
+    document.getElementById("discordBadgeBtn").addEventListener("click", () => {
       if (!getDiscordAuth()) return;
       document.getElementById("discordDropdown").classList.toggle("show");
     });
@@ -5235,9 +5234,10 @@
       document.getElementById("loginStartBtn").style.display = "inline-flex";
       updateDiscordBadge();
     });
-    document.addEventListener("click", () => {
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#discordBadgeBtn") || e.target.closest("#discordDropdown")) return;
       document.getElementById("discordDropdown").classList.remove("show");
-    });
+    }, true);
 
     async function logAction(action, details = {}) {
       const auth = getDiscordAuth();
