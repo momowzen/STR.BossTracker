@@ -1112,6 +1112,19 @@
       transition: transform 0.25s ease, opacity 0.25s ease;
       opacity: 0;
     }
+    .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; }
+    .logs-modal h3 { text-align: center; }
+    .log-entry {
+      display: flex; gap: 8px; padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: flex-start;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 10px; min-width: 58px; padding-top: 1px; }
+    .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 90px; }
+    .log-action { color: var(--text-primary); }
+    .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
+    .log-detail { color: var(--text-muted); font-size: 10px; }
 
     .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
     .modal-backdrop.active .admin-password-modal { transform: scale(1) translateY(0); opacity: 1; }
@@ -2906,6 +2919,17 @@
     </div>
   </div>
 
+  <!-- Action Logs modal -->
+  <div class="modal-backdrop" id="actionLogsBackdrop" role="dialog" aria-modal="true" aria-labelledby="actionLogsTitle">
+    <div class="modal logs-modal">
+      <h3 id="actionLogsTitle">Action Logs</h3>
+      <div style="text-align:right;margin-bottom:6px">
+        <button class="kbtn" id="actionLogsRefresh" style="font-size:11px;padding:3px 10px">REFRESH</button>
+      </div>
+      <div id="actionLogsContainer" style="max-height:60vh;overflow-y:auto;font-size:11px;line-height:1.5"></div>
+    </div>
+  </div>
+
   
   <div class="settings-dropdown hidden" id="settingsDropdown">
     <div class="settings-header">
@@ -2928,6 +2952,10 @@
       <button class="settings-item" id="discordWebhookBtn">
         <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-webhook"/></svg>
         <span class="label">Webhook URL</span>
+      </button>
+      <button class="settings-item admin-only" id="actionLogsBtn">
+        <svg class="settings-item-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h12M2 8h12M2 13h8"/></svg>
+        <span class="label">Action Logs</span>
       </button>
     </div>
   </div>
@@ -5013,6 +5041,53 @@
       if (!(await showConfirmModal("Clear webhook from Firestore?"))) return;
       await clearWebhookInFirestore();
     });
+
+    // ─── Action Logs ──────────────────────────────────
+    const actionLogsBtn = document.getElementById("actionLogsBtn");
+    const actionLogsBackdrop = document.getElementById("actionLogsBackdrop");
+    const actionLogsContainer = document.getElementById("actionLogsContainer");
+    const actionLogsRefresh = document.getElementById("actionLogsRefresh");
+
+    actionLogsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      settingsDropdown.classList.add("hidden");
+      actionLogsBackdrop.classList.add("active");
+      loadActionLogs();
+    });
+
+    actionLogsBackdrop.addEventListener("click", (ev) => {
+      if (ev.target === actionLogsBackdrop)
+        actionLogsBackdrop.classList.remove("active");
+    });
+
+    actionLogsRefresh.addEventListener("click", loadActionLogs);
+
+    async function loadActionLogs() {
+      actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">Loading...</div>`;
+      try {
+        const q = query(collection(db, "actionLogs"), orderBy("timestamp", "desc"), limit(200));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">No logs found.</div>`;
+          return;
+        }
+        let html = "";
+        snap.forEach((doc) => {
+          const d = doc.data();
+          const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
+          const time = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+          const detail = d.details ? JSON.stringify(d.details).slice(1, -1).replace(/"/g, "") : "";
+          html += `<div class="log-entry">
+            <span class="log-time">${time}</span>
+            <span class="log-user">${escapeHtml(d.username || "?")}</span>
+            <span class="log-action"><span class="act">${escapeHtml(d.action)}</span>${detail ? " " + escapeHtml(detail) : ""}</span>
+          </div>`;
+        });
+        actionLogsContainer.innerHTML = html;
+      } catch (e) {
+        actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--accent-red)">Failed to load logs: ${escapeHtml(e.message)}</div>`;
+      }
+    }
 
     // -------------------------
     // Discord Auth Gate
