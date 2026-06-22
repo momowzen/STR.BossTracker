@@ -1161,14 +1161,13 @@
     .logs-modal-header h3 { margin: 0; font-size: 13px; }
     .logs-refresh-btn {
       background: none; border: none; color: var(--text-muted);
-      cursor: pointer; padding: 0; display: flex;
-      align-items: center; justify-content: center;
+      cursor: pointer; padding: 0; font-size: 18px; line-height: 1;
       border-radius: var(--radius-sm); flex-shrink: 0;
-      transition: color var(--transition), background var(--transition);
+      transition: color var(--transition);
     }
-    .logs-refresh-btn:hover { color: var(--accent-gold); background: rgba(var(--accent-rgb),0.06); }
-    #actionLogsContainer .log-header .log-date, #actionLogsContainer .log-header .log-time, #actionLogsContainer .log-header .log-user, #actionLogsContainer .log-header .log-action { color: inherit; font-weight: inherit; }
-    #actionLogsContainer .log-header { display: flex; gap: 8px; padding: 6px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .logs-refresh-btn:hover { color: var(--accent-gold); }
+    #actionLogsColumnHeaders { display: flex; gap: 8px; padding: 6px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    #actionLogsColumnHeaders .log-date, #actionLogsColumnHeaders .log-time, #actionLogsColumnHeaders .log-user, #actionLogsColumnHeaders .log-action { color: inherit; font-weight: inherit; }
     #actionLogsContainer .log-entry {
       display: flex; gap: 8px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -2995,11 +2994,15 @@
     <div class="modal logs-modal">
       <div class="logs-modal-header">
         <h3 id="actionLogsTitle">ACTION LOGS</h3>
-        <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">
-          <svg aria-hidden="true" width="14" height="14"><use href="#icon-reset"/></svg>
-        </button>
+        <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">↻</button>
       </div>
-      <div id="actionLogsContainer" style="max-height:60vh;overflow-y:auto;font-size:11px;line-height:1.5"></div>
+      <div class="log-header" id="actionLogsColumnHeaders">
+        <span class="log-date">DATE</span>
+        <span class="log-time">TIME</span>
+        <span class="log-user">USER</span>
+        <span class="log-action">ACTION</span>
+      </div>
+      <div id="actionLogsContainer" style="max-height:50vh;overflow-y:auto;overflow-x:hidden;font-size:11px;line-height:1.5"></div>
     </div>
   </div>
 
@@ -5144,12 +5147,7 @@
           actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">No logs found.</div>`;
           return;
         }
-        let html = `<div class="log-header">
-          <span class="log-date">DATE</span>
-          <span class="log-time">TIME</span>
-          <span class="log-user">USER</span>
-          <span class="log-action">ACTION</span>
-        </div>`;
+        let html = "";
         snap.forEach((doc) => {
           const d = doc.data();
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
