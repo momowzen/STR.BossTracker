@@ -90,22 +90,14 @@
     header.app-header {
       flex: 0 0 auto;
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 12px;
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
       border: 1px solid var(--border);
       border-bottom: 2px solid rgba(var(--accent-rgb),0.15);
       padding: 6px 12px;
       border-radius: var(--radius-lg);
       position: relative;
-    }
-    .header-top { display: flex; justify-content: flex-end; width: 100%; min-height: 0; }
-    .header-main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
     }
 
     header.app-header::after {
@@ -213,29 +205,41 @@
       gap: 4px;
       flex-shrink: 0;
       margin-left: auto;
-      flex-wrap: wrap;
       justify-content: flex-end;
+      min-width: 0;
     }
 
-    .discord-badge {
+    .discord-badge-btn {
       display: none;
       align-items: center;
-      gap: 5px;
-      padding: 3px 10px 3px 6px;
-      border-radius: 20px;
-      background: rgba(88,101,242,0.12);
-      border: 1px solid rgba(88,101,242,0.25);
-      font-size: 11px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      line-height: 1;
+      gap: 6px;
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid rgba(88,101,242,0.35);
+      border-radius: var(--radius-md);
+      background: rgba(88,101,242,0.1);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: width 0.25s ease, border-color var(--transition), background var(--transition), color var(--transition);
+      overflow: hidden;
+      width: 36px;
+      flex-shrink: 0;
     }
-    .discord-badge-icon { width: 14px; height: 14px; flex-shrink: 0; color: #5865F2; }
-    .discord-badge-name { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
-    .discord-badge-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #3ba55d; flex-shrink: 0;
+    .discord-badge-btn:hover {
+      width: 140px;
+      border-color: rgba(88,101,242,0.6);
+      background: rgba(88,101,242,0.18);
+      color: var(--text-primary);
     }
+    .discord-badge-btn .discord-badge-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
+      color: #5865F2;
+    }
+    .discord-badge-btn .discord-badge-name {
+      font-size: 12px; white-space: nowrap;
+      opacity: 0; transition: opacity 0.15s ease 0.1s;
+    }
+    .discord-badge-btn:hover .discord-badge-name { opacity: 1; }
 
     .admin-auth-btn,
     .alarm-btn,
@@ -772,10 +776,10 @@
         min-width: 28px;
         min-height: 28px;
       }
-      .header-top { min-height: 0; }
-      .discord-badge { font-size: 10px; padding: 2px 8px 2px 4px; }
-      .discord-badge-icon { width: 12px; height: 12px; }
-      .discord-badge-name { max-width: 100px; }
+      .discord-badge-btn { height: 28px; width: 28px; padding: 0 5px; }
+      .discord-badge-btn:hover { width: 110px; }
+      .discord-badge-btn .discord-badge-icon { width: 14px; height: 14px; }
+      .discord-badge-btn .discord-badge-name { font-size: 10px; }
       .app-title { gap: 6px; }
       .logo-img { height: 26px; }
       .main-title { font-size: 12px; letter-spacing: 1px; }
@@ -1012,8 +1016,8 @@
       }
 
       header.app-header {
-        padding: 8px 16px;
-        gap: 6px;
+        padding: 10px 16px;
+        gap: 8px;
       }
 
       .search {
@@ -2670,53 +2674,48 @@
 
   <div class="container">
     <header class="app-header" role="banner">
-      <div class="header-top">
-        <span class="discord-badge" id="discordBadge">
-          <span class="discord-badge-dot"></span>
+      <div class="app-title">
+        <div class="logo">
+          <img alt="Str4ng3rz Guild Logo" class="logo-img"
+            src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png" />
+        </div>
+        <div>
+          <div class="main-title">COMMAND CENTER</div>
+          <div class="warning-text">BY STR4NG3RZ FOR STR4NG3RZ</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <nav class="admin-nav" id="adminNav">
+          <span class="nav-btn active" data-tab="bosslist">Tracker</span>
+          <span class="nav-sep"></span>
+          <span class="nav-btn admin-only" data-tab="members">Members</span>
+          <span class="nav-sep admin-only"></span>
+          <span class="nav-btn admin-only" data-tab="bossconfig">Boss Config</span>
+          <span class="nav-sep admin-only"></span>
+          <span class="nav-btn admin-only" data-tab="leaderboard">Leaderboard</span>
+          <span class="nav-sep"></span>
+          <span class="nav-btn" data-tab="activity">Activity</span>
+        </nav>
+        <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-label="Navigation menu"
+          title="Menu">
+          <svg class="btn-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
+          aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
+          <svg class="btn-icon" aria-hidden="true"><use href="#icon-alarm"/></svg>
+        </button>
+        <button type="button" class="settings-btn hidden" id="settingsBtn" aria-label="Settings"
+          title="Settings">
+          <svg class="btn-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
+        </button>
+        <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
+          title="Admin">
+          <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
+        </button>
+        <button type="button" class="discord-badge-btn" id="discordBadgeBtn" title="Discord" aria-label="Discord">
           <svg class="discord-badge-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
           <span class="discord-badge-name" id="discordBadgeName"></span>
-        </span>
-      </div>
-      <div class="header-main">
-        <div class="app-title">
-          <div class="logo">
-            <img alt="Str4ng3rz Guild Logo" class="logo-img"
-              src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png" />
-          </div>
-          <div>
-            <div class="main-title">COMMAND CENTER</div>
-            <div class="warning-text">BY STR4NG3RZ FOR STR4NG3RZ</div>
-          </div>
-        </div>
-        <div class="header-actions">
-          <nav class="admin-nav" id="adminNav">
-            <span class="nav-btn active" data-tab="bosslist">Tracker</span>
-            <span class="nav-sep"></span>
-            <span class="nav-btn admin-only" data-tab="members">Members</span>
-            <span class="nav-sep admin-only"></span>
-            <span class="nav-btn admin-only" data-tab="bossconfig">Boss Config</span>
-            <span class="nav-sep admin-only"></span>
-            <span class="nav-btn admin-only" data-tab="leaderboard">Leaderboard</span>
-            <span class="nav-sep"></span>
-            <span class="nav-btn" data-tab="activity">Activity</span>
-          </nav>
-          <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-label="Navigation menu"
-            title="Menu">
-            <svg class="btn-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-          <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
-            aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
-            <svg class="btn-icon" aria-hidden="true"><use href="#icon-alarm"/></svg>
-          </button>
-          <button type="button" class="settings-btn hidden" id="settingsBtn" aria-label="Settings"
-            title="Settings">
-            <svg class="btn-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
-          </button>
-          <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
-            title="Admin">
-            <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
-          </button>
-        </div>
+        </button>
       </div>
     </header>
     <main class="main" role="main">
@@ -5156,11 +5155,11 @@
 
     function updateDiscordBadge() {
       const auth = getDiscordAuth();
-      const badge = document.getElementById("discordBadge");
+      const badge = document.getElementById("discordBadgeBtn");
       const nameEl = document.getElementById("discordBadgeName");
       if (auth && auth.inGuild) {
         nameEl.textContent = auth.username;
-        badge.style.display = "inline-flex";
+        badge.style.display = "flex";
       } else {
         badge.style.display = "none";
       }
