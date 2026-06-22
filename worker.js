@@ -83,7 +83,10 @@ async function exchangeCode(code, env) {
 
   const res = await fetch("https://discord.com/api/oauth2/token", {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "STR.BossTracker/1.0",
+    },
     body,
   });
 
@@ -94,7 +97,10 @@ async function exchangeCode(code, env) {
 
 async function fetchDiscord(path, accessToken) {
   const res = await fetch(`https://discord.com${path}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "STR.BossTracker/1.0",
+    },
   });
   const data = await res.json();
   if (data.error || !res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
