@@ -1,17 +1,18 @@
 // Cloudflare Worker — Discord OAuth callback
 // Deploy via Cloudflare Dashboard (NOT connected to GitHub Pages)
 //
-// Required environment variables (set in dashboard):
-//   DISCORD_CLIENT_ID      = 1518260560766963912
-//   DISCORD_CLIENT_SECRET  = yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH
-//   DISCORD_REDIRECT_URI   = https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback
+// ── Discord App Credentials ──────────────────────────────
+// For production, move these to env vars.
+const DISCORD_CLIENT_ID = "1518260560766963912";
+const DISCORD_CLIENT_SECRET = "yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH";
+const DISCORD_REDIRECT_URI = "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback";
 
 export default {
-  async fetch(request, env) {
+  async fetch(request) {
     const url = new URL(request.url);
 
     if (url.pathname === "/discord-callback") {
-      return handleCallback(url, env);
+      return handleCallback(url);
     }
 
     // Health check
@@ -23,7 +24,7 @@ export default {
   },
 };
 
-async function handleCallback(url, env) {
+async function handleCallback(url) {
   const code = url.searchParams.get("code");
   if (!code) {
     return new Response('<script>alert("No auth code.");window.close()</script>', {
@@ -33,7 +34,7 @@ async function handleCallback(url, env) {
 
   try {
     // 1. Exchange code for token
-    const token = await exchangeCode(code, env);
+    const token = await exchangeCode(code);
 
     // 2. Fetch user info
     const user = await fetchDiscord("/api/users/@me", token.access_token);
@@ -65,14 +66,13 @@ async function handleCallback(url, env) {
   }
 }
 
-async function exchangeCode(code, env) {
-  const redirectUri = env.DISCORD_REDIRECT_URI || "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback";
+async function exchangeCode(code) {
   const body = new URLSearchParams({
-    client_id: env.DISCORD_CLIENT_ID,
-    client_secret: env.DISCORD_CLIENT_SECRET,
+    client_id: DISCORD_CLIENT_ID,
+    client_secret: DISCORD_CLIENT_SECRET,
     grant_type: "authorization_code",
     code,
-    redirect_uri: redirectUri,
+    redirect_uri: DISCORD_REDIRECT_URI,
   });
 
   const res = await fetch("https://discord.com/api/oauth2/token", {
