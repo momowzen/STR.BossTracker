@@ -1151,27 +1151,37 @@
     }
     .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; }
     .logs-modal-header {
-      display: flex; align-items: center; justify-content: center;
-      position: relative; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 12px;
+      background: rgba(var(--accent-rgb),0.06);
+      border-bottom: 1px solid rgba(var(--accent-rgb),0.12);
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      margin: -24px -20px 8px -20px;
     }
-    .logs-modal-header h3 { margin: 0; }
+    .logs-modal-header h3 { margin: 0 0 0 auto; font-size: 13px; }
     .logs-refresh-btn {
-      position: absolute; right: 0;
       background: none; border: none; color: var(--text-muted);
-      cursor: pointer; padding: 4px; display: flex;
+      cursor: pointer; padding: 2px; display: flex;
       align-items: center; justify-content: center;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-sm); line-height: 1;
       transition: color var(--transition), background var(--transition);
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); background: rgba(var(--accent-rgb),0.06); }
+    .log-header {
+      display: flex; gap: 8px; padding: 5px 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-muted);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .log-header .log-time, .log-header .log-user, .log-header .log-action { color: inherit; font-weight: inherit; }
     .log-entry {
       display: flex; gap: 8px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       align-items: flex-start;
     }
     .log-entry:last-child { border-bottom: none; }
-    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 10px; min-width: 58px; padding-top: 1px; }
-    .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 90px; }
+    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 10px; min-width: 130px; padding-top: 1px; flex-shrink: 0; }
+    .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
     .log-action { color: var(--text-primary); }
     .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
     .log-detail { color: var(--text-muted); font-size: 10px; }
@@ -2988,10 +2998,10 @@
   <div class="modal-backdrop" id="actionLogsBackdrop" role="dialog" aria-modal="true" aria-labelledby="actionLogsTitle">
     <div class="modal logs-modal">
       <div class="logs-modal-header">
-        <h3 id="actionLogsTitle">Action Logs</h3>
         <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">
           <svg aria-hidden="true" width="14" height="14"><use href="#icon-reset"/></svg>
         </button>
+        <h3 id="actionLogsTitle">Action Logs</h3>
       </div>
       <div id="actionLogsContainer" style="max-height:60vh;overflow-y:auto;font-size:11px;line-height:1.5"></div>
     </div>
@@ -5138,7 +5148,11 @@
           actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">No logs found.</div>`;
           return;
         }
-        let html = "";
+        let html = `<div class="log-header">
+          <span class="log-time">Date Time</span>
+          <span class="log-user">User</span>
+          <span class="log-action">Action</span>
+        </div>`;
         snap.forEach((doc) => {
           const d = doc.data();
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
