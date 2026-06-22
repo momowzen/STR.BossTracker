@@ -2590,6 +2590,9 @@
       <symbol id="icon-x" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 4l8 8M12 4l-8 8"/>
       </symbol>
+      <symbol id="icon-discord" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025 13.22 13.22 0 0 0-3.257 1.011.05.05 0 0 0-.021.021c-2.074 3.059-2.641 6.039-2.358 8.985a.048.048 0 0 0 .019.032 13.214 13.214 0 0 0 3.976 2.007c.025.007.051-.002.062-.025.308-.42.582-.866.818-1.337a.05.05 0 0 0-.027-.069 8.7 8.7 0 0 1-1.247-.594.05.05 0 0 1-.012-.083c.084-.063.168-.128.248-.194a.05.05 0 0 1 .05-.008c2.575 1.175 5.366 1.175 7.902 0a.05.05 0 0 1 .051.008c.08.066.164.131.248.194a.05.05 0 0 1-.012.084 8.15 8.15 0 0 1-1.247.594.05.05 0 0 0-.027.07c.237.47.511.916.818 1.336a.05.05 0 0 0 .062.025 13.19 13.19 0 0 0 3.984-2.007.05.05 0 0 0 .019-.032c.334-3.385-.556-6.33-2.365-8.985a.047.047 0 0 0-.02-.021zM5.547 9.488c-.78 0-1.418-.706-1.418-1.573s.628-1.573 1.418-1.573c.799 0 1.428.715 1.418 1.573-.001.867-.62 1.573-1.418 1.573zm4.897 0c-.78 0-1.418-.706-1.418-1.573s.628-1.573 1.418-1.573c.799 0 1.428.715 1.418 1.573 0 .867-.62 1.573-1.418 1.573z"/>
+      </symbol>
     </defs>
   </svg>
   <!-- Admin password modal -->
@@ -2838,6 +2841,18 @@
     </div>
   </div>
 
+  <!-- Discord login modal -->
+  <div class="modal-backdrop" id="discordLoginBackdrop" role="dialog" aria-modal="true" aria-labelledby="discordLoginTitle">
+    <div class="modal">
+      <h3 id="discordLoginTitle">Discord Login</h3>
+      <div id="discordLoginStatus" class="small" style="margin-bottom:2px">Not connected.</div>
+      <div id="discordLoginInfo" class="small" style="min-height:18px;white-space:pre-wrap;margin-bottom:10px"></div>
+      <div class="modal-actions" id="discordLoginActions">
+        <button class="kbtn" id="discordLoginStartBtn">Login with Discord</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Confirm modal -->
   <div class="modal-backdrop" id="confirmModalBackdrop" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle">
     <div class="modal">
@@ -2872,6 +2887,10 @@
       <button class="settings-item" id="discordWebhookBtn">
         <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-webhook"/></svg>
         <span class="label">Webhook URL</span>
+      </button>
+      <button class="settings-item admin-only" id="settingsDiscordLoginBtn">
+        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
+        <span class="label">Discord Login</span>
       </button>
     </div>
   </div>
@@ -3051,9 +3070,12 @@
     // Timezone configuration
     const TIME_ZONE = "Asia/Tokyo";
     const TIME_ZONE_LABEL = "UTC+9";
-    const TIME_ZONE_ISO_SUFFIX = "+09:00";
     const TIME_ZONE_OFFSET_MS = 9 * 60 * 60 * 1000;
     const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    // Discord OAuth config (update these for your Discord application)
+    const DISCORD_CLIENT_ID = "1518260560766963912";
+    const DISCORD_REDIRECT_URI = "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback";
     const shortDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
       timeZone: TIME_ZONE,
       month: "short",
@@ -4937,6 +4959,80 @@
     webhookClear.addEventListener("click", async () => {
       if (!(await showConfirmModal("Clear webhook from Firestore?"))) return;
       await clearWebhookInFirestore();
+    });
+
+    // -------------------------
+    // Discord Login modal
+    // -------------------------
+    const settingsDiscordLoginBtn = document.getElementById("settingsDiscordLoginBtn");
+    const discordLoginBackdrop = document.getElementById("discordLoginBackdrop");
+    const discordLoginStatus = document.getElementById("discordLoginStatus");
+    const discordLoginInfo = document.getElementById("discordLoginInfo");
+    const discordLoginActions = document.getElementById("discordLoginActions");
+    const discordLoginStartBtn = document.getElementById("discordLoginStartBtn");
+
+    function updateDiscordLoginUI() {
+      const stored = sessionStorage.getItem("discordAuthData");
+      if (stored) {
+        try {
+          const d = JSON.parse(stored);
+          discordLoginStatus.textContent = `Connected as: ${d.username}`;
+          discordLoginInfo.textContent = d.inGuild
+            ? "In server: ✅ Member"
+            : "In server: ❌ Not a member";
+          discordLoginActions.innerHTML =
+            `<button class="kbtn" id="discordLoginClearBtn">CLEAR</button>` +
+            `<button class="kbtn" id="discordLoginStartBtn2">Login with Discord</button>`;
+          document.getElementById("discordLoginClearBtn").addEventListener("click", () => {
+            sessionStorage.removeItem("discordAuthData");
+            sessionStorage.removeItem("discordAuthExpiry");
+            discordLoginBackdrop.classList.remove("active");
+            showToast("Discord login cleared.", "info");
+          });
+          document.getElementById("discordLoginStartBtn2").addEventListener("click", startDiscordLogin);
+        } catch (e) {
+          sessionStorage.removeItem("discordAuthData");
+        }
+      } else {
+        discordLoginStatus.textContent = "Not connected.";
+        discordLoginInfo.textContent = "";
+        discordLoginActions.innerHTML =
+          `<button class="kbtn" id="discordLoginStartBtn">Login with Discord</button>`;
+        document.getElementById("discordLoginStartBtn").addEventListener("click", startDiscordLogin);
+      }
+    }
+
+    settingsDiscordLoginBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      settingsDropdown.classList.add("hidden");
+      updateDiscordLoginUI();
+      discordLoginBackdrop.classList.add("active");
+    });
+
+    discordLoginBackdrop.addEventListener("click", (ev) => {
+      if (ev.target === discordLoginBackdrop)
+        discordLoginBackdrop.classList.remove("active");
+    });
+
+    function startDiscordLogin() {
+      const state = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      sessionStorage.setItem("discordOAuthState", state);
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20guilds&state=${state}`;
+      window.open(url, "discord-auth", "width=600,height=700");
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data?.type === "discordAuth") {
+        const d = event.data.data;
+        d.timestamp = Date.now();
+        sessionStorage.setItem("discordAuthData", JSON.stringify(d));
+        if (discordLoginBackdrop.classList.contains("active")) {
+          updateDiscordLoginUI();
+        } else {
+          discordLoginBackdrop.classList.add("active");
+        }
+        showToast(`Discord: ${d.username}${d.inGuild ? " ✅" : " ❌ not in server"}`, d.inGuild ? "success" : "error");
+      }
     });
 
     // -------------------------
