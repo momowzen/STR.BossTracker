@@ -5165,6 +5165,18 @@
       }
     }
 
+    document.getElementById("discordBadgeBtn").addEventListener("click", () => {
+      if (!getDiscordAuth()) return;
+      sessionStorage.removeItem("discordAuthData");
+      sessionStorage.removeItem("discordOAuthState");
+      sessionStorage.setItem("userMode", "member");
+      document.documentElement.classList.remove("auth-granted");
+      document.getElementById("discordLoginOverlay").classList.remove("hidden");
+      document.getElementById("loginStatus").textContent = "Login with Discord to access the Command Center.";
+      document.getElementById("loginStartBtn").style.display = "inline-flex";
+      updateDiscordBadge();
+    });
+
     async function logAction(action, details = {}) {
       const auth = getDiscordAuth();
       if (!auth) return;
