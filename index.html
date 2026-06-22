@@ -1150,7 +1150,20 @@
       opacity: 0;
     }
     .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; }
-    .logs-modal h3 { text-align: center; }
+    .logs-modal-header {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: 8px;
+    }
+    .logs-modal-header h3 { margin: 0; }
+    .logs-refresh-btn {
+      position: absolute; right: 0;
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; padding: 4px; display: flex;
+      align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition), background var(--transition);
+    }
+    .logs-refresh-btn:hover { color: var(--accent-gold); background: rgba(var(--accent-rgb),0.06); }
     .log-entry {
       display: flex; gap: 8px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -2974,9 +2987,11 @@
   <!-- Action Logs modal -->
   <div class="modal-backdrop" id="actionLogsBackdrop" role="dialog" aria-modal="true" aria-labelledby="actionLogsTitle">
     <div class="modal logs-modal">
-      <h3 id="actionLogsTitle">Action Logs</h3>
-      <div style="text-align:right;margin-bottom:6px">
-        <button class="kbtn" id="actionLogsRefresh" style="font-size:11px;padding:3px 10px">REFRESH</button>
+      <div class="logs-modal-header">
+        <h3 id="actionLogsTitle">Action Logs</h3>
+        <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">
+          <svg aria-hidden="true" width="14" height="14"><use href="#icon-reset"/></svg>
+        </button>
       </div>
       <div id="actionLogsContainer" style="max-height:60vh;overflow-y:auto;font-size:11px;line-height:1.5"></div>
     </div>
