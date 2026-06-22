@@ -2,9 +2,9 @@
 // Deploy via Cloudflare Dashboard (NOT connected to GitHub Pages)
 //
 // Required environment variables (set in dashboard):
-//   CLIENT_ID      = 1518260560766963912
-//   CLIENT_SECRET  = yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH
-//   REDIRECT_URI   = https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback
+//   DISCORD_CLIENT_ID      = 1518260560766963912
+//   DISCORD_CLIENT_SECRET  = yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH
+//   DISCORD_REDIRECT_URI   = https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback
 
 export default {
   async fetch(request, env) {
@@ -66,12 +66,13 @@ async function handleCallback(url, env) {
 }
 
 async function exchangeCode(code, env) {
+  const redirectUri = env.DISCORD_REDIRECT_URI || "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback";
   const body = new URLSearchParams({
-    client_id: env.CLIENT_ID,
-    client_secret: env.CLIENT_SECRET,
+    client_id: env.DISCORD_CLIENT_ID,
+    client_secret: env.DISCORD_CLIENT_SECRET,
     grant_type: "authorization_code",
     code,
-    redirect_uri: env.REDIRECT_URI,
+    redirect_uri: redirectUri,
   });
 
   const res = await fetch("https://discord.com/api/oauth2/token", {
