@@ -210,6 +210,26 @@
       justify-content: flex-end;
     }
 
+    .discord-badge {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px 3px 6px;
+      border-radius: 20px;
+      background: rgba(88,101,242,0.12);
+      border: 1px solid rgba(88,101,242,0.25);
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .discord-badge-icon { width: 14px; height: 14px; flex-shrink: 0; color: #5865F2; }
+    .discord-badge-name { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+    .discord-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #3ba55d; flex-shrink: 0;
+    }
+
     .admin-auth-btn,
     .alarm-btn,
     .settings-btn,
@@ -2660,6 +2680,11 @@
           title="Settings">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
         </button>
+        <span class="discord-badge" id="discordBadge">
+          <span class="discord-badge-dot"></span>
+          <svg class="discord-badge-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
+          <span class="discord-badge-name" id="discordBadgeName"></span>
+        </span>
         <button type="button" class="admin-auth-btn" id="adminAuthBtn" aria-label="Log in as admin"
           title="Admin">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
@@ -3919,6 +3944,7 @@
       delete localNotifCache[`${boss.id}_spawn`];
 
       try {
+        logAction("manual_time", { bossId: boss.id, bossName: boss.name, killedAt });
         if (!cachedWebhookUrl) await autoLoadWebhook();
         await saveTimerToFirestoreOnce(boss.id);
         closeTimeModal();
@@ -5003,6 +5029,7 @@
     function onAuthResult(d) {
       if (d.inGuild) {
         loginOverlay.classList.add("hidden");
+        updateDiscordBadge();
         init();
       } else {
         loginStatus.textContent = `Access Denied — ${d.username} is not a member of the STR4NG3RZ server.`;
@@ -5017,6 +5044,7 @@
           const d = JSON.parse(stored);
           if (d.inGuild) {
             loginOverlay.classList.add("hidden");
+            updateDiscordBadge();
             init();
             return;
           } else {
@@ -5027,6 +5055,39 @@
       }
       loginStatus.textContent = "Login with Discord to access the Command Center.";
       loginStartBtn.style.display = "inline-flex";
+    }
+
+    // ── Discord helpers ──────────────────────────────
+    function getDiscordAuth() {
+      try { return JSON.parse(sessionStorage.getItem("discordAuthData")); } catch { return null; }
+    }
+
+    function updateDiscordBadge() {
+      const auth = getDiscordAuth();
+      const badge = document.getElementById("discordBadge");
+      const nameEl = document.getElementById("discordBadgeName");
+      if (auth && auth.inGuild) {
+        nameEl.textContent = auth.username;
+        badge.style.display = "inline-flex";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    async function logAction(action, details = {}) {
+      const auth = getDiscordAuth();
+      if (!auth) return;
+      try {
+        await addDoc(collection(db, "actionLogs"), {
+          username: auth.username,
+          userId: auth.id,
+          action,
+          details,
+          timestamp: serverTimestamp(),
+        });
+      } catch (e) {
+        console.warn("Failed to log action:", e);
+      }
     }
 
     // -------------------------
@@ -5511,6 +5572,7 @@
           delete ghMemberPoints[name];
           delete ghWeaponMastery[name];
           saveAdminData();
+          logAction("remove_member", { name });
           ghRenderMemberList(ghMemberSearch.value);
           ghRenderLeaderboard();
           ghAddActivity('Removed member: ' + name);
@@ -5550,6 +5612,7 @@
               if (ghMemberPoints[oldName] !== undefined) { ghMemberPoints[newName] = ghMemberPoints[oldName]; delete ghMemberPoints[oldName]; }
               if (ghWeaponMastery[oldName] !== undefined) { ghWeaponMastery[newName] = ghWeaponMastery[oldName]; delete ghWeaponMastery[oldName]; }
               ghAddActivity('Renamed "' + oldName + '" to "' + newName + '"');
+              logAction("rename_member", { oldName, newName });
             }
             if (newWm !== oldWm) { ghWeaponMastery[newName] = newWm || ''; }
             saveAdminData();
@@ -5578,6 +5641,7 @@
       ghMembers.push(name);
       if (wm) ghWeaponMastery[name] = wm;
       saveAdminData();
+      logAction("add_member", { name, weaponMastery: wm || null });
       ghRenderMemberList(ghMemberSearch.value);
       ghRenderAllMembers();
       ghRenderLeaderboard();
@@ -5793,6 +5857,7 @@
               ghRenderPointsMembers();
               ghRenderLeaderboard();
               ghAddActivity('Added member from scan: ' + name);
+              logAction("add_member_scan", { name });
               showToast('Added "' + name + '" to guild.', 'success');
               btn.closest('.pill').remove();
             }
@@ -5875,6 +5940,7 @@
       }
       saveAdminData();
       ghRenderLeaderboard();
+      logAction("give_points", { members: selected, points: pts });
       const verb = pts > 0 ? 'awarded' : 'deducted';
       ghAddActivity('Manually ' + verb + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.join(', '));
       ghPointsPopup.style.display = 'none';
@@ -5910,6 +5976,7 @@
           inp.value = v;
           ghBossPoints[inp.dataset.id] = v;
           saveAdminData();
+          logAction("boss_config", { bossId: inp.dataset.id, points: v });
         });
       });
       ghBossConfigList.querySelectorAll('[data-dir]').forEach(btn => {
@@ -5922,6 +5989,7 @@
           inp.value = v;
           ghBossPoints[id] = v;
           saveAdminData();
+          logAction("boss_config", { bossId: id, points: v });
         });
       });
     }
@@ -5932,7 +6000,7 @@
     ghBossConfigSearch.addEventListener("blur", updateBossConfigClear);
     clearBossConfigSearch.addEventListener("click", () => { ghBossConfigSearch.value = ""; updateBossConfigClear(); ghRenderBossConfig(""); });
     updateBossConfigClear();
-    ghResetBossConfig.addEventListener('click', () => { ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success'); });
+    ghResetBossConfig.addEventListener('click', () => { ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); logAction("boss_config_reset"); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success'); });
 
     // ─── Leaderboard ───
     function ghRenderLeaderboard() {
@@ -6239,6 +6307,7 @@
               ghRenderAllMembers();
               ghRenderLeaderboard();
               ghAddActivity('Added member from scan: ' + name);
+              logAction("add_member_scan", { name });
               showToast('Added "' + name + '" to guild.', 'success');
               btn.closest('.pill').remove();
             }
@@ -6265,6 +6334,7 @@
       }
       const names = [...ghSelectedMembers];
       saveAdminData();
+      logAction("kill", { bossName, bossId: ghCurrentBossId, points: ptsPer, members: names });
       ghAddActivity('Killed ' + bossName + '. Awarded ' + ptsPer + ' pts to ' + names.join(', '));
       showToast('Awarded ' + ptsPer + ' pts to ' + names.length + ' member(s)', 'success');
       ghSelectedMembers.clear();
