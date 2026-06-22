@@ -212,24 +212,27 @@
     .discord-badge-btn {
       display: none;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       height: 36px;
+      width: 36px;
       min-width: 36px;
       min-height: 36px;
-      padding: 0 8px;
-      border: 1px solid rgba(88,101,242,0.35);
+      padding: 0;
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      background: rgba(88,101,242,0.1);
+      background: var(--bg-primary);
       color: var(--text-muted);
       cursor: pointer;
-      transition: max-width 0.25s ease, border-color var(--transition), background var(--transition), color var(--transition);
-      overflow: hidden;
-      max-width: 36px;
-      width: fit-content;
+      transition: border-color var(--transition), background var(--transition), color var(--transition);
       flex-shrink: 0;
     }
     .discord-badge-btn:hover {
+      width: auto;
+      min-width: 36px;
       max-width: 220px;
+      padding: 0 10px;
+      gap: 6px;
+      justify-content: flex-start;
       border-color: rgba(88,101,242,0.6);
       background: rgba(88,101,242,0.18);
       color: var(--text-primary);
@@ -239,11 +242,11 @@
       color: #5865F2; display: block; pointer-events: none;
     }
     .discord-badge-btn .discord-badge-name {
+      display: none;
       font-size: 12px; white-space: nowrap;
-      opacity: 0; transition: opacity 0.15s ease 0.1s;
       overflow: hidden; text-overflow: ellipsis;
     }
-    .discord-badge-btn:hover .discord-badge-name { opacity: 1; }
+    .discord-badge-btn:hover .discord-badge-name { display: inline; }
 
     .discord-dropdown {
       position: absolute; top: 100%; right: 0; z-index: 9999;
@@ -302,7 +305,8 @@
 
     .admin-auth-btn .btn-icon,
     .alarm-btn .btn-icon,
-    .settings-btn .btn-icon {
+    .settings-btn .btn-icon,
+    .nav-menu-btn .btn-icon {
       width: 16px;
       height: 16px;
       display: block;
@@ -805,8 +809,8 @@
         min-width: 28px;
         min-height: 28px;
       }
-      .discord-badge-btn { height: 28px; min-width: 28px; min-height: 28px; padding: 0 5px; max-width: 28px; }
-      .discord-badge-btn:hover { max-width: 150px; }
+      .discord-badge-btn { height: 28px; width: 28px; min-width: 28px; min-height: 28px; }
+      .discord-badge-btn:hover { width: auto; max-width: 150px; padding: 0 7px; }
       .discord-badge-btn .discord-badge-icon { width: 14px; height: 14px; }
       .discord-badge-btn .discord-badge-name { font-size: 10px; }
       .app-title { gap: 6px; }
@@ -5197,14 +5201,8 @@
       if (auth && auth.inGuild) {
         nameEl.textContent = auth.username;
         badge.style.display = "flex";
-        // auto-shrink font if name overflows hover max-width (~170px avail after icon/gap/padding)
-        nameEl.style.fontSize = "12px";
-        const availW = 170;
-        let fs = 12;
-        while (fs > 7 && nameEl.scrollWidth > availW) {
-          fs -= 0.5;
-          nameEl.style.fontSize = fs + "px";
-        }
+        const len = auth.username.length;
+        nameEl.style.fontSize = (len >= 18 ? "10px" : len >= 14 ? "11px" : "12px");
       } else {
         badge.style.display = "none";
       }
