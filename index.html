@@ -1149,7 +1149,7 @@
       transition: transform 0.25s ease, opacity 0.25s ease;
       opacity: 0;
     }
-    .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; }
+    .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; max-height: 70vh; display: flex; flex-direction: column; }
     .logs-modal-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 12px;
@@ -1165,13 +1165,13 @@
       transition: color var(--transition);
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); }
-    #actionLogsColumnHeaders { display: flex; gap: 8px; padding: 6px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
-    #actionLogsColumnHeaders .log-date, #actionLogsColumnHeaders .log-time, #actionLogsColumnHeaders .log-user, #actionLogsColumnHeaders .log-action { color: inherit; font-weight: inherit; flex-shrink: 0; }
+    #actionLogsColumnHeaders { display: flex; gap: 4px; padding: 6px 8px; font-size: 11px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    #actionLogsColumnHeaders .log-date, #actionLogsColumnHeaders .log-time, #actionLogsColumnHeaders .log-user, #actionLogsColumnHeaders .log-action { color: inherit; font-weight: inherit; flex-shrink: 0; font-family: inherit; }
     #actionLogsColumnHeaders .log-date { min-width: 72px; }
     #actionLogsColumnHeaders .log-time { min-width: 65px; }
     #actionLogsColumnHeaders .log-user { min-width: 100px; }
     #actionLogsContainer .log-entry {
-      display: flex; gap: 8px; padding: 6px 8px;
+      display: flex; gap: 4px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       align-items: flex-start;
     }
@@ -1179,7 +1179,7 @@
     #actionLogsContainer .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 72px; flex-shrink: 0; }
     #actionLogsContainer .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 11px; min-width: 65px; flex-shrink: 0; }
     #actionLogsContainer .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
-    #actionLogsContainer .log-action { color: var(--text-primary); }
+    #actionLogsContainer .log-action { color: var(--text-primary); overflow-wrap: break-word; word-break: break-word; white-space: normal; min-width: 0; }
     #actionLogsContainer .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
     #actionLogsContainer .log-detail { color: var(--text-muted); font-size: 10px; }
 
@@ -3004,7 +3004,7 @@
         <span class="log-user">USER</span>
         <span class="log-action">ACTION</span>
       </div>
-      <div id="actionLogsContainer" style="max-height:50vh;overflow-y:auto;overflow-x:hidden;font-size:11px;line-height:1.5"></div>
+      <div id="actionLogsContainer" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;font-size:11px;line-height:1.5"></div>
     </div>
   </div>
 
