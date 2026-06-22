@@ -1174,14 +1174,15 @@
       letter-spacing: 0.5px; color: var(--text-muted);
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .log-header .log-time, .log-header .log-user, .log-header .log-action { color: inherit; font-weight: inherit; }
+    .log-header .log-date, .log-header .log-time, .log-header .log-user, .log-header .log-action { color: inherit; font-weight: inherit; }
     .log-entry {
       display: flex; gap: 8px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       align-items: flex-start;
     }
     .log-entry:last-child { border-bottom: none; }
-    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 10px; min-width: 130px; padding-top: 1px; flex-shrink: 0; }
+    .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 72px; flex-shrink: 0; }
+    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 11px; min-width: 65px; flex-shrink: 0; }
     .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
     .log-action { color: var(--text-primary); }
     .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
@@ -2999,7 +3000,7 @@
   <div class="modal-backdrop" id="actionLogsBackdrop" role="dialog" aria-modal="true" aria-labelledby="actionLogsTitle">
     <div class="modal logs-modal">
       <div class="logs-modal-header">
-        <h3 id="actionLogsTitle">Action Logs</h3>
+        <h3 id="actionLogsTitle">ACTION LOGS</h3>
         <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">
           <svg aria-hidden="true" width="14" height="14"><use href="#icon-reset"/></svg>
         </button>
@@ -5150,16 +5151,19 @@
           return;
         }
         let html = `<div class="log-header">
-          <span class="log-time">Date Time</span>
-          <span class="log-user">User</span>
-          <span class="log-action">Action</span>
+          <span class="log-date">DATE</span>
+          <span class="log-time">TIME</span>
+          <span class="log-user">USER</span>
+          <span class="log-action">ACTION</span>
         </div>`;
         snap.forEach((doc) => {
           const d = doc.data();
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
-          const time = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+          const date = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "short", day: "numeric" });
+          const time = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit" });
           const detail = d.details ? JSON.stringify(d.details).slice(1, -1).replace(/"/g, "") : "";
           html += `<div class="log-entry">
+            <span class="log-date">${date}</span>
             <span class="log-time">${time}</span>
             <span class="log-user">${escapeHtml(d.username || "?")}</span>
             <span class="log-action"><span class="act">${escapeHtml(d.action)}</span>${detail ? " " + escapeHtml(detail) : ""}</span>
