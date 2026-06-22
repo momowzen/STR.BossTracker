@@ -1151,20 +1151,19 @@
     }
     .logs-modal { width: min(600px, calc(100vw - 32px)); text-align: left; }
     .logs-modal-header {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 6px 12px;
       background: rgba(var(--accent-rgb),0.06);
       border-bottom: 1px solid rgba(var(--accent-rgb),0.12);
       border-radius: var(--radius-md) var(--radius-md) 0 0;
       margin: -24px -20px 8px -20px;
     }
-    .logs-modal-header h3 { margin: 0; font-size: 13px; line-height: 14px; }
+    .logs-modal-header h3 { margin: 0; font-size: 13px; }
     .logs-refresh-btn {
-      margin-left: auto;
       background: none; border: none; color: var(--text-muted);
       cursor: pointer; padding: 0; display: flex;
       align-items: center; justify-content: center;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-sm); flex-shrink: 0;
       transition: color var(--transition), background var(--transition);
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); background: rgba(var(--accent-rgb),0.06); }
