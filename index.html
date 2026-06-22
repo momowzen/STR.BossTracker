@@ -1641,6 +1641,21 @@
       background-image: radial-gradient(ellipse at center, rgba(var(--accent-rgb),0.03) 0%, transparent 70%);
     }
 
+    #discordLoginOverlay {
+      position: fixed; inset: 0; z-index: 100000;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-primary);
+      background-image: radial-gradient(ellipse at center, rgba(var(--accent-rgb),0.04) 0%, transparent 70%);
+    }
+    #discordLoginOverlay.hidden { display: none; }
+    .login-box { text-align: center; max-width: 400px; padding: 40px; }
+    .login-box h2 { font-size: 1.5rem; margin: 16px 0 4px; letter-spacing: 2px; }
+    .login-box .login-subtitle { font-size: .85rem; color: var(--text-secondary); margin-bottom: 28px; }
+    .login-box .login-logo { width: 80px; height: 80px; border-radius: 50%; }
+    .login-btn { display: inline-flex; align-items: center; gap: 8px; font-size: 1rem; padding: 10px 24px; }
+    .login-btn svg { width: 20px; height: 20px; }
+    .login-status { min-height: 24px; margin-bottom: 16px; font-size: .9rem; color: var(--text-secondary); }
+
     .loading-container {
       display: flex;
       flex-direction: column;
@@ -2841,18 +2856,6 @@
     </div>
   </div>
 
-  <!-- Discord login modal -->
-  <div class="modal-backdrop" id="discordLoginBackdrop" role="dialog" aria-modal="true" aria-labelledby="discordLoginTitle">
-    <div class="modal">
-      <h3 id="discordLoginTitle">Discord Login</h3>
-      <div id="discordLoginStatus" class="small" style="margin-bottom:2px">Not connected.</div>
-      <div id="discordLoginInfo" class="small" style="min-height:18px;white-space:pre-wrap;margin-bottom:10px"></div>
-      <div class="modal-actions" id="discordLoginActions">
-        <button class="kbtn" id="discordLoginStartBtn">Login with Discord</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Confirm modal -->
   <div class="modal-backdrop" id="confirmModalBackdrop" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle">
     <div class="modal">
@@ -2888,10 +2891,6 @@
         <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-webhook"/></svg>
         <span class="label">Webhook URL</span>
       </button>
-      <button class="settings-item admin-only" id="settingsDiscordLoginBtn">
-        <svg class="settings-item-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
-        <span class="label">Discord Login</span>
-      </button>
     </div>
   </div>
   <div class="nav-dropdown hidden" id="navDropdown">
@@ -2921,6 +2920,21 @@
       <div class="loading-spinner"></div>
       <div class="loading-word">COMMAND CENTER</div>
       <div class="loading-subtitle">Initializing Tracker</div>
+    </div>
+  </div>
+
+  <!-- ─── DISCORD LOGIN OVERLAY ─── -->
+  <div id="discordLoginOverlay">
+    <div class="login-box">
+      <img class="login-logo" alt="Guild Logo"
+        src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/logo5.png" />
+      <h2>COMMAND CENTER</h2>
+      <div class="login-subtitle">BY STR4NG3RZ FOR STR4NG3RZ</div>
+      <div class="login-status" id="loginStatus">Connecting to Discord...</div>
+      <button class="kbtn login-btn" id="loginStartBtn" style="display:none">
+        <svg aria-hidden="true"><use href="#icon-discord"/></svg>
+        Login with Discord
+      </button>
     </div>
   </div>
 
@@ -4962,57 +4976,13 @@
     });
 
     // -------------------------
-    // Discord Login modal
+    // Discord Auth Gate
     // -------------------------
-    const settingsDiscordLoginBtn = document.getElementById("settingsDiscordLoginBtn");
-    const discordLoginBackdrop = document.getElementById("discordLoginBackdrop");
-    const discordLoginStatus = document.getElementById("discordLoginStatus");
-    const discordLoginInfo = document.getElementById("discordLoginInfo");
-    const discordLoginActions = document.getElementById("discordLoginActions");
-    const discordLoginStartBtn = document.getElementById("discordLoginStartBtn");
+    const loginOverlay = document.getElementById("discordLoginOverlay");
+    const loginStatus = document.getElementById("loginStatus");
+    const loginStartBtn = document.getElementById("loginStartBtn");
 
-    function updateDiscordLoginUI() {
-      const stored = sessionStorage.getItem("discordAuthData");
-      if (stored) {
-        try {
-          const d = JSON.parse(stored);
-          discordLoginStatus.textContent = `Connected as: ${d.username}`;
-          discordLoginInfo.textContent = d.inGuild
-            ? "In server: ✅ Member"
-            : "In server: ❌ Not a member";
-          discordLoginActions.innerHTML =
-            `<button class="kbtn" id="discordLoginClearBtn">CLEAR</button>` +
-            `<button class="kbtn" id="discordLoginStartBtn2">Login with Discord</button>`;
-          document.getElementById("discordLoginClearBtn").addEventListener("click", () => {
-            sessionStorage.removeItem("discordAuthData");
-            sessionStorage.removeItem("discordAuthExpiry");
-            discordLoginBackdrop.classList.remove("active");
-            showToast("Discord login cleared.", "info");
-          });
-          document.getElementById("discordLoginStartBtn2").addEventListener("click", startDiscordLogin);
-        } catch (e) {
-          sessionStorage.removeItem("discordAuthData");
-        }
-      } else {
-        discordLoginStatus.textContent = "Not connected.";
-        discordLoginInfo.textContent = "";
-        discordLoginActions.innerHTML =
-          `<button class="kbtn" id="discordLoginStartBtn">Login with Discord</button>`;
-        document.getElementById("discordLoginStartBtn").addEventListener("click", startDiscordLogin);
-      }
-    }
-
-    settingsDiscordLoginBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      settingsDropdown.classList.add("hidden");
-      updateDiscordLoginUI();
-      discordLoginBackdrop.classList.add("active");
-    });
-
-    discordLoginBackdrop.addEventListener("click", (ev) => {
-      if (ev.target === discordLoginBackdrop)
-        discordLoginBackdrop.classList.remove("active");
-    });
+    loginStartBtn.addEventListener("click", startDiscordLogin);
 
     function startDiscordLogin() {
       const state = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
@@ -5026,14 +4996,38 @@
         const d = event.data.data;
         d.timestamp = Date.now();
         sessionStorage.setItem("discordAuthData", JSON.stringify(d));
-        if (discordLoginBackdrop.classList.contains("active")) {
-          updateDiscordLoginUI();
-        } else {
-          discordLoginBackdrop.classList.add("active");
-        }
-        showToast(`Discord: ${d.username}${d.inGuild ? " ✅" : " ❌ not in server"}`, d.inGuild ? "success" : "error");
+        onAuthResult(d);
       }
     });
+
+    function onAuthResult(d) {
+      if (d.inGuild) {
+        loginOverlay.classList.add("hidden");
+        init();
+      } else {
+        loginStatus.textContent = `Access Denied — ${d.username} is not a member of the STR4NG3RZ server.`;
+        loginStartBtn.style.display = "none";
+      }
+    }
+
+    function checkAuth() {
+      const stored = sessionStorage.getItem("discordAuthData");
+      if (stored) {
+        try {
+          const d = JSON.parse(stored);
+          if (d.inGuild) {
+            loginOverlay.classList.add("hidden");
+            init();
+            return;
+          } else {
+            loginStatus.textContent = `Access Denied — ${d.username} is not a member of the STR4NG3RZ server.`;
+            return;
+          }
+        } catch (e) {}
+      }
+      loginStatus.textContent = "Login with Discord to access the Command Center.";
+      loginStartBtn.style.display = "inline-flex";
+    }
 
     // -------------------------
     // Init sequence
@@ -5294,7 +5288,7 @@
 
 
     window.addEventListener("load", () => {
-      init();
+      checkAuth();
       checkForUpdates();
       setInterval(checkForUpdates, 30000);
     });
