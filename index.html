@@ -1168,25 +1168,20 @@
       transition: color var(--transition), background var(--transition);
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); background: rgba(var(--accent-rgb),0.06); }
-    .log-header {
-      display: flex; gap: 8px; padding: 6px 8px;
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; color: var(--text-muted);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .log-header .log-date, .log-header .log-time, .log-header .log-user, .log-header .log-action { color: inherit; font-weight: inherit; }
-    .log-entry {
+    #actionLogsContainer .log-header .log-date, #actionLogsContainer .log-header .log-time, #actionLogsContainer .log-header .log-user, #actionLogsContainer .log-header .log-action { color: inherit; font-weight: inherit; }
+    #actionLogsContainer .log-header { display: flex; gap: 8px; padding: 6px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    #actionLogsContainer .log-entry {
       display: flex; gap: 8px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       align-items: flex-start;
     }
-    .log-entry:last-child { border-bottom: none; }
-    .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 72px; flex-shrink: 0; }
-    .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 11px; min-width: 65px; flex-shrink: 0; }
-    .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
-    .log-action { color: var(--text-primary); }
-    .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
-    .log-detail { color: var(--text-muted); font-size: 10px; }
+    #actionLogsContainer .log-entry:last-child { border-bottom: none; }
+    #actionLogsContainer .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 72px; flex-shrink: 0; }
+    #actionLogsContainer .log-time { color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); font-size: 11px; min-width: 65px; flex-shrink: 0; }
+    #actionLogsContainer .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
+    #actionLogsContainer .log-action { color: var(--text-primary); }
+    #actionLogsContainer .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
+    #actionLogsContainer .log-detail { color: var(--text-muted); font-size: 10px; }
 
     .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
     .modal-backdrop.active .admin-password-modal { transform: scale(1) translateY(0); opacity: 1; }
