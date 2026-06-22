@@ -84,7 +84,8 @@ async function exchangeCode(code, env) {
   });
 
   const data = await res.json();
-  if (data.error || !res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
+  if (data.error || !res.ok)
+    throw new Error(`Token exchange → ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
   return data;
 }
 
