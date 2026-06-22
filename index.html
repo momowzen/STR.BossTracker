@@ -2994,7 +2994,6 @@
     <div class="modal logs-modal">
       <div class="logs-modal-header">
         <h3 id="actionLogsTitle">ACTION LOGS</h3>
-        <button class="logs-refresh-btn" id="actionLogsRefresh" title="Refresh">↻</button>
       </div>
       <div class="log-header" id="actionLogsColumnHeaders">
         <span class="log-date">DATE</span>
@@ -5136,7 +5135,7 @@
         actionLogsBackdrop.classList.remove("active");
     });
 
-    actionLogsRefresh.addEventListener("click", loadActionLogs);
+    if (actionLogsRefresh) actionLogsRefresh.addEventListener("click", loadActionLogs);
 
     async function loadActionLogs() {
       actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">Loading...</div>`;
