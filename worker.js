@@ -15,6 +15,11 @@ export default {
       return handleCallback(url, env);
     }
 
+    // Health check
+    if (url.pathname === "/" || url.pathname === "/health") {
+      return new Response("OK", { status: 200 });
+    }
+
     return new Response("Not found", { status: 404 });
   },
 };
@@ -82,7 +87,7 @@ async function exchangeCode(code, env) {
   });
 
   const data = await res.json();
-  if (data.error) throw new Error(data.error_description || data.error);
+  if (data.error || !res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
   return data;
 }
 
@@ -90,5 +95,7 @@ async function fetchDiscord(path, accessToken) {
   const res = await fetch(`https://discord.com${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  return res.json();
+  const data = await res.json();
+  if (data.error || !res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
+  return data;
 }
