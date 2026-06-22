@@ -1690,6 +1690,8 @@
       background-image: radial-gradient(ellipse at center, rgba(var(--accent-rgb),0.04) 0%, transparent 70%);
     }
     #discordLoginOverlay.hidden { display: none; }
+    .container { display: none; }
+    .auth-granted .container { display: flex; }
     .login-box { text-align: center; max-width: 400px; padding: 40px; }
     .login-box h2 { font-size: 1.5rem; margin: 16px 0 4px; letter-spacing: 2px; }
     .login-box .login-subtitle { font-size: .85rem; color: var(--text-secondary); margin-bottom: 28px; }
@@ -5116,6 +5118,7 @@
 
     function onAuthResult(d) {
       if (d.inGuild) {
+        document.documentElement.classList.add("auth-granted");
         loginOverlay.classList.add("hidden");
         updateDiscordBadge();
         init();
@@ -5131,6 +5134,7 @@
         try {
           const d = JSON.parse(stored);
           if (d.inGuild) {
+            document.documentElement.classList.add("auth-granted");
             loginOverlay.classList.add("hidden");
             updateDiscordBadge();
             init();
