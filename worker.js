@@ -83,9 +83,10 @@ async function exchangeCode(code, env) {
     body,
   });
 
-  const data = await res.json();
-  if (data.error || !res.ok)
-    throw new Error(`Token exchange → ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
+  let data;
+  try { data = await res.json(); } catch { data = await res.text(); }
+  if (!res.ok)
+    throw new Error(`Token exchange HTTP ${res.status}: ${JSON.stringify(data).slice(0, 400)}`);
   return data;
 }
 
@@ -97,8 +98,10 @@ async function fetchDiscord(path, accessToken) {
       "User-Agent": "STR.BossTracker/1.0",
     },
   });
-  const data = await res.json();
-  if (data.error || !res.ok)
-    throw new Error(`Discord ${path} → ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
+  const body = await res.text();
+  let data;
+  try { data = JSON.parse(body); } catch { data = body; }
+  if (!res.ok)
+    throw new Error(`Discord ${path} HTTP ${res.status}: ${JSON.stringify(data).slice(0, 400)}`);
   return data;
 }
