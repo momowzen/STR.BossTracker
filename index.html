@@ -4977,9 +4977,7 @@
         try {
           const d = JSON.parse(stored);
           discordLoginStatus.textContent = `Connected as: ${d.username}`;
-          discordLoginInfo.textContent = d.inGuild
-            ? "In server: ✅ Member"
-            : "In server: ❌ Not a member";
+          discordLoginInfo.textContent = "Discord login successful";
           discordLoginActions.innerHTML =
             `<button class="kbtn" id="discordLoginClearBtn">CLEAR</button>` +
             `<button class="kbtn" id="discordLoginStartBtn2">Login with Discord</button>`;
@@ -5031,7 +5029,7 @@
         } else {
           discordLoginBackdrop.classList.add("active");
         }
-        showToast(`Discord: ${d.username}${d.inGuild ? " ✅" : " ❌ not in server"}`, d.inGuild ? "success" : "error");
+        showToast(`Discord: ${d.username}`, "success");
       }
     });
 

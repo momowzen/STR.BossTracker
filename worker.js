@@ -4,7 +4,6 @@
 // Required environment variables (set in dashboard):
 //   CLIENT_ID      = 1518260560766963912
 //   CLIENT_SECRET  = yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH
-//   GUILD_ID       = 1405710246655164557
 //   REDIRECT_URI   = https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback
 
 export default {
@@ -39,12 +38,7 @@ async function handleCallback(url, env) {
     // 2. Fetch user info
     const user = await fetchDiscord("/api/users/@me", token.access_token);
 
-    // 3. Check guild membership
-    const guilds = await fetchDiscord("/api/users/@me/guilds", token.access_token);
-    if (!Array.isArray(guilds)) throw new Error(`Guilds response not an array: ${JSON.stringify(guilds).slice(0,200)}`);
-    const inGuild = guilds.some((g) => g.id === env.GUILD_ID);
-
-    // 4. Build result
+    // 3. Build result
     const tag =
       user.discriminator && user.discriminator !== "0"
         ? `#${user.discriminator}`
@@ -52,7 +46,6 @@ async function handleCallback(url, env) {
     const result = {
       username: `${user.global_name || user.username}${tag}`,
       id: user.id,
-      inGuild,
     };
 
     // 5. Return HTML that posts to opener and closes
