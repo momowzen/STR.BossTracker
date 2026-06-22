@@ -41,6 +41,7 @@ async function handleCallback(url, env) {
 
     // 3. Check guild membership
     const guilds = await fetchDiscord("/api/users/@me/guilds", token.access_token);
+    if (!Array.isArray(guilds)) throw new Error(`Guilds response not an array: ${JSON.stringify(guilds).slice(0,200)}`);
     const inGuild = guilds.some((g) => g.id === env.GUILD_ID);
 
     // 4. Build result
