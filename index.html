@@ -334,6 +334,27 @@
       filter: drop-shadow(0 0 2px var(--accent-red));
     }
 
+    #scheduleBtn {
+      border: none;
+      background: none;
+      box-shadow: none;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      min-height: 20px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    #scheduleBtn:hover {
+      border: none;
+      background: none;
+      box-shadow: none;
+      color: var(--text-primary);
+    }
+
     .admin-auth-btn.on {
       color: var(--accent-gold);
     }
@@ -547,7 +568,7 @@
     .view-toggle {
       display: none;
       height: 28px;
-      padding: 0 10px;
+      padding: 0 4px;
       border: none;
       background: none;
       color: var(--text-muted);
@@ -576,9 +597,9 @@
     .sort-btn {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
       height: 28px;
-      padding: 0 8px;
+      padding: 0 4px;
       border: none;
       background: none;
       color: var(--text-muted);
@@ -600,7 +621,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
+      width: 20px;
       height: 28px;
       border: none;
       background: none;
@@ -822,7 +843,7 @@
       }
 
       header.app-header {
-        gap: 4px;
+gap: 2px;
         padding: 4px 6px;
       }
       header .admin-nav { display: none !important; }
@@ -1096,7 +1117,7 @@
       }
       .discord-badge-btn { max-width: 34px; }
       .discord-badge-btn:hover { max-width: 220px; }
-      #scheduleBtn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; }
+      #scheduleBtn { width: 20px; height: 20px; min-width: 20px; min-height: 20px; border: none; background: none; box-shadow: none; }
       #bossSearch { height: 28px !important; }
       .top-panels-row {
         flex-direction: row;
@@ -1738,7 +1759,7 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 10px;
+      gap: 4px;
       font-size: clamp(12px, 2.5vw, 15px);
       font-weight: 700;
       font-family: var(--font-display);
