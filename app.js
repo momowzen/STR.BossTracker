@@ -2735,22 +2735,51 @@
 
       const memberMap = new Map();
       const normalizedMap = new Map();
+      const looseMap = new Map();
       for (const m of members) {
         const key = m.toUpperCase();
         memberMap.set(key, m);
         const norm = ocrNormalizeChar(key);
         if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
+        const loose = key.replace(/[^A-Z0-9]/g, '');
+        if (loose && !looseMap.has(loose)) looseMap.set(loose, m);
+      }
+
+      function matchToken(token) {
+        if (memberMap.has(token)) return memberMap.get(token);
+        const norm = ocrNormalizeChar(token);
+        if (normalizedMap.has(norm)) return normalizedMap.get(norm);
+        const loose = token.replace(/[^A-Z0-9]/g, '');
+        if (loose && looseMap.has(loose)) return looseMap.get(loose);
+        return null;
       }
 
       const matched = new Set();
-      const unrecognized = [];
+      const consumed = new Set();
 
-      for (const token of unique) {
-        if (matched.has(token)) continue;
-        if (memberMap.has(token)) { matched.add(memberMap.get(token)); continue; }
-        const norm = ocrNormalizeChar(token);
-        if (normalizedMap.has(norm)) { matched.add(normalizedMap.get(norm)); continue; }
-        unrecognized.push(token);
+      for (let i = 0; i < unique.length; i++) {
+        if (consumed.has(i)) continue;
+        const hit = matchToken(unique[i]);
+        if (hit) { matched.add(hit); consumed.add(i); }
+      }
+
+      for (let i = 0; i < unique.length; i++) {
+        if (consumed.has(i)) continue;
+        if (i + 1 < unique.length && !consumed.has(i + 1)) {
+          const c = unique[i] + unique[i + 1];
+          const hit = matchToken(c);
+          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); continue; }
+        }
+        if (i + 2 < unique.length && !consumed.has(i + 1) && !consumed.has(i + 2)) {
+          const c = unique[i] + unique[i + 1] + unique[i + 2];
+          const hit = matchToken(c);
+          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); consumed.add(i + 2); continue; }
+        }
+      }
+
+      const unrecognized = [];
+      for (let i = 0; i < unique.length; i++) {
+        if (!consumed.has(i)) unrecognized.push(unique[i]);
       }
 
       return { matched: [...matched], unrecognized };
