@@ -14,16 +14,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0B0F17;
-      --bg-secondary: #131A26;
-      --bg-tertiary: #1A2233;
-      --border: #1E2A3A;
-      --border-hover: #2E3A4A;
+      --bg-primary: #0A0A0A;
+      --bg-secondary: #111111;
+      --bg-tertiary: #1A1A1A;
+      --border: #282828;
+      --border-hover: #383838;
       --text-primary: #FFFFFF;
-      --text-secondary: #AAB4C3;
-      --text-muted: #6B7A8F;
+      --text-secondary: #AAAAAA;
+      --text-muted: #777777;
       --accent-gold: #D4AF37;
-      --accent-rgb: 212,175,55;
+      --accent-rgb: 180,180,180;
       --accent-blue: #4A90E2;
       --accent-green: #2ECC71;
       --accent-orange: #F39C12;
@@ -65,7 +65,7 @@
       overflow: hidden;
       font-family: var(--font-sans);
       background-color: var(--bg-primary);
-      background-image: radial-gradient(ellipse at 20% 50%, rgba(74,144,226,0.03) 0%, transparent 70%),
+      background-image: radial-gradient(ellipse at 20% 50%, rgba(180,180,180,0.03) 0%, transparent 70%),
                         radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb),0.02) 0%, transparent 70%);
       color: var(--text-primary);
       -webkit-font-smoothing: antialiased;
@@ -251,10 +251,12 @@
       position: absolute; top: 100%; right: 0; z-index: 9999;
       min-width: 150px;
       padding: 4px 0;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-md);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
       display: none;
     }
     .discord-dropdown.show { display: block; }
@@ -291,6 +293,8 @@
       justify-content: center;
       transition: border-color var(--transition), color var(--transition), box-shadow var(--transition), background var(--transition);
       flex-shrink: 0;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .admin-auth-btn:hover,
@@ -437,12 +441,13 @@
       text-align: center;
       gap: 1px;
       padding: 4px 16px;
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(17,17,17,0.98) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--radius-lg);
       position: relative;
       box-sizing: border-box;
       overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .stat-card::before {
@@ -522,10 +527,11 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(17,17,17,0.98) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--radius-lg);
       position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     #bossListPanel::before {
@@ -613,12 +619,14 @@
       left: 0;
       min-width: auto;
       white-space: nowrap;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-md);
       overflow: hidden;
       z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
@@ -901,12 +909,13 @@
       margin: 0 10px;
       padding: 6px 8px;
       border-radius: var(--radius-md);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(17,17,17,0.95) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
       font-size: 12px;
       transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition);
       box-sizing: border-box;
       position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .boss:hover {
@@ -1082,6 +1091,8 @@
         min-width: 34px;
         min-height: 34px;
       }
+      .discord-badge-btn { max-width: 34px; }
+      .discord-badge-btn:hover { max-width: 220px; }
       .top-panels-row {
         flex-direction: row;
         gap: 8px;
@@ -1137,9 +1148,9 @@
       align-items: center;
       justify-content: center;
       z-index: 10000;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -1149,16 +1160,16 @@
     .modal-backdrop.hidden { opacity: 0; pointer-events: none; }
 
     .modal {
-      background: linear-gradient(135deg, rgba(26,34,51,0.75) 0%, rgba(19,26,38,0.75) 100%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(var(--accent-rgb),0.15);
+      background: linear-gradient(135deg, rgba(30,30,30,0.85) 0%, rgba(20,20,20,0.9) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-lg);
       padding: 24px 20px;
       width: min(360px, calc(100vw - 32px));
       max-width: calc(100vw - 32px);
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.06);
       transform: scale(0.95) translateY(8px);
       transition: transform 0.25s ease, opacity 0.25s ease;
       opacity: 0;
@@ -1167,8 +1178,8 @@
     .logs-modal-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 12px;
-      background: rgba(var(--accent-rgb),0.06);
-      border-bottom: 1px solid rgba(var(--accent-rgb),0.12);
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-md) var(--radius-md) 0 0;
       margin: -24px -20px 8px -20px;
     }
@@ -1250,8 +1261,8 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-md);
       color: var(--text-muted);
       cursor: pointer;
@@ -1319,12 +1330,14 @@
     /* === SETTINGS DROPDOWN === */
     .settings-dropdown {
       position: fixed;
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-lg);
       z-index: 10002;
       min-width: 160px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
       overflow: hidden;
       opacity: 1;
       transform: translateY(0);
@@ -1338,12 +1351,14 @@
     .nav-menu-btn { display: none; }
     .nav-dropdown {
       position: fixed;
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-lg);
       z-index: 10002;
       width: max-content;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
       overflow: hidden;
       opacity: 1;
       transform: translateY(0);
@@ -1985,10 +2000,11 @@
       flex-direction: column;
       flex: 1;
       overflow: hidden;
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(17,17,17,0.98) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--radius-lg);
       position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
     .admin-panel::before {
       content: '';
@@ -2231,10 +2247,12 @@
       width: 400px;
       max-width: calc(100vw - 24px);
       max-height: calc(100vh - 24px);
-      background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,30,30,0.9) 0%, rgba(18,18,18,0.95) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius-lg);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
       z-index: 1001;
       display: flex;
       flex-direction: column;
