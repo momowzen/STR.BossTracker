@@ -689,7 +689,6 @@
     #bossListPanel.view-schedule .header-sort { display: none; }
     #bossListPanel.view-schedule .search-wrapper { display: none !important; }
     #bossListPanel.view-schedule #scheduleView { display: flex; }
-    #bossListPanel.view-schedule .card-header { justify-content: flex-end; }
 
     .column-label {
       font-size: 11px;
@@ -1736,7 +1735,7 @@
 
     .card-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       gap: 10px;
       font-size: clamp(12px, 2.5vw, 15px);
@@ -1748,8 +1747,7 @@
       border-bottom: 1px solid var(--border);
   padding: 8px 12px;
   text-align: left;
-  min-height: 0;
-  height: 45px;
+  min-height: 44px;
   box-sizing: border-box;
   width: 100%;
   background: rgba(0,0,0,0.15);
