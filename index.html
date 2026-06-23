@@ -5355,9 +5355,9 @@
         adminAuthBtn.classList.toggle("on", isAdmin);
         adminAuthBtn.setAttribute(
           "aria-label",
-          isAdmin ? "Admin" : "Not admin"
+          isAdmin ? "Admin" : "Member"
         );
-        adminAuthBtn.title = isAdmin ? "Admin" : "Not admin";
+        adminAuthBtn.title = isAdmin ? "Admin" : "Member";
       }
       if (settingsBtn) {
         settingsBtn.classList.toggle("hidden", !isAdmin);
