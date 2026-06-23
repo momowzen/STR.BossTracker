@@ -3475,6 +3475,7 @@
       orderBy,
       limit,
       getDocs,
+      writeBatch,
     } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
     // ✅ Initialize Firebase app
@@ -5192,6 +5193,13 @@
           details,
           timestamp: serverTimestamp(),
         });
+        const q = query(collection(db, "actionLogs"), orderBy("timestamp", "asc"));
+        const snap = await getDocs(q);
+        if (snap.docs.length > 100) {
+          const batch = writeBatch(db);
+          snap.docs.slice(0, snap.docs.length - 100).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+        }
       } catch (e) {
         console.warn("Failed to log action:", e);
       }
