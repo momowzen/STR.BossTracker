@@ -4,7 +4,6 @@ compatibility_date = "2024-01-01"
 
 [vars]
 DISCORD_CLIENT_ID = "1518260560766963912"
-DISCORD_CLIENT_SECRET = "yz81Eo6wBiRDNMYhxdZ53pvk2Ifu_ozH"
 DISCORD_REDIRECT_URI = "https://discord-auth-worker.arianthonyungsod.workers.dev/discord-callback"
 DISCORD_GUILD_ID = "1405710246655164557"
 TARGET_ORIGIN = "*"
