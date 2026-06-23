@@ -5218,7 +5218,7 @@ gap: 2px;
       if (!auth) return;
       try {
         await addDoc(collection(db, "actionLogs"), {
-          username: auth.username,
+          username: auth.displayName || auth.username,
           userId: auth.id,
           action,
           details,
