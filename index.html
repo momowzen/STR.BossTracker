@@ -5697,9 +5697,16 @@ gap: 2px;
     }
 
     // ─── Add Member Popup ───
+    function closeMemberPopup() {
+      ghMemberPopup.style.display = 'none';
+      ghMemberOverlay.style.display = 'none';
+      ghMemberNameInput.value = '';
+      ghBulkImportArea.value = '';
+      ghWmSelect.value = '';
+    }
     ghToggleAddMember.addEventListener('click', () => { ghMemberPopup.style.display = 'flex'; ghMemberOverlay.style.display = 'block'; });
-    ghMemberPopupClose.addEventListener('click', () => { ghMemberPopup.style.display = 'none'; ghMemberOverlay.style.display = 'none'; });
-    ghMemberOverlay.addEventListener('click', () => { ghMemberPopup.style.display = 'none'; ghMemberOverlay.style.display = 'none'; });
+    ghMemberPopupClose.addEventListener('click', closeMemberPopup);
+    ghMemberOverlay.addEventListener('click', closeMemberPopup);
 
     function ghAddMember(name, wm) {
       name = name.trim().replace(/\s+/g, ' ');
