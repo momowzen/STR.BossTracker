@@ -2813,9 +2813,9 @@
       for (const name of matched) ghPointsSelectedMembers.add(name);
       ghPointsScanResults = { matched: [...matched], unrecognized };
 
-      ghPointsOcrStatus.className = 'ocr-status visible ' + (matched.size > 0 ? 'ocr-done' : 'ocr-warning');
-      ghPointsOcrStatusText.textContent = matched.size > 0
-        ? 'Matched ' + matched.size + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
+      ghPointsOcrStatus.className = 'ocr-status visible ' + (matched.length > 0 ? 'ocr-done' : 'ocr-warning');
+      ghPointsOcrStatusText.textContent = matched.length > 0
+        ? 'Matched ' + matched.length + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
         : 'No recognizable names found.';
 
       if (unrecognized.length > 0) {
@@ -3224,9 +3224,9 @@
       for (const name of matched) ghSelectedMembers.add(name);
       ghScanResults = { matched: [...matched], unrecognized };
 
-      ocrStatus.className = 'ocr-status visible ' + (matched.size > 0 ? 'ocr-done' : 'ocr-warning');
-      ocrStatusText.textContent = matched.size > 0
-        ? 'Matched ' + matched.size + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
+      ocrStatus.className = 'ocr-status visible ' + (matched.length > 0 ? 'ocr-done' : 'ocr-warning');
+      ocrStatusText.textContent = matched.length > 0
+        ? 'Matched ' + matched.length + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
         : 'No recognizable names found.';
 
       if (unrecognized.length > 0) {
