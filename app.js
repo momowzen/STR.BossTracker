@@ -2710,6 +2710,52 @@
       });
     }
 
+    function ocrNormalizeChar(s) {
+      return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
+    }
+
+    const CIRCLED_NUM_MAP = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
+    const CIRCLED_NUM_RE = /[\u2460-\u2468]/g;
+
+    function processOcrText(allText, members) {
+      const tokens = allText.split(/[\s,]+/)
+        .map(t => t.replace(CIRCLED_NUM_RE, m => CIRCLED_NUM_MAP[m]))
+        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
+        .filter(Boolean);
+
+      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
+      const merged = [];
+      let cjkBuf = '';
+      for (const t of tokens) {
+        if (reCjkRun.test(t)) { cjkBuf += t; }
+        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
+      }
+      if (cjkBuf) merged.push(cjkBuf);
+      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
+
+      const memberMap = new Map();
+      const normalizedMap = new Map();
+      for (const m of members) {
+        const key = m.toUpperCase();
+        memberMap.set(key, m);
+        const norm = ocrNormalizeChar(key);
+        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
+      }
+
+      const matched = new Set();
+      const unrecognized = [];
+
+      for (const token of unique) {
+        if (matched.has(token)) continue;
+        if (memberMap.has(token)) { matched.add(memberMap.get(token)); continue; }
+        const norm = ocrNormalizeChar(token);
+        if (normalizedMap.has(norm)) { matched.add(normalizedMap.get(norm)); continue; }
+        unrecognized.push(token);
+      }
+
+      return { matched: [...matched], unrecognized };
+    }
+
     async function ghRunPointsOcr() {
       if (ghPointsOcrRunning) return;
       ghPointsOcrRunning = true;
@@ -2733,45 +2779,7 @@
         return;
       }
 
-      const circledMap = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
-      const circledRe = /[\u2460-\u2468]/g;
-      const tokens = allText.split(/[\s,]+/)
-        .map(t => t.replace(circledRe, m => circledMap[m]))
-        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
-        .filter(Boolean);
-
-      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
-      const merged = [];
-      let cjkBuf = '';
-      for (const t of tokens) {
-        if (reCjkRun.test(t)) { cjkBuf += t; }
-        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
-      }
-      if (cjkBuf) merged.push(cjkBuf);
-      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
-
-      function ocrNorm(s) {
-        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
-      }
-      const memberMap = new Map();
-      const normalizedMap = new Map();
-      for (const m of ghMembers) {
-        const key = m.toUpperCase();
-        memberMap.set(key, m);
-        const norm = ocrNorm(key);
-        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
-      }
-
-      const matched = new Set();
-      const unrecognized = [];
-
-      for (const token of unique) {
-        if (matched.has(token)) continue;
-        if (memberMap.has(token)) { matched.add(memberMap.get(token)); continue; }
-        const norm = ocrNorm(token);
-        if (normalizedMap.has(norm)) { matched.add(normalizedMap.get(norm)); continue; }
-        unrecognized.push(token);
-      }
+      const { matched, unrecognized } = processOcrText(allText, ghMembers);
 
       for (const name of matched) ghPointsSelectedMembers.add(name);
       ghPointsScanResults = { matched: [...matched], unrecognized };
@@ -3182,45 +3190,7 @@
         return;
       }
 
-      const circledMap = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
-      const circledRe = /[\u2460-\u2468]/g;
-      const tokens = allText.split(/[\s,]+/)
-        .map(t => t.replace(circledRe, m => circledMap[m]))
-        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
-        .filter(Boolean);
-
-      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
-      const merged = [];
-      let cjkBuf = '';
-      for (const t of tokens) {
-        if (reCjkRun.test(t)) { cjkBuf += t; }
-        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
-      }
-      if (cjkBuf) merged.push(cjkBuf);
-      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
-
-      function ocrNorm(s) {
-        return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
-      }
-      const memberMap = new Map();
-      const normalizedMap = new Map();
-      for (const m of ghMembers) {
-        const key = m.toUpperCase();
-        memberMap.set(key, m);
-        const norm = ocrNorm(key);
-        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
-      }
-
-      const matched = new Set();
-      const unrecognized = [];
-
-      for (const token of unique) {
-        if (matched.has(token)) continue;
-        if (memberMap.has(token)) { matched.add(memberMap.get(token)); continue; }
-        const norm = ocrNorm(token);
-        if (normalizedMap.has(norm)) { matched.add(normalizedMap.get(norm)); continue; }
-        unrecognized.push(token);
-      }
+      const { matched, unrecognized } = processOcrText(allText, ghMembers);
 
       for (const name of matched) ghSelectedMembers.add(name);
       ghScanResults = { matched: [...matched], unrecognized };
