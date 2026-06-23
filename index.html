@@ -2086,18 +2086,26 @@
       gap: 8px;
       padding: 6px 10px;
       border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
+      border: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(17,17,17,0.95) 100%);
       font-size: 13px;
-      transition: border-color var(--transition);
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
-    .member-item:hover { border-color: var(--border-hover); }
+    .member-item:hover {
+      border-color: rgba(255,255,255,0.12);
+      background: linear-gradient(135deg, rgba(40,40,40,0.9) 0%, rgba(26,26,26,0.95) 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+    .member-item:hover .member-name { color: var(--accent-gold); }
     .member-item .member-name {
       font-family: var(--font-display);
       font-weight: 600;
       letter-spacing: 0.5px;
       flex: 1;
       min-width: 0;
+      transition: color var(--transition);
     }
     .member-item .member-wm {
       font-size: 11px;
