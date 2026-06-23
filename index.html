@@ -1184,7 +1184,6 @@
     #actionLogsContainer .log-detail { color: var(--text-muted); font-size: 10px; }
 
     .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
-    .modal-backdrop.active .admin-password-modal { transform: scale(1) translateY(0); opacity: 1; }
 
     .modal h3 {
       margin: 0 0 10px;
@@ -1302,110 +1301,6 @@
       background: rgba(var(--accent-rgb),0.06);
     }
 
-    /* === ADMIN PASSWORD MODAL === */
-    #adminPasswordBackdrop { z-index: 10001; }
-
-    #adminPasswordBackdrop.active { display: flex; }
-    #adminPasswordBackdrop.hidden { display: none; }
-
-    .admin-password-modal {
-      background: linear-gradient(135deg, rgba(26,34,51,0.75) 0%, rgba(19,26,38,0.75) 100%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(var(--accent-rgb),0.15);
-      border-radius: var(--radius-lg);
-      padding: 28px 20px;
-      width: min(360px, calc(100vw - 32px));
-      max-width: calc(100vw - 32px);
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      transform: scale(0.95) translateY(8px);
-      transition: transform 0.25s ease, opacity 0.25s ease;
-      opacity: 0;
-    }
-
-    .admin-password-modal h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: var(--font-display);
-      color: var(--text-primary);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .admin-password-modal .password-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .admin-password-modal .password-input {
-      width: 100%;
-      padding: 10px 14px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 14px;
-      font-family: var(--font-mono);
-      text-align: center;
-      outline: none;
-      margin-bottom: 16px;
-      transition: border-color var(--transition), box-shadow var(--transition);
-    }
-
-    .admin-password-modal .password-input:focus { border-color: var(--accent-gold); box-shadow: var(--glow-gold); }
-    .admin-password-modal .password-input.has-error { border-color: var(--accent-red); box-shadow: 0 0 12px rgba(231,76,60,0.3); animation: shake-input 0.4s ease; }
-    .admin-password-modal .password-input::placeholder { color: var(--text-muted); }
-
-    @keyframes shake-input {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-    }
-
-    .admin-password-modal .password-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .admin-password-modal .password-btn {
-      height: 38px;
-      padding: 0 16px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: border-color var(--transition), color var(--transition), background var(--transition);
-      font-family: var(--font-display);
-    }
-
-    .admin-password-modal .password-btn:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-      background: rgba(var(--accent-rgb),0.06);
-    }
-
-    .admin-password-modal .password-btn.cancel-btn { background: var(--bg-primary); }
-
-    .admin-password-modal .password-error {
-      color: var(--accent-red);
-      font-size: 12px;
-      margin-bottom: 12px;
-      display: none;
-      font-weight: 600;
-    }
-
-    .admin-password-modal .password-error.show { display: block; }
 
     /* === SETTINGS DROPDOWN === */
     .settings-dropdown {
@@ -2722,19 +2617,6 @@
       </symbol>
     </defs>
   </svg>
-  <!-- Admin password modal -->
-  <div class="modal-backdrop hidden" id="adminPasswordBackdrop">
-    <div class="admin-password-modal" role="dialog" aria-labelledby="adminPasswordTitle">
-      <h3 id="adminPasswordTitle">Admin Access</h3>
-      <div class="password-subtitle">Enter admin password</div>
-      <div class="password-error" id="passwordError">Incorrect password</div>
-      <input type="password" class="password-input" id="adminPasswordInput" placeholder="Password">
-      <div class="password-buttons">
-        <button type="button" class="password-btn" id="adminPasswordBtn">Submit</button>
-        <button type="button" class="password-btn cancel-btn" id="adminPasswordCancelBtn">Cancel</button>
-      </div>
-    </div>
-  </div>
 
   <div class="container">
     <header class="app-header" role="banner">
@@ -4350,6 +4232,7 @@
         delete timers[id];
         await saveTimersToFirestore();
         renderBossList();
+        logAction('clear_timer', { bossId: id });
       }
     });
 
@@ -5068,6 +4951,7 @@
             await saveTimers();
             renderBossList();
             showToast("Timers imported.", "success");
+            logAction('import_timers', { count: Object.keys(imported).length });
             console.log("ðŸ“¥ Imported timers from file.");
           }
         } catch (e) {
@@ -5079,7 +4963,7 @@
 
     resetBtn.addEventListener("click", async () => {
       settingsDropdown.classList.add("hidden");
-      if (await showConfirmModal("Are you sure you want to reset all timers?")) resetAll();
+      if (await showConfirmModal("Are you sure you want to reset all timers?")) { resetAll(); logAction('reset_all_timers'); }
     });
 
     // ✅ Firestore document for lock management
@@ -5109,6 +4993,7 @@
       }
       await saveWebhookToFirestore(url);
       showToast("Webhook saved", "success");
+      logAction('webhook_save');
     });
 
     webhookTest.addEventListener("click", async () => {
@@ -5118,6 +5003,7 @@
     webhookClear.addEventListener("click", async () => {
       if (!(await showConfirmModal("Clear webhook from Firestore?"))) return;
       await clearWebhookInFirestore();
+      logAction('webhook_clear');
     });
 
     // ─── Action Logs ──────────────────────────────────
@@ -5155,12 +5041,11 @@
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
           const date = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "short", day: "numeric" });
           const time = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit" });
-          const detail = d.details ? JSON.stringify(d.details).slice(1, -1).replace(/"/g, "") : "";
           html += `<div class="log-entry">
             <span class="log-date">${date}</span>
             <span class="log-time">${time}</span>
             <span class="log-user">${escapeHtml(d.username || "?")}</span>
-            <span class="log-action"><span class="act">${escapeHtml(d.action)}</span>${detail ? " " + escapeHtml(detail) : ""}</span>
+            <span class="log-action"><span class="act">${escapeHtml(d.action)}</span></span>
           </div>`;
         });
         actionLogsContainer.innerHTML = html;
@@ -5194,14 +5079,22 @@
       }
     });
 
+    function isDiscordAdmin(d) {
+      return ADMIN_USERS.includes(d.username) || (d.displayName && ADMIN_USERS.includes(d.displayName));
+    }
+
     function onAuthResult(d) {
       if (d.inGuild) {
         document.documentElement.classList.add("auth-granted");
+        if (isDiscordAdmin(d)) {
+          sessionStorage.setItem("userMode", "admin");
+        }
         loginOverlay.classList.add("hidden");
         updateDiscordBadge();
+        updateAuthUI();
         init();
       } else {
-        loginStatus.textContent = `Access Denied — ${d.username} is not a member of the STR4NG3RZ server.`;
+        loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
         loginStartBtn.style.display = "none";
       }
     }
@@ -5213,12 +5106,18 @@
           const d = JSON.parse(stored);
           if (d.inGuild) {
             document.documentElement.classList.add("auth-granted");
+            if (!sessionStorage.getItem("userMode") || sessionStorage.getItem("userMode") === "member") {
+              if (isDiscordAdmin(d)) {
+                sessionStorage.setItem("userMode", "admin");
+              }
+            }
             loginOverlay.classList.add("hidden");
             updateDiscordBadge();
+            updateAuthUI();
             init();
             return;
           } else {
-            loginStatus.textContent = `Access Denied — ${d.username} is not a member of the STR4NG3RZ server.`;
+            loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
             return;
           }
         } catch (e) {}
@@ -5237,9 +5136,10 @@
       const badge = document.getElementById("discordBadgeBtn");
       const nameEl = document.getElementById("discordBadgeName");
       if (auth && auth.inGuild) {
-        nameEl.textContent = auth.username;
+        const display = auth.displayName || auth.username;
+        nameEl.textContent = display;
         badge.style.display = "flex";
-        const len = auth.username.length;
+        const len = display.length;
         nameEl.style.fontSize = (len >= 18 ? "10px" : len >= 14 ? "11px" : "12px");
       } else {
         badge.style.display = "none";
@@ -5427,19 +5327,8 @@
       console.log("✅ init completed successfully.");
     }
 
-    // === AUTH: member by default, admin via password ===
-    const adminPasswordBackdrop = document.getElementById("adminPasswordBackdrop");
-    const adminPasswordInput = document.getElementById("adminPasswordInput");
-    const adminPasswordBtn = document.getElementById("adminPasswordBtn");
-    const adminPasswordCancelBtn = document.getElementById("adminPasswordCancelBtn");
-    const passwordError = document.getElementById("passwordError");
-    const ADMIN_PASSWORD_HASH = "ebc15fed31918346982c88e5857b53c60d934b1c57b8215b711d2160c8b71e16";
-
-    async function hashPassword(input) {
-      const enc = new TextEncoder().encode(input);
-      const buf = await crypto.subtle.digest("SHA-256", enc);
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
+    // === AUTH: member by default, admin via Discord username ===
+    const ADMIN_USERS = ["tadatoki","jhayez_","bhabylainel9010","drindrin9466","mariaerica_16","jammers929","nemesissss","zer0wind","zerochill0618"];
 
     if (!sessionStorage.getItem("userMode")) {
       sessionStorage.setItem("userMode", "member");
@@ -5452,9 +5341,9 @@
         adminAuthBtn.classList.toggle("on", isAdmin);
         adminAuthBtn.setAttribute(
           "aria-label",
-          isAdmin ? "Log out of admin" : "Log in as admin"
+          isAdmin ? "Admin" : "Not admin"
         );
-        adminAuthBtn.title = isAdmin ? "Log out of admin" : "Admin login";
+        adminAuthBtn.title = isAdmin ? "Admin" : "Not admin";
       }
       if (settingsBtn) {
         settingsBtn.classList.toggle("hidden", !isAdmin);
@@ -5464,80 +5353,14 @@
       }
     }
 
-    function openAdminPasswordModal() {
-      if (adminPasswordBackdrop) {
-        adminPasswordBackdrop.classList.remove("hidden");
-        adminPasswordBackdrop.classList.add("active");
-      }
-      if (adminPasswordInput) {
-        adminPasswordInput.value = "";
-        adminPasswordInput.classList.remove("has-error");
-      }
-      if (passwordError) passwordError.classList.remove("show");
-      if (adminPasswordInput) adminPasswordInput.focus();
-    }
-
-    function closeAdminPasswordModal() {
-      if (adminPasswordBackdrop) {
-        adminPasswordBackdrop.classList.remove("active");
-        adminPasswordBackdrop.classList.add("hidden");
-      }
-      if (adminPasswordInput) {
-        adminPasswordInput.value = "";
-        adminPasswordInput.classList.remove("has-error");
-      }
-      if (passwordError) passwordError.classList.remove("show");
-    }
-
     if (adminAuthBtn) {
       adminAuthBtn.addEventListener("click", () => {
         if (navDropdown) navDropdown.classList.add("hidden");
         settingsDropdown.classList.add("hidden");
-        if (sessionStorage.getItem("userMode") === "admin") {
-          sessionStorage.setItem("userMode", "member");
-          updateAuthUI();
-          if (firebaseLoaded) renderBossList();
-        } else {
-          openAdminPasswordModal();
-        }
       });
-    }
-
-    if (adminPasswordBtn) {
-      adminPasswordBtn.addEventListener("click", async () => {
-        const inputPassword = adminPasswordInput ? adminPasswordInput.value : "";
-        const inputHash = await hashPassword(inputPassword);
-        if (inputHash === ADMIN_PASSWORD_HASH) {
-          sessionStorage.setItem("userMode", "admin");
-          closeAdminPasswordModal();
-          updateAuthUI();
-          if (firebaseLoaded) renderBossList();
-        } else {
-          if (passwordError) passwordError.classList.add("show");
-          if (adminPasswordInput) {
-            adminPasswordInput.classList.add("has-error");
-            adminPasswordInput.value = "";
-            adminPasswordInput.focus();
-          }
-        }
-      });
-      if (adminPasswordInput) {
-        adminPasswordInput.addEventListener("input", () => {
-          adminPasswordInput.classList.remove("has-error");
-          if (passwordError) passwordError.classList.remove("show");
-        });
-        adminPasswordInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") adminPasswordBtn.click();
-        });
-      }
-    }
-
-    if (adminPasswordCancelBtn) {
-      adminPasswordCancelBtn.addEventListener("click", closeAdminPasswordModal);
     }
 
     updateAuthUI();
-    if (adminPasswordBackdrop) adminPasswordBackdrop.classList.add("hidden");
 
 
 
@@ -5721,7 +5544,7 @@
       if (ghActivityLog.length === 0) {
         html += '<div class="log-entry"><span style="color:var(--text-muted);font-style:italic;padding:4px 0">No activity yet.</span></div>';
       } else {
-        for (const entry of ghActivityLog.slice(0, 20)) {
+        for (const entry of ghActivityLog) {
           html += `<div class="log-entry"><span class="log-time">${entry.time}</span><span class="log-msg">${escapeHtml(entry.message)}</span></div>`;
         }
       }
@@ -5859,7 +5682,7 @@
           added++;
         }
       }
-      if (added > 0) { saveAdminData(); ghRenderMemberList(ghMemberSearch.value); ghRenderAllMembers(); ghRenderLeaderboard(); ghAddActivity('Bulk imported ' + added + ' member(s)'); showToast('Added ' + added + ' member(s)', 'success'); }
+      if (added > 0) { saveAdminData(); ghRenderMemberList(ghMemberSearch.value); ghRenderAllMembers(); ghRenderLeaderboard(); ghAddActivity('Bulk imported ' + added + ' member(s)'); showToast('Added ' + added + ' member(s)', 'success'); logAction('bulk_import', { count: added }); }
       ghBulkImportArea.value = '';
     });
 
@@ -6211,9 +6034,9 @@
       ghLeaderboardList.innerHTML = html;
     }
 
-    ghResetLeaderboard.addEventListener('click', () => { ghMemberPoints = {}; saveAdminData(); ghRenderLeaderboard(); ghAddActivity('Reset all member points'); showToast('All member points reset.', 'success'); });
+    ghResetLeaderboard.addEventListener('click', () => { ghMemberPoints = {}; saveAdminData(); ghRenderLeaderboard(); ghAddActivity('Reset all member points'); showToast('All member points reset.', 'success'); logAction('leaderboard_reset'); });
 
-    ghClearActivity.addEventListener('click', () => { ghActivityLog = []; saveAdminData(); ghRenderActivity(); showToast('Activity logs cleared.', 'success'); });
+    ghClearActivity.addEventListener('click', () => { ghActivityLog = []; saveAdminData(); ghRenderActivity(); showToast('Activity logs cleared.', 'success'); logAction('activity_cleared'); });
 
     // ─── Party Popup ───
     function showPartyPanel(bossId) {

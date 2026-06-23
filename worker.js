@@ -38,12 +38,9 @@ async function handleCallback(url) {
     const inGuild = Array.isArray(guilds) && guilds.some((g) => g.id === "1405710246655164557");
 
     // 4. Build result
-    const tag =
-      user.discriminator && user.discriminator !== "0"
-        ? `#${user.discriminator}`
-        : "";
     const result = {
-      username: `${user.global_name || user.username}${tag}`,
+      username: user.username,
+      displayName: user.global_name || user.username,
       id: user.id,
       inGuild,
     };
