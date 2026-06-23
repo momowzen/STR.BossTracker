@@ -4889,6 +4889,7 @@ gap: 2px;
     const sortDirBtn = document.getElementById("sortDirBtn");
     const sortDropdown = document.getElementById("sortDropdown");
     const sortOptions = sortDropdown?.querySelectorAll(".sort-option");
+    const sortContainer = document.getElementById("sortContainer");
     const sortLabels = { time: "Time", name: "Name", level: "Level" };
 
     function renderSortUI() {
@@ -4897,26 +4898,36 @@ gap: 2px;
       sortDirBtn.innerHTML = sortAsc
         ? `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg>`
         : `<svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir-desc"/></svg>`;
-      sortOptions?.forEach(opt => opt.classList.toggle("active", opt.dataset.sort === currentSort));
-      const active = sortDropdown?.querySelector(".sort-option.active");
-      if (active && active.parentNode) {
-        active.parentNode.prepend(active);
-      }
+      sortOptions?.forEach(opt => {
+        opt.style.display = opt.dataset.sort === currentSort ? "none" : "";
+      });
     }
 
+    let sortHoverTimer = null;
+    function closeSortDropdown() {
+      sortDropdown.classList.add("hidden");
+      sortBtn.classList.remove("open");
+    }
     if (sortBtn) {
-      sortBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        sortDropdown.classList.toggle("hidden");
-        sortBtn.classList.toggle("open");
+      sortBtn.addEventListener("mouseenter", () => {
+        clearTimeout(sortHoverTimer);
+        sortDropdown.classList.remove("hidden");
+        sortBtn.classList.add("open");
+      });
+      sortBtn.addEventListener("mouseleave", () => {
+        sortHoverTimer = setTimeout(closeSortDropdown, 200);
+      });
+    }
+    if (sortDropdown) {
+      sortDropdown.addEventListener("mouseenter", () => clearTimeout(sortHoverTimer));
+      sortDropdown.addEventListener("mouseleave", () => {
+        sortHoverTimer = setTimeout(closeSortDropdown, 200);
       });
     }
 
     sortOptions?.forEach(opt => {
       opt.addEventListener("click", () => {
         currentSort = opt.dataset.sort;
-        sortDropdown.classList.add("hidden");
-        sortBtn.classList.remove("open");
         renderSortUI();
         renderBossList();
       });
@@ -4930,13 +4941,8 @@ gap: 2px;
       });
     }
 
-    document.addEventListener("click", (e) => {
-      const container = document.getElementById("sortContainer");
-      if (container && !container.contains(e.target)) {
-        sortDropdown?.classList.add("hidden");
-        sortBtn?.classList.remove("open");
-      }
-    });
+    renderSortUI();
+
 
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
