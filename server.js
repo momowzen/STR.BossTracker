@@ -6,11 +6,11 @@ const { URL } = require("url");
 // Fill these in from your Discord Developer Portal application:
 //   https://discord.com/developers/applications
 const CONFIG = {
-  clientId: "YOUR_CLIENT_ID",
-  clientSecret: "YOUR_CLIENT_SECRET",
-  redirectUri: "http://localhost:3000/discord-callback",
-  guildId: "YOUR_GUILD_ID",    // Discord server/guild ID to check membership
-  targetOrigin: "*",            // Allow any origin for testing (set to your site in production)
+  clientId: process.env.DISCORD_CLIENT_ID,
+  clientSecret: process.env.DISCORD_CLIENT_SECRET,
+  redirectUri: process.env.DISCORD_REDIRECT_URI,
+  guildId: process.env.DISCORD_GUILD_ID,
+  targetOrigin: process.env.TARGET_ORIGIN || "*",
 };
 
 // ── OAuth callback handler ──────────────────────────────
@@ -40,13 +40,15 @@ async function handleCallback(url, res) {
     };
 
     // 5. Return HTML that posts back to opener and closes
+    const origin = escapeHtml(CONFIG.targetOrigin || "*");
+    const data = escapeHtml(JSON.stringify(result));
     const html = `<!DOCTYPE html><html><body><script>
-      window.opener.postMessage({type:"discordAuth",data:${JSON.stringify(result)}},"${CONFIG.targetOrigin}");
+      window.opener.postMessage({type:"discordAuth",data:${data}},"${origin}");
       window.close();
     <\/script></body></html>`;
     sendHtml(res, 200, html);
   } catch (err) {
-    sendHtml(res, 400, `<script>alert("Error: ${err.message.replace(/"/g,"&quot;")}");window.close()</script>`);
+    sendHtml(res, 400, `<script>alert("Error: ${escapeHtml(err.message)}");window.close()</script>`);
   }
 }
 
@@ -118,6 +120,15 @@ function fetchDiscord(path, accessToken) {
 }
 
 // ── Helpers ─────────────────────────────────────────────
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function sendHtml(res, status, html) {
   res.writeHead(status, { "Content-Type": "text/html" });
   res.end(html);
@@ -135,5 +146,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(3000, () => {
   console.log("Discord OAuth server running on http://localhost:3000");
-  console.log("Make sure DISCORD_CLIENT_ID points here in index.html");
+  console.log("Set env vars: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI, DISCORD_GUILD_ID");
 });
