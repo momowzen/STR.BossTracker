@@ -687,7 +687,7 @@
     /* Schedule view toggle: hide columns, show schedule in place */
     #bossListPanel.view-schedule .boss-column { display: none; }
     #bossListPanel.view-schedule .header-sort { display: none; }
-    #bossListPanel.view-schedule .search-wrapper { display: none; }
+    #bossListPanel.view-schedule .search-wrapper { display: none !important; }
     #bossListPanel.view-schedule #scheduleView { display: flex; }
     #bossListPanel.view-schedule .card-header { min-height: 52px; }
 
@@ -706,6 +706,8 @@
       font-family: var(--font-display);
       border-bottom: 1px solid var(--border);
       background: rgba(0,0,0,0.25);
+      height: 31px !important;
+      box-sizing: border-box;
     }
 
     .label-dot {
@@ -786,7 +788,7 @@
 
       #bossListPanel.view-schedule .boss-column { display: none; }
       #bossListPanel.view-schedule .header-sort { display: none; }
-      #bossListPanel.view-schedule .search-wrapper { display: none; }
+      #bossListPanel.view-schedule .search-wrapper { display: none !important; }
       #bossListPanel.view-schedule #scheduleView { display: flex; }
 
       /* Mobile: schedule day columns toggle (like interval/weekly) */
@@ -1422,14 +1424,6 @@
     }
     .schedule-column:first-child {
       border-right: 1px solid var(--border);
-    }
-    .boss-column .column-label,
-    .schedule-column .column-label {
-      padding: 8px 12px 6px;
-      font-size: 11px;
-      line-height: 1.2;
-      min-height: 0;
-      height: auto;
     }
     .schedule-column .schedule-list {
       flex: 1;
