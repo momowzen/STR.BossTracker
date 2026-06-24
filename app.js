@@ -1952,11 +1952,9 @@
         snap.forEach((doc) => {
           const d = doc.data();
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
-          const date = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "short", day: "numeric" });
-          const time = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit" });
+          const dateTime = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
           html += `<div class="log-entry">
-            <span class="log-date">${date}</span>
-            <span class="log-time">${time}</span>
+            <span class="log-date">${dateTime}</span>
             <span class="log-user">${escapeHtml(d.username || "?")}</span>
             <span class="log-action"><span class="act">${escapeHtml(d.action)}</span></span>
           </div>`;
@@ -3278,7 +3276,7 @@
       }
       const names = [...ghSelectedMembers];
       saveAdminData();
-      logAction("kill", { bossName, bossId: ghCurrentBossId, points: ptsPer, members: names });
+      logAction("award_points", { bossName, bossId: ghCurrentBossId, points: ptsPer, members: names });
       ghAddActivity('Killed ' + bossName + '. Awarded ' + ptsPer + ' pts to ' + names.join(', '));
       showToast('Awarded ' + ptsPer + ' pts to ' + names.length + ' member(s)', 'success');
       ghSelectedMembers.clear();
