@@ -2637,11 +2637,17 @@
     let ghPointsScreenshotDataUrls = [];
     let ghPointsScanResults = null;
     let ghPointsOcrRunning = false;
+    let ghPointsSortMode = 'default';
+    let ghPointsSortOrder = 'asc';
 
     function ghRenderPointsMembers() {
       const container = ghPointsAllMembers;
       const filter = (ghPointsSearch.value || '').toLowerCase();
-      let filtered = filter ? ghMembers.filter(m => m.toLowerCase().includes(filter)) : ghMembers;
+      let filtered = filter ? ghMembers.filter(m => m.toLowerCase().includes(filter)) : [...ghMembers];
+      if (ghPointsSortMode === 'name') {
+        filtered.sort((a, b) => a.localeCompare(b));
+        if (ghPointsSortOrder === 'desc') filtered.reverse();
+      }
       if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:12px;font-style:italic">No members match filter.</div>';
         return;
@@ -2909,6 +2915,19 @@
     ghPointsPopupClose.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
     ghPointsOverlay.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
     ghPointsSearch.addEventListener('input', ghRenderPointsMembers);
+    const ghPointsSortBtn = $('ghPointsSortBtn');
+    const ghPointsOrderBtn = $('ghPointsOrderBtn');
+    const ghPointsOrderIcon = $('ghPointsOrderIcon');
+    ghPointsSortBtn.addEventListener('click', () => {
+      ghPointsSortMode = ghPointsSortMode === 'name' ? 'default' : 'name';
+      ghPointsSortBtn.textContent = ghPointsSortMode === 'name' ? 'Name' : 'Default';
+      ghRenderPointsMembers();
+    });
+    ghPointsOrderBtn.addEventListener('click', () => {
+      ghPointsSortOrder = ghPointsSortOrder === 'asc' ? 'desc' : 'asc';
+      ghPointsOrderIcon.textContent = ghPointsSortOrder === 'asc' ? '↑' : '↓';
+      if (ghPointsSortMode === 'name') ghRenderPointsMembers();
+    });
     ghPointsConfirm.addEventListener('click', () => {
       const selected = [...ghPointsSelectedMembers];
       let pts = parseInt(ghPointsInput.value) || 0;
