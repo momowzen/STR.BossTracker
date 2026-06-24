@@ -222,7 +222,7 @@
       color: var(--text-primary);
     }
     .discord-badge-btn .discord-badge-icon {
-      width: 20px; height: 20px; flex-shrink: 0;
+      width: 14px; height: 14px; flex-shrink: 0;
       color: #5865F2; display: block; pointer-events: none;
       border-radius: 50%; object-fit: cover;
     }
