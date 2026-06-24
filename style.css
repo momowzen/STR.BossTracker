@@ -80,7 +80,7 @@
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
       border: 1px solid var(--border);
       border-bottom: 2px solid rgba(var(--accent-rgb),0.15);
-      padding: 6px 12px;
+      padding: 4px 12px;
       border-radius: var(--radius-lg);
       position: relative;
     }
@@ -1083,7 +1083,7 @@ gap: 2px;
       }
 
       header.app-header {
-        padding: 10px 16px;
+        padding: 6px 16px;
         gap: 8px;
       }
 
