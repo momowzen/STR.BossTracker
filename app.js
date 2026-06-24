@@ -2064,7 +2064,7 @@
           iconEl.alt = `${display} avatar`;
         } else if (auth.avatar && iconEl) {
           const img = document.createElement("img");
-          img.className = iconEl.className;
+          img.className = iconEl.getAttribute("class") || "discord-badge-icon";
           img.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
           img.alt = `${display} avatar`;
           iconEl.replaceWith(img);
