@@ -2262,6 +2262,8 @@
       document.documentElement.classList.toggle("is-admin", isAdmin);
       if (adminAuthBtn) {
         adminAuthBtn.classList.toggle("on", isAdmin);
+        const icon = adminAuthBtn.querySelector("use");
+        if (icon) icon.setAttribute("href", isAdmin ? "#icon-crown" : "#icon-person");
         adminAuthBtn.setAttribute(
           "aria-label",
           isAdmin ? "Admin" : "Member"
