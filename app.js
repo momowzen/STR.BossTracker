@@ -774,6 +774,7 @@
       await saveTimerToFirestoreOnce(bossId);
       renderBossList();
 
+      logAction("mark_dead", { bossId: boss.id, bossName: boss.name, endTime });
       console.log(`startTimer: ${bossId} -> ${new Date(endTime).toISOString()}`);
       sendDiscordEmbedOnce("killed", boss);
     }
