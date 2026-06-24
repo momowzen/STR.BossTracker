@@ -2637,7 +2637,7 @@
     let ghPointsScreenshotDataUrls = [];
     let ghPointsScanResults = null;
     let ghPointsOcrRunning = false;
-    let ghPointsSortMode = 'default';
+    let ghPointsSortMode = 'name';
     let ghPointsSortOrder = 'asc';
 
     function ghRenderPointsMembers() {
