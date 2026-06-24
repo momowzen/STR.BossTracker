@@ -114,7 +114,7 @@
     }
 
     .logo-img {
-      height: 52px;
+      height: 40px;
       width: auto;
       display: block;
       object-fit: contain;
@@ -847,7 +847,7 @@ gap: 2px;
       .discord-badge-btn .discord-badge-name { font-size: 10px; }
       #bossSearch { height: 28px !important; }
       .app-title { gap: 6px; }
-      .logo-img { height: 40px; }
+      .logo-img { height: 32px; }
       .main-title { font-size: 12px; letter-spacing: 1px; }
       .warning-text { font-size: 7px; letter-spacing: 1px; }
       .top-panels-row {
