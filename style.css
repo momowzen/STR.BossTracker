@@ -1211,10 +1211,11 @@ gap: 2px;
       align-items: flex-start;
     }
     #actionLogsContainer .log-entry:last-child { border-bottom: none; }
-    #actionLogsContainer .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 110px; flex-shrink: 0; font-family: var(--font-mono); }
-    #actionLogsContainer .log-user { color: var(--accent); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
-    #actionLogsContainer .log-action { color: var(--text-primary); overflow-wrap: break-word; word-break: break-word; white-space: normal; min-width: 0; }
-    #actionLogsContainer .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 600; }
+    #actionLogsContainer .log-entry { font-family: var(--font-sans); }
+    #actionLogsContainer .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 110px; flex-shrink: 0; }
+    #actionLogsContainer .log-user { color: var(--accent); font-weight: 500; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
+    #actionLogsContainer .log-action { color: var(--text-primary); overflow-wrap: break-word; word-break: break-word; white-space: normal; min-width: 0; font-weight: 400; }
+    #actionLogsContainer .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 500; }
     #actionLogsContainer .log-detail { color: var(--text-muted); font-size: 10px; }
 
     .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
