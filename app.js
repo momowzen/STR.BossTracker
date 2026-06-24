@@ -2006,6 +2006,7 @@
         updateAuthUI();
         init();
       } else {
+        loadingOverlay.style.display = "none";
         loginOverlay.classList.remove("hidden");
         loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
         loginStartBtn.style.display = "none";
@@ -2030,11 +2031,13 @@
             init();
             return;
           } else {
+            loadingOverlay.style.display = "none";
             loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
             return;
           }
         } catch (e) {}
       }
+      loadingOverlay.style.display = "none";
       loginOverlay.classList.remove("hidden");
       loginStatus.textContent = "Login with Discord to access the Command Center.";
       loginStartBtn.style.display = "inline-flex";
