@@ -1992,7 +1992,7 @@
     });
 
     function isDiscordAdmin(d) {
-      return ADMIN_USERS.includes(d.username) || (d.displayName && ADMIN_USERS.includes(d.displayName));
+      return d.isAdmin === true;
     }
 
     function onAuthResult(d) {
@@ -2251,8 +2251,7 @@
       console.log("✅ init completed successfully.");
     }
 
-    // === AUTH: member by default, admin via Discord username ===
-    const ADMIN_USERS = ["tadatoki","jhayez_","bhabylainel9010","drindrin9466","mariaerica_16","jammers929","nemesissss","zer0wind","zerochill0618"];
+    // === AUTH: member by default, admin status from Discord OAuth worker ===
 
     if (!sessionStorage.getItem("userMode")) {
       sessionStorage.setItem("userMode", "member");

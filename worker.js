@@ -11,6 +11,7 @@ const CONFIG = {
   redirectUri: null,
   guildId: null,
   targetOrigin: "*",
+  adminUsers: [],
 };
 
 export default {
@@ -20,6 +21,7 @@ export default {
     CONFIG.redirectUri = env.DISCORD_REDIRECT_URI;
     CONFIG.guildId = env.DISCORD_GUILD_ID;
     CONFIG.targetOrigin = env.TARGET_ORIGIN || "*";
+    CONFIG.adminUsers = (env.ADMIN_USERS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
 
     const url = new URL(request.url);
 
@@ -56,11 +58,15 @@ async function handleCallback(url) {
     const inGuild = Array.isArray(guilds) && guilds.some((g) => g.id === CONFIG.guildId);
 
     // 4. Build result
+    const nameLower = (user.global_name || user.username || "").toLowerCase();
+    const usernameLower = (user.username || "").toLowerCase();
+    const isAdmin = CONFIG.adminUsers.includes(nameLower) || CONFIG.adminUsers.includes(usernameLower);
     const result = {
       username: user.username,
       displayName: user.global_name || user.username,
       id: user.id,
       inGuild,
+      isAdmin,
     };
 
     // 5. Return HTML that posts to opener and closes
