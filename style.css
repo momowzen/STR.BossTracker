@@ -222,8 +222,9 @@
       color: var(--text-primary);
     }
     .discord-badge-btn .discord-badge-icon {
-      width: 14px; height: 14px; flex-shrink: 0;
+      width: 20px; height: 20px; flex-shrink: 0;
       color: #5865F2; display: block; pointer-events: none;
+      border-radius: 50%; object-fit: cover;
     }
     .discord-badge-btn .discord-badge-name {
       display: none;

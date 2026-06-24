@@ -65,6 +65,7 @@ async function handleCallback(url) {
       username: user.username,
       displayName: user.global_name || user.username,
       id: user.id,
+      avatar: user.avatar || null,
       inGuild,
       isAdmin,
     };

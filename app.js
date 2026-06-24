@@ -2051,12 +2051,24 @@
       const auth = getDiscordAuth();
       const badge = document.getElementById("discordBadgeBtn");
       const nameEl = document.getElementById("discordBadgeName");
+      const iconEl = badge?.querySelector(".discord-badge-icon");
       if (auth && auth.inGuild) {
         const display = auth.displayName || auth.username;
         nameEl.textContent = display;
         badge.style.display = "flex";
         const len = display.length;
         nameEl.style.fontSize = (len >= 18 ? "10px" : len >= 14 ? "11px" : "12px");
+
+        if (auth.avatar && iconEl && iconEl.tagName === "IMG") {
+          iconEl.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
+          iconEl.alt = `${display} avatar`;
+        } else if (auth.avatar && iconEl) {
+          const img = document.createElement("img");
+          img.className = iconEl.className;
+          img.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
+          img.alt = `${display} avatar`;
+          iconEl.replaceWith(img);
+        }
       } else {
         badge.style.display = "none";
       }
