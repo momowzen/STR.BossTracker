@@ -6,6 +6,9 @@
     // -------------------------
     // DOM refs
     // -------------------------
+    // Layout breakpoints
+    const TABLET_BREAKPOINT = 900;
+
     // Timezone configuration
     const TIME_ZONE = "Asia/Tokyo";
     const TIME_ZONE_LABEL = "UTC+9";
@@ -1321,9 +1324,15 @@
     function updateCountdownDisplay() {
       const now = Date.now();
 
+      // Cache DOM boss elements once per tick instead of per-boss querySelector
+      const bossEls = {};
+      document.querySelectorAll(".boss").forEach(el => {
+        bossEls[el.getAttribute("data-id")] = el;
+      });
+
       // Update time remaining on boss cards
       for (const [bossId, info] of Object.entries(timers)) {
-        const el = document.querySelector(`.boss[data-id="${bossId}"]`);
+        const el = bossEls[bossId];
         if (!el || !info?.endTime) continue;
 
         const inCooldown = info.cooldownUntil && now < info.cooldownUntil;
@@ -1344,7 +1353,7 @@
       for (const boss of BOSSES) {
         if (timers[boss.id]) continue;
         if (!boss.weeklyRespawns) continue;
-        const el = document.querySelector(`.boss[data-id="${boss.id}"]`);
+        const el = bossEls[boss.id];
         if (!el) continue;
         const nextTime = getNextWeeklyRespawnTime(boss);
         if (!nextTime) continue;
@@ -1510,7 +1519,7 @@
       }, { passive: true });
 
       window.addEventListener("resize", () => {
-        if (window.innerWidth > 900) {
+        if (window.innerWidth > TABLET_BREAKPOINT) {
           panelsTrack.style.transform = "translateX(0)";
           currentPanel = 0;
           const dots = panelsDots.querySelectorAll(".dot");
@@ -1603,7 +1612,7 @@
           const desktopBtn = document.querySelector(`.admin-nav .nav-btn[data-tab="${tab}"]`);
           if (desktopBtn) desktopBtn.classList.add('active');
           if (panel) panel.classList.add('active');
-          const bossListPanel = document.getElementById('bossListPanel');
+          // use outer bossListPanel (declared at module level)
           const topRow = document.getElementById('topPanelsRow');
           if (tab !== 'bosslist') {
             if (bossListPanel) bossListPanel.style.display = 'none';
@@ -2808,6 +2817,11 @@
 
     async function ghRunPointsOcr() {
       if (ghPointsOcrRunning) return;
+      if (typeof Tesseract === 'undefined') {
+        ghPointsOcrStatus.className = 'ocr-status visible ocr-error';
+        ghPointsOcrStatusText.textContent = 'OCR library failed to load. Please refresh the page.';
+        return;
+      }
       ghPointsOcrRunning = true;
       ghPointsOcrStatus.className = 'ocr-status visible ocr-loading';
       ghPointsOcrStatusText.textContent = 'Running OCR on ' + ghPointsScreenshotDataUrls.length + ' screenshot(s)...';
@@ -3232,6 +3246,11 @@
 
     async function ghRunOcr() {
       if (ghOcrRunning) return;
+      if (typeof Tesseract === 'undefined') {
+        ocrStatus.className = 'ocr-status visible ocr-error';
+        ocrStatusText.textContent = 'OCR library failed to load. Please refresh the page.';
+        return;
+      }
       ghOcrRunning = true;
       ocrStatus.className = 'ocr-status visible ocr-loading';
       ocrStatusText.textContent = 'Running OCR on ' + ghScreenshotDataUrls.length + ' screenshot(s)...';

@@ -2600,3 +2600,11 @@ gap: 2px;
       transition: border-color var(--transition);
     }
     .add-member-popup .party-popup-body textarea:focus { border-color: var(--accent-gold); box-shadow: var(--glow-gold); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
