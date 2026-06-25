@@ -158,13 +158,35 @@
     .warning-text {
       font-size: clamp(7px, 1.5vw, 9px);
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       line-height: 1.2;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       font-family: var(--font-display);
     }
 
+    .empty-state {
+      text-align: center;
+      padding: 12px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-style: italic;
+    }
+    .action-logs-container {
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .boss-config-input {
+      width: 50px;
+      text-align: center;
+      padding: 2px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
     .search-wrapper {
       display: flex;
       align-items: center;
@@ -356,19 +378,20 @@
       border: none;
       background: none;
       box-shadow: none;
-      width: 20px;
-      height: 20px;
-      min-width: 20px;
-      min-height: 20px;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       cursor: pointer;
+      color: var(--text-muted);
     }
     #scheduleBtn:hover {
-      color: var(--text-primary);
+      color: var(--accent-gold);
     }
 
     .admin-auth-btn.on {
@@ -476,7 +499,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 1px;
+      gap: 2px;
       padding: 4px 16px;
       background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(17,17,17,0.98) 100%);
       border: 1px solid rgba(255,255,255,0.06);
@@ -765,7 +788,7 @@
       flex-direction: column;
       align-items: stretch;
       gap: 4px;
-      padding: 4px 0;
+      padding: 6px 0;
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: rgba(var(--accent-rgb),0.12) transparent;
@@ -974,7 +997,7 @@ gap: 2px;
     
     .boss.is-alive {
       border-left: 3px solid var(--accent-gold);
-      padding-left: 9px;
+      padding-left: 6px;
     }
     
     .boss.is-alive:hover {
@@ -1027,7 +1050,7 @@ gap: 2px;
 
     .boss .sub {
       font-size: 9px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       letter-spacing: 0.3px;
     }
 
@@ -1118,7 +1141,8 @@ gap: 2px;
       .discord-badge-btn { max-width: 34px; }
       .discord-badge-btn .discord-badge-icon { width: 22px; height: 22px; }
       .discord-badge-btn:hover { max-width: 220px; }
-      #scheduleBtn { width: 20px; height: 20px; min-width: 20px; min-height: 20px; border: none; background: none; box-shadow: none; }
+      #scheduleBtn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; border: none; background: none; box-shadow: none; color: var(--text-muted); }
+      #scheduleBtn:hover { color: var(--accent-gold); }
       #bossSearch { height: 28px !important; }
       .top-panels-row {
         flex-direction: row;
@@ -1675,6 +1699,13 @@ gap: 2px;
       z-index: 9999;
       background: var(--bg-primary);
       background-image: radial-gradient(ellipse at center, rgba(var(--accent-rgb),0.03) 0%, transparent 70%);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      pointer-events: auto;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     #discordLoginOverlay {
@@ -1844,7 +1875,7 @@ gap: 2px;
 
     .spawn-time {
       font-size: 9px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1852,7 +1883,7 @@ gap: 2px;
 
     .location {
       font-size: 9px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1874,16 +1905,16 @@ gap: 2px;
       flex-shrink: 0;
     }
     .boss .sub::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='8,4 8,8 11,10.5' fill='none' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23777777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='8,4 8,8 11,10.5' fill='none' stroke='%23777777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }
     .boss .location::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 2C5.8 2 4 3.8 4 6c0 3 4 7.5 4 7.5s4-4.5 4-7.5c0-2.2-1.8-4-4-4z' fill='none' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='8' cy='6' r='1.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 2C5.8 2 4 3.8 4 6c0 3 4 7.5 4 7.5s4-4.5 4-7.5c0-2.2-1.8-4-4-4z' fill='none' stroke='%23777777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='8' cy='6' r='1.5' fill='none' stroke='%23777777' stroke-width='1.5'/%3E%3C/svg%3E");
     }
     .boss .spawn-time::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect x='1.5' y='3.5' width='13' height='11' rx='1.5' fill='none' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='1.5' y1='7' x2='14.5' y2='7' stroke='%236e7681' stroke-width='1.5'/%3E%3Cline x1='5' y1='1.5' x2='5' y2='5.5' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='11' y1='1.5' x2='11' y2='5.5' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect x='1.5' y='3.5' width='13' height='11' rx='1.5' fill='none' stroke='%23777777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='1.5' y1='7' x2='14.5' y2='7' stroke='%23777777' stroke-width='1.5'/%3E%3Cline x1='5' y1='1.5' x2='5' y2='5.5' stroke='%23777777' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='11' y1='1.5' x2='11' y2='5.5' stroke='%23777777' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
     }
     .boss .time-remaining::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 1.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 14.5h10' stroke='%236e7681' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 1.5C3 4.3 5.2 7 8 7s5-2.7 5-5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3Cpath d='M3 14.5C3 11.7 5.2 9 8 9s5 2.7 5 5.5' fill='none' stroke='%236e7681' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 1.5h10' stroke='%23777777' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 14.5h10' stroke='%23777777' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M3 1.5C3 4.3 5.2 7 8 7s5-2.7 5-5.5' fill='none' stroke='%23777777' stroke-width='1.5'/%3E%3Cpath d='M3 14.5C3 11.7 5.2 9 8 9s5 2.7 5 5.5' fill='none' stroke='%23777777' stroke-width='1.5'/%3E%3C/svg%3E");
     }
     .spawn-time:empty::before,
     .boss .time-remaining:empty::before {
@@ -1933,7 +1964,7 @@ gap: 2px;
       align-items: center;
       justify-content: center;
       color: var(--text-muted);
-      transition: all 0.2s ease;
+      transition: all var(--transition);
     }
 
     .icon-btn svg {
@@ -2023,6 +2054,12 @@ gap: 2px;
       right: 4px;
       height: 2px;
       background: var(--accent-gold);
+      opacity: 1;
+      transition: opacity var(--transition);
+    }
+    .admin-nav .nav-btn:not(.active)::after {
+      opacity: 0;
+      transition: opacity var(--transition);
     }
 
     @media (min-width: 901px) {

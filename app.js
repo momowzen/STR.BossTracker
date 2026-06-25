@@ -58,6 +58,19 @@
     const cancelTimeBtn = document.getElementById("cancelTimeBtn");
     const saveTimeBtn = document.getElementById("saveTimeBtn");
     const loadingOverlay = document.getElementById("loadingOverlay");
+    let hideOverlayTimer = null;
+    function hideLoadingOverlay() {
+      loadingOverlay.classList.add("hidden");
+      hideOverlayTimer = setTimeout(() => {
+        loadingOverlay.style.display = "none";
+        hideOverlayTimer = null;
+      }, 300);
+    }
+    function showLoadingOverlay() {
+      if (hideOverlayTimer) { clearTimeout(hideOverlayTimer); hideOverlayTimer = null; }
+      loadingOverlay.style.display = "flex";
+      loadingOverlay.classList.remove("hidden");
+    }
     const settingsBtn = document.getElementById("settingsBtn");
     const alarmBtn = document.getElementById("alarmBtn");
     const adminAuthBtn = document.getElementById("adminAuthBtn");
@@ -2024,7 +2037,7 @@
         updateAuthUI();
         init();
       } else {
-        loadingOverlay.style.display = "none";
+        hideLoadingOverlay();
         loginOverlay.classList.remove("hidden");
         loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
         loginStartBtn.style.display = "none";
@@ -2049,13 +2062,13 @@
             init();
             return;
           } else {
-            loadingOverlay.style.display = "none";
+            hideLoadingOverlay();
             loginStatus.textContent = `Access Denied — ${d.displayName} is not a member of the STR4NG3RZ server.`;
             return;
           }
         } catch (e) {}
       }
-      loadingOverlay.style.display = "none";
+      hideLoadingOverlay();
       loginOverlay.classList.remove("hidden");
       loginStatus.textContent = "Login with Discord to access the Command Center.";
       loginStartBtn.style.display = "inline-flex";
@@ -2142,7 +2155,7 @@
     // -------------------------
     async function init() {
       if (appInitialized) return;
-      loadingOverlay.style.display = "flex";
+      showLoadingOverlay();
 
       // ✅ Wait until the DOM is fully loaded
       await new Promise((resolve) => {
@@ -2263,7 +2276,7 @@
 
           if (!firebaseLoaded) {
             firebaseLoaded = true;
-            loadingOverlay.style.display = "none";
+            hideLoadingOverlay();
             appInitialized = true;
           }
         }, (err) => {
@@ -2487,7 +2500,7 @@
     function ghRenderActivity() {
       let html = '';
       if (ghActivityLog.length === 0) {
-        html += '<div class="log-entry"><span style="color:var(--text-muted);font-style:italic;padding:4px 0">No activity yet.</span></div>';
+        html += '<div class="log-entry"><span class="empty-state" style="padding:4px 0">No activity yet.</span></div>';
       } else {
         for (const entry of ghActivityLog) {
           html += `<div class="log-entry"><span class="log-time">${entry.time}</span><span class="log-msg">${escapeHtml(entry.message)}</span></div>`;
@@ -2501,7 +2514,7 @@
       const search = (filter || '').toLowerCase();
       let filtered = search ? ghMembers.filter(m => m.toLowerCase().includes(search)) : ghMembers;
       if (filtered.length === 0) {
-        ghMemberList.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text-muted);font-size:12px;font-style:italic">' +
+        ghMemberList.innerHTML = '<div class="empty-state" style="padding:24px 0">' +
           (ghMembers.length === 0 ? 'No members yet.' : 'No members match your search.') + '</div>';
         ghMemberCount.textContent = '0';
         return;
@@ -2519,8 +2532,8 @@
           <span class="member-name">${escapeHtml(m)}</span>
           <span class="member-wm">${wm ? escapeHtml(wm) : '<span style="color:var(--text-muted)">—</span>'}</span>
           <div style="display:flex;align-items:center;gap:4px">
-            <button class="kbtn" data-action="edit" data-name="${escapeHtml(m)}" style="width:26px;min-width:26px;height:26px;padding:0">✎</button>
-            <button class="kbtn" data-action="remove" data-name="${escapeHtml(m)}" style="width:26px;min-width:26px;height:26px;padding:0;color:var(--accent-red)">✕</button>
+            <button class="kbtn" data-action="edit" data-name="${escapeHtml(m)}" style="width:32px;min-width:32px;height:32px;padding:0"><svg width="14" height="14" aria-hidden="true"><use href="#icon-edit"/></svg></button>
+            <button class="kbtn" data-action="remove" data-name="${escapeHtml(m)}" style="width:32px;min-width:32px;height:32px;padding:0;color:var(--accent-red)"><svg width="14" height="14" aria-hidden="true"><use href="#icon-x"/></svg></button>
           </div>
         </div>`;
       }
@@ -2681,7 +2694,7 @@
           </div>
           <div class="bc-points">
             <button class="kbtn" data-id="${b.id}" data-dir="down" style="width:24px;min-width:24px;height:24px;padding:0">−</button>
-            <input type="number" min="0" max="100" value="${pts}" data-id="${b.id}" style="width:50px;text-align:center;padding:2px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:12px">
+            <input type="number" min="0" max="100" value="${pts}" data-id="${b.id}" class="boss-config-input">
             <button class="kbtn" data-id="${b.id}" data-dir="up" style="width:24px;min-width:24px;height:24px;padding:0">+</button>
           </div>
         </div>`;
@@ -2800,7 +2813,7 @@
     function ghRenderAllMembers() {
       const container = allMembersPanel;
       if (ghMembers.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:12px;font-style:italic">No members in guild.</div>';
+        container.innerHTML = '<div class="empty-state">No members in guild.</div>';
         return;
       }
       const filter = (partySearch.value || '').toLowerCase();
@@ -2810,7 +2823,7 @@
         if (ghPartySortOrder === 'desc') filtered.reverse();
       }
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:12px;font-style:italic">No members match filter.</div>';
+        container.innerHTML = '<div class="empty-state">No members match filter.</div>';
         return;
       }
       let html = '';
@@ -2834,7 +2847,7 @@
     function ghRenderSelectedMembers() {
       const list = selectedPillList;
       if (ghSelectedMembers.size === 0) {
-        list.innerHTML = '<span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span>';
+        list.innerHTML = '<span class="empty-state">No members selected</span>';
         return;
       }
       let html = '';
