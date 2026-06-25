@@ -485,55 +485,13 @@
   </div>
 
   <!-- ─── GIVE POINTS POPUP ─── -->
-  <div id="ghPointsOverlay" class="party-overlay" style="display:none"></div>
-  <div id="ghPointsPopup" class="party-popup add-member-popup" style="display:none">
-    <div class="party-popup-header">
-      <span>ADD-DEDUCT POINTS</span>
-      <button class="party-popup-close" id="ghPointsPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="party-popup-body">
-      <div class="section-title">Upload Screenshot</div>
-      <div class="screenshot-upload" id="ghPointsScreenshotUpload">
-        <div class="su-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <div class="su-text">Click or drop</div>
-        <input type="file" accept="image/*" id="ghPointsScreenshotInput" multiple>
-      </div>
-      <div class="screenshot-thumbs" id="ghPointsScreenshotThumbs"></div>
-      <div class="ocr-status" id="ghPointsOcrStatus">
-        <div class="ocr-spinner"></div>
-        <span id="ghPointsOcrStatusText">Waiting for screenshot...</span>
-      </div>
-      <hr class="admin-divider">
-      <div class="section-title">Party Members</div>
-      <div class="party-panel selected-panel" id="ghPointsSelectedPanel">
-        <div class="pill-list" id="ghPointsSelectedPillList"><span class="text-muted-placeholder">No members selected</span></div>
-        <div class="unrecognized-list" id="ghPointsUnrecognizedList" style="display:none"></div>
-      </div>
-      <div class="party-search-row">
-        <input class="search compact-alt" id="ghPointsSearch" placeholder="Search member..." style="flex:1">
-        <button class="kbtn btn-xs60" id="ghPointsSortBtn">Name</button>
-        <button class="kbtn btn-xs" id="ghPointsOrderBtn"><span id="ghPointsOrderIcon">↑</span></button>
-      </div>
-      <div class="party-panel all-panel scroll-y" id="ghPointsAllMembers" style="max-height:200px"></div>
-      <hr class="admin-divider">
-      <div class="mb-12">
-        <label class="label-uppercase">Points per member <span id="ghPointsSignLabel" style="color:var(--accent-gold)">+</span></label>
-        <div class="flex-row-center">
-          <button class="kbtn btn-xs" id="ghPointsSignToggle" style="height:28px;padding:0;font-size:14px;font-weight:700">+</button>
-          <input type="number" id="ghPointsInput" value="1" class="flex-1" style="padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
-        </div>
-      </div>
-      <button class="kbtn w-full flex-center-justify" id="ghPointsConfirm">CONFIRM</button>
-    </div>
-  </div>
+
 
   <!-- ─── PARTY RALLY POPUP ─── -->
   <div id="partyOverlay" class="party-overlay" style="display:none"></div>
   <div id="partyPanel" class="party-popup" style="display:none">
     <div class="party-popup-header">
-      <span>Party - Rally</span>
+      <span id="panelHeaderText">Party - Rally</span>
       <button class="party-popup-close" id="partyPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="party-popup-body">
@@ -564,13 +522,20 @@
       <div class="party-panel all-panel" id="allMembersPanel"></div>
       <hr class="admin-divider">
       <div class="confirm-area">
-        <div class="flex-center-justify" style="flex-direction:column;text-align:center">
-          <div class="text-muted-sm">Members selected</div>
-          <div class="confirm-value" id="selectedCount">0</div>
+        <div id="partyModeSummary" class="flex-row-center" style="gap:12px;flex:1">
+          <div class="flex-center-justify" style="flex-direction:column;text-align:center">
+            <div class="text-muted-sm">Members selected</div>
+            <div class="confirm-value" id="selectedCount">0</div>
+          </div>
+          <div class="flex-center-justify" style="flex-direction:column;text-align:center">
+            <div class="text-muted-sm">Points each</div>
+            <div class="confirm-value" id="confirmPointsEach">0</div>
+          </div>
         </div>
-        <div class="flex-center-justify" style="flex-direction:column;text-align:center">
-          <div class="text-muted-sm">Points each</div>
-          <div class="confirm-value" id="confirmPointsEach">0</div>
+        <div id="pointsModeInput" class="flex-row-center" style="display:none;gap:8px;flex:1">
+          <label class="label-uppercase" style="white-space:nowrap">Points <span id="ghPointsSignLabel" style="color:var(--accent-gold)">+</span></label>
+          <button class="kbtn btn-xs" id="ghPointsSignToggle" style="height:28px;font-size:14px;font-weight:700">+</button>
+          <input type="number" id="ghPointsInput" value="1" style="flex:1;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
         </div>
         <button class="kbtn" id="confirmKillBtn" disabled>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

@@ -2361,22 +2361,6 @@
     const ghBulkImportBtn = $('ghBulkImportBtn');
     const ghToggleAddMember = $('ghToggleAddMember');
     const ghToggleGivePoints = $('ghToggleGivePoints');
-    const ghPointsOverlay = $('ghPointsOverlay');
-    const ghPointsPopup = $('ghPointsPopup');
-    const ghPointsPopupClose = $('ghPointsPopupClose');
-    const ghPointsSearch = $('ghPointsSearch');
-    const ghPointsAllMembers = $('ghPointsAllMembers');
-    const ghPointsInput = $('ghPointsInput');
-    const ghPointsConfirm = $('ghPointsConfirm');
-    const ghPointsSignToggle = $('ghPointsSignToggle');
-    const ghPointsSignLabel = $('ghPointsSignLabel');
-    const ghPointsScreenshotUpload = $('ghPointsScreenshotUpload');
-    const ghPointsScreenshotInput = $('ghPointsScreenshotInput');
-    const ghPointsScreenshotThumbs = $('ghPointsScreenshotThumbs');
-    const ghPointsOcrStatus = $('ghPointsOcrStatus');
-    const ghPointsOcrStatusText = $('ghPointsOcrStatusText');
-    const ghPointsSelectedPillList = $('ghPointsSelectedPillList');
-    const ghPointsUnrecognizedList = $('ghPointsUnrecognizedList');
     const ghResetBossConfig = $('ghResetBossConfig');
     const ghResetLeaderboard = $('ghResetLeaderboard');
     const ghClearActivity = $('ghClearActivity');
@@ -2400,6 +2384,12 @@
     const selectedCount = $('selectedCount');
     const confirmPointsEach = $('confirmPointsEach');
     const confirmKillBtn = $('confirmKillBtn');
+    const panelHeaderText = $('panelHeaderText');
+    const ghPointsSignToggle = $('ghPointsSignToggle');
+    const ghPointsSignLabel = $('ghPointsSignLabel');
+    const ghPointsInput = $('ghPointsInput');
+    const partyModeSummary = $('partyModeSummary');
+    const pointsModeInput = $('pointsModeInput');
 
     let ghScreenshotDataUrls = [];
     let ghOcrRunning = false;
@@ -2654,324 +2644,18 @@
     clearMemberSearch.addEventListener("click", () => { ghMemberSearch.value = ""; updateMemberClear(); ghRenderMemberList(""); });
     updateMemberClear();
 
-    // ─── Give Points ───
-    let ghPointsSelectedMembers = new Set();
-    let ghPointsScreenshotDataUrls = [];
-    let ghPointsScanResults = null;
-    let ghPointsOcrRunning = false;
-    let ghPointsSortMode = 'name';
-    let ghPointsSortOrder = 'asc';
-
-    function ghRenderPointsMembers() {
-      const container = ghPointsAllMembers;
-      const filter = (ghPointsSearch.value || '').toLowerCase();
-      let filtered = filter ? ghMembers.filter(m => m.toLowerCase().includes(filter)) : [...ghMembers];
-      if (ghPointsSortMode === 'name') {
-        filtered.sort((a, b) => a.localeCompare(b));
-        if (ghPointsSortOrder === 'desc') filtered.reverse();
-      }
-      if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:12px;font-style:italic">No members match filter.</div>';
-        return;
-      }
-      let html = '';
-      for (const m of filtered) {
-        const sel = ghPointsSelectedMembers.has(m) ? ' selected' : '';
-        html += `<span class="pill${sel}" data-name="${escapeHtml(m)}">${escapeHtml(m)}</span>`;
-      }
-      container.innerHTML = html;
-      container.querySelectorAll('.pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          const name = pill.dataset.name;
-          if (ghPointsSelectedMembers.has(name)) ghPointsSelectedMembers.delete(name);
-          else ghPointsSelectedMembers.add(name);
-          ghRenderPointsMembers();
-          ghRenderPointsSelectedMembers();
-        });
-      });
-    }
-
-    function ghRenderPointsSelectedMembers() {
-      const list = ghPointsSelectedPillList;
-      if (ghPointsSelectedMembers.size === 0) {
-        list.innerHTML = '<span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span>';
-        return;
-      }
-      let html = '';
-      for (const name of ghPointsSelectedMembers) {
-        html += `<span class="pill selected" data-name="${escapeHtml(name)}">${escapeHtml(name)}<button class="pill-x" data-name="${escapeHtml(name)}">✕</button></span>`;
-      }
-      list.innerHTML = html;
-      list.querySelectorAll('.pill-x').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          ghPointsSelectedMembers.delete(btn.dataset.name);
-          ghRenderPointsMembers();
-          ghRenderPointsSelectedMembers();
-        });
-      });
-    }
-
-    function ghPointsClearScreenshot() {
-      if (ghPointsScanResults) {
-        for (const n of (ghPointsScanResults.matched || [])) ghPointsSelectedMembers.delete(n);
-        ghPointsScanResults = null;
-      }
-      ghPointsScreenshotDataUrls = [];
-      ghPointsScreenshotThumbs.innerHTML = '';
-      ghPointsOcrStatus.className = 'ocr-status';
-      ghPointsOcrStatusText.textContent = 'Waiting for screenshot...';
-      ghRenderPointsMembers();
-      ghRenderPointsSelectedMembers();
-    }
-
-    function ghRenderPointsThumbnails() {
-      let html = '';
-      ghPointsScreenshotDataUrls.forEach((url, i) => {
-        html += `<div class="screenshot-thumb"><img src="${url}"><button class="thumb-remove" data-idx="${i}">✕</button></div>`;
-      });
-      ghPointsScreenshotThumbs.innerHTML = html;
-      ghPointsScreenshotThumbs.querySelectorAll('.thumb-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.dataset.idx);
-          ghPointsScreenshotDataUrls.splice(idx, 1);
-          ghRenderPointsThumbnails();
-          if (ghPointsScreenshotDataUrls.length === 0) ghPointsClearScreenshot();
-        });
-      });
-    }
-
-    function ocrNormalizeChar(s) {
-      return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
-    }
-
-    const CIRCLED_NUM_MAP = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
-    const CIRCLED_NUM_RE = /[\u2460-\u2468]/g;
-
-    function processOcrText(allText, members) {
-      const tokens = allText.split(/[\s,]+/)
-        .map(t => t.replace(CIRCLED_NUM_RE, m => CIRCLED_NUM_MAP[m]))
-        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
-        .filter(Boolean);
-
-      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
-      const merged = [];
-      let cjkBuf = '';
-      for (const t of tokens) {
-        if (reCjkRun.test(t)) { cjkBuf += t; }
-        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
-      }
-      if (cjkBuf) merged.push(cjkBuf);
-      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
-
-      const memberMap = new Map();
-      const normalizedMap = new Map();
-      const looseMap = new Map();
-      for (const m of members) {
-        const key = m.toUpperCase();
-        memberMap.set(key, m);
-        const norm = ocrNormalizeChar(key);
-        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
-        const loose = key.replace(/[^A-Z0-9]/g, '');
-        if (loose && !looseMap.has(loose)) looseMap.set(loose, m);
-      }
-
-      function matchToken(token) {
-        if (memberMap.has(token)) return memberMap.get(token);
-        const norm = ocrNormalizeChar(token);
-        if (normalizedMap.has(norm)) return normalizedMap.get(norm);
-        const loose = token.replace(/[^A-Z0-9]/g, '');
-        if (loose && looseMap.has(loose)) return looseMap.get(loose);
-        return null;
-      }
-
-      const matched = new Set();
-      const consumed = new Set();
-
-      for (let i = 0; i < unique.length; i++) {
-        if (consumed.has(i)) continue;
-        const hit = matchToken(unique[i]);
-        if (hit) { matched.add(hit); consumed.add(i); }
-      }
-
-      for (let i = 0; i < unique.length; i++) {
-        if (consumed.has(i)) continue;
-        if (i + 1 < unique.length && !consumed.has(i + 1)) {
-          const c = unique[i] + unique[i + 1];
-          const hit = matchToken(c);
-          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); continue; }
-        }
-        if (i + 2 < unique.length && !consumed.has(i + 1) && !consumed.has(i + 2)) {
-          const c = unique[i] + unique[i + 1] + unique[i + 2];
-          const hit = matchToken(c);
-          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); consumed.add(i + 2); continue; }
-        }
-      }
-
-      const unrecognized = [];
-      for (let i = 0; i < unique.length; i++) {
-        if (!consumed.has(i)) unrecognized.push(unique[i]);
-      }
-
-      return { matched: [...matched], unrecognized };
-    }
-
-    async function ghRunPointsOcr() {
-      if (ghPointsOcrRunning) return;
-      if (typeof Tesseract === 'undefined') {
-        ghPointsOcrStatus.className = 'ocr-status visible ocr-error';
-        ghPointsOcrStatusText.textContent = 'OCR library failed to load. Please refresh the page.';
-        return;
-      }
-      ghPointsOcrRunning = true;
-      ghPointsOcrStatus.className = 'ocr-status visible ocr-loading';
-      ghPointsOcrStatusText.textContent = 'Running OCR on ' + ghPointsScreenshotDataUrls.length + ' screenshot(s)...';
-
-      let allText = '';
-      try {
-        for (let idx = 0; idx < ghPointsScreenshotDataUrls.length; idx++) {
-          ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + '/' + ghPointsScreenshotDataUrls.length + '...';
-          const processed = await preprocessImage(ghPointsScreenshotDataUrls[idx]);
-          const result = await Tesseract.recognize(processed, 'eng+jpn', { logger: m => {
-            if (m.status === 'recognizing text') ghPointsOcrStatusText.textContent = 'Screenshot ' + (idx + 1) + ' reading... ' + Math.round(m.progress * 100) + '%';
-          }});
-          allText += result.data.text + '\n';
-        }
-      } catch (err) {
-        ghPointsOcrStatus.className = 'ocr-status visible ocr-error';
-        ghPointsOcrStatusText.textContent = 'OCR failed: ' + err.message;
-        ghPointsOcrRunning = false;
-        return;
-      }
-
-      const { matched, unrecognized } = processOcrText(allText, ghMembers);
-
-      for (const name of matched) ghPointsSelectedMembers.add(name);
-      ghPointsScanResults = { matched: [...matched], unrecognized };
-
-      ghPointsOcrStatus.className = 'ocr-status visible ' + (matched.length > 0 ? 'ocr-done' : 'ocr-warning');
-      ghPointsOcrStatusText.textContent = matched.length > 0
-        ? 'Matched ' + matched.length + ' member(s)' + (unrecognized.length ? ' · ' + unrecognized.length + ' unrecognized' : '')
-        : 'No recognizable names found.';
-
-      if (unrecognized.length > 0) {
-        let html = '';
-        for (const name of unrecognized) {
-          html += `<span class="pill" data-name="${escapeHtml(name)}">${escapeHtml(name)}<button class="pill-add" data-name="${escapeHtml(name)}">+</button></span>`;
-        }
-        ghPointsUnrecognizedList.innerHTML = html;
-        ghPointsUnrecognizedList.style.display = 'block';
-        ghPointsUnrecognizedList.querySelectorAll('.pill-add').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const name = btn.dataset.name;
-            if (!ghMembers.some(m => m.toLowerCase() === name.toLowerCase())) {
-              ghMembers.push(name);
-              saveAdminData();
-              ghRenderMemberList(ghMemberSearch.value);
-              ghRenderPointsMembers();
-              ghRenderLeaderboard();
-              logAction("add_member_scan", { name });
-              showToast('Added "' + name + '" to guild.', 'success');
-              btn.closest('.pill').remove();
-            }
-          });
-        });
-      } else {
-        ghPointsUnrecognizedList.style.display = 'none';
-      }
-
-      ghRenderPointsMembers();
-      ghRenderPointsSelectedMembers();
-      ghPointsOcrRunning = false;
-    }
-
-    ghPointsScreenshotInput.addEventListener('change', (e) => {
-      for (const file of e.target.files) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          ghPointsScreenshotDataUrls.push(ev.target.result);
-          ghRenderPointsThumbnails();
-          ghRunPointsOcr();
-        };
-        reader.readAsDataURL(file);
-      }
-      e.target.value = '';
-    });
-
-    ghPointsScreenshotUpload.addEventListener('dragover', (e) => { e.preventDefault(); ghPointsScreenshotUpload.classList.add('dragover'); });
-    ghPointsScreenshotUpload.addEventListener('dragleave', () => { ghPointsScreenshotUpload.classList.remove('dragover'); });
-    ghPointsScreenshotUpload.addEventListener('drop', (e) => {
-      e.preventDefault(); ghPointsScreenshotUpload.classList.remove('dragover');
-      for (const file of e.dataTransfer.files) {
-        if (!file.type.startsWith('image/')) continue;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          ghPointsScreenshotDataUrls.push(ev.target.result);
-          ghRenderPointsThumbnails();
-          ghRunPointsOcr();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    let panelMode = 'party';
 
     ghToggleGivePoints.addEventListener('click', () => {
-      ghPointsSelectedMembers.clear();
-      ghPointsScreenshotDataUrls = [];
-      ghPointsScanResults = null;
-      ghPointsScreenshotThumbs.innerHTML = '';
-      ghPointsUnrecognizedList.innerHTML = '';
-      ghPointsUnrecognizedList.style.display = 'none';
-      ghPointsOcrStatus.className = 'ocr-status';
-      ghPointsOcrStatusText.textContent = 'Waiting for screenshot...';
-      ghPointsSearch.value = '';
-      ghPointsInput.value = '1';
-      ghPointsSignToggle.textContent = '+';
-      ghPointsSignLabel.textContent = '+';
-      ghPointsPopup.style.display = 'flex';
-      ghPointsOverlay.style.display = 'block';
-      ghRenderPointsMembers();
-      ghRenderPointsSelectedMembers();
+      showPartyPanel(null, 'points');
     });
+
     ghPointsSignToggle.addEventListener('click', () => {
       const isNeg = ghPointsSignToggle.textContent === '-';
       ghPointsSignToggle.textContent = isNeg ? '+' : '-';
       ghPointsSignLabel.textContent = isNeg ? '+' : '-';
       ghPointsSignLabel.style.color = isNeg ? 'var(--accent-gold)' : 'var(--accent-red)';
       ghPointsSignToggle.style.color = isNeg ? '' : 'var(--accent-red)';
-    });
-    ghPointsPopupClose.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
-    ghPointsOverlay.addEventListener('click', () => { ghPointsPopup.style.display = 'none'; ghPointsOverlay.style.display = 'none'; });
-    ghPointsSearch.addEventListener('input', ghRenderPointsMembers);
-    const ghPointsSortBtn = $('ghPointsSortBtn');
-    const ghPointsOrderBtn = $('ghPointsOrderBtn');
-    const ghPointsOrderIcon = $('ghPointsOrderIcon');
-    ghPointsSortBtn.addEventListener('click', () => {
-      ghPointsSortMode = ghPointsSortMode === 'name' ? 'default' : 'name';
-      ghPointsSortBtn.textContent = ghPointsSortMode === 'name' ? 'Name' : 'Default';
-      ghRenderPointsMembers();
-    });
-    ghPointsOrderBtn.addEventListener('click', () => {
-      ghPointsSortOrder = ghPointsSortOrder === 'asc' ? 'desc' : 'asc';
-      ghPointsOrderIcon.textContent = ghPointsSortOrder === 'asc' ? '↑' : '↓';
-      if (ghPointsSortMode === 'name') ghRenderPointsMembers();
-    });
-    ghPointsConfirm.addEventListener('click', () => {
-      const selected = [...ghPointsSelectedMembers];
-      let pts = parseInt(ghPointsInput.value) || 0;
-      if (ghPointsSignToggle.textContent === '-') pts = -Math.abs(pts);
-      if (selected.length === 0) { showToast('Select at least one member.', 'error'); return; }
-      if (pts === 0) { showToast('Points must not be 0.', 'error'); return; }
-      for (const name of selected) {
-        ghMemberPoints[name] = (ghMemberPoints[name] || 0) + pts;
-      }
-      saveAdminData();
-      ghRenderLeaderboard();
-      logAction("give_points", { members: selected, points: pts });
-      const verb = pts > 0 ? 'awarded' : 'deducted';
-      ghAddActivity('Manually ' + verb + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.join(', '));
-      ghPointsPopup.style.display = 'none';
-      ghPointsOverlay.style.display = 'none';
-      showToast((pts > 0 ? 'Awarded' : 'Deducted') + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.length + ' member(s)', 'success');
     });
 
     // ─── Boss Config ───
@@ -3049,8 +2733,9 @@
     ghClearActivity.addEventListener('click', () => { ghActivityLog = []; saveAdminData(); ghRenderActivity(); showToast('Activity logs cleared.', 'success'); logAction('activity_cleared'); });
 
     // ─── Party Popup ───
-    function showPartyPanel(bossId) {
+    function showPartyPanel(bossId, mode) {
       ghCurrentBossId = bossId;
+      panelMode = mode || 'party';
       ghSelectedMembers.clear();
       ghScreenshotDataUrls = [];
       ghScanResults = null;
@@ -3059,11 +2744,28 @@
       unrecognizedList.style.display = 'none';
       ocrStatus.className = 'ocr-status';
       ocrStatusText.textContent = 'Waiting for screenshot...';
+      partySearch.value = '';
       partyOverlay.style.display = 'block';
       partyPanel.style.display = 'flex';
       partyPanel.style.animation = 'none';
       partyPanel.offsetHeight;
       partyPanel.style.animation = 'popIn 0.25s ease both';
+
+      if (panelMode === 'party') {
+        panelHeaderText.textContent = 'Party - Rally';
+        partyModeSummary.style.display = 'flex';
+        pointsModeInput.style.display = 'none';
+      } else {
+        panelHeaderText.textContent = 'ADD-DEDUCT POINTS';
+        partyModeSummary.style.display = 'none';
+        pointsModeInput.style.display = 'flex';
+        ghPointsInput.value = '1';
+        ghPointsSignToggle.textContent = '+';
+        ghPointsSignLabel.textContent = '+';
+        ghPointsSignLabel.style.color = 'var(--accent-gold)';
+        ghPointsSignToggle.style.color = '';
+      }
+
       ghRenderAllMembers();
       ghRenderSelectedMembers();
       ghUpdateConfirmSummary();
@@ -3136,9 +2838,13 @@
     function ghUpdateConfirmSummary() {
       const count = ghSelectedMembers.size;
       selectedCount.textContent = count;
-      const ptsPer = ghCurrentBossId ? (ghBossPoints[ghCurrentBossId] || 0) : 0;
-      confirmPointsEach.textContent = ptsPer;
-      confirmKillBtn.disabled = count === 0 || !ghCurrentBossId;
+      if (panelMode === 'party') {
+        const ptsPer = ghCurrentBossId ? (ghBossPoints[ghCurrentBossId] || 0) : 0;
+        confirmPointsEach.textContent = ptsPer;
+        confirmKillBtn.disabled = count === 0 || !ghCurrentBossId;
+      } else {
+        confirmKillBtn.disabled = count === 0;
+      }
     }
 
     partySearch.addEventListener('input', ghRenderAllMembers);
@@ -3211,6 +2917,81 @@
       ghRenderAllMembers();
       ghRenderSelectedMembers();
       ghUpdateConfirmSummary();
+    }
+
+    function ocrNormalizeChar(s) {
+      return s.replace(/0/g, 'O').replace(/1/g, 'I').replace(/3/g, 'E').replace(/4/g, 'A').replace(/5/g, 'S').replace(/6/g, 'G').replace(/8/g, 'B').replace(/Q/g, 'O');
+    }
+
+    const CIRCLED_NUM_MAP = { '\u2460':'1','\u2461':'2','\u2462':'3','\u2463':'4','\u2464':'5','\u2465':'6','\u2466':'7','\u2467':'8','\u2468':'9' };
+    const CIRCLED_NUM_RE = /[\u2460-\u2468]/g;
+
+    function processOcrText(allText, members) {
+      const tokens = allText.split(/[\s,]+/)
+        .map(t => t.replace(CIRCLED_NUM_RE, m => CIRCLED_NUM_MAP[m]))
+        .map(t => t.replace(/[^a-zA-Z0-9\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/g, ''))
+        .filter(Boolean);
+
+      const reCjkRun = /^[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]+$/;
+      const merged = [];
+      let cjkBuf = '';
+      for (const t of tokens) {
+        if (reCjkRun.test(t)) { cjkBuf += t; }
+        else { if (cjkBuf) { merged.push(cjkBuf); cjkBuf = ''; } merged.push(t); }
+      }
+      if (cjkBuf) merged.push(cjkBuf);
+      const unique = [...new Set(merged.map(t => t.toUpperCase()))];
+
+      const memberMap = new Map();
+      const normalizedMap = new Map();
+      const looseMap = new Map();
+      for (const m of members) {
+        const key = m.toUpperCase();
+        memberMap.set(key, m);
+        const norm = ocrNormalizeChar(key);
+        if (!normalizedMap.has(norm)) normalizedMap.set(norm, m);
+        const loose = key.replace(/[^A-Z0-9]/g, '');
+        if (loose && !looseMap.has(loose)) looseMap.set(loose, m);
+      }
+
+      function matchToken(token) {
+        if (memberMap.has(token)) return memberMap.get(token);
+        const norm = ocrNormalizeChar(token);
+        if (normalizedMap.has(norm)) return normalizedMap.get(norm);
+        const loose = token.replace(/[^A-Z0-9]/g, '');
+        if (loose && looseMap.has(loose)) return looseMap.get(loose);
+        return null;
+      }
+
+      const matched = new Set();
+      const consumed = new Set();
+
+      for (let i = 0; i < unique.length; i++) {
+        if (consumed.has(i)) continue;
+        const hit = matchToken(unique[i]);
+        if (hit) { matched.add(hit); consumed.add(i); }
+      }
+
+      for (let i = 0; i < unique.length; i++) {
+        if (consumed.has(i)) continue;
+        if (i + 1 < unique.length && !consumed.has(i + 1)) {
+          const c = unique[i] + unique[i + 1];
+          const hit = matchToken(c);
+          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); continue; }
+        }
+        if (i + 2 < unique.length && !consumed.has(i + 1) && !consumed.has(i + 2)) {
+          const c = unique[i] + unique[i + 1] + unique[i + 2];
+          const hit = matchToken(c);
+          if (hit) { matched.add(hit); consumed.add(i); consumed.add(i + 1); consumed.add(i + 2); continue; }
+        }
+      }
+
+      const unrecognized = [];
+      for (let i = 0; i < unique.length; i++) {
+        if (!consumed.has(i)) unrecognized.push(unique[i]);
+      }
+
+      return { matched: [...matched], unrecognized };
     }
 
     function preprocessImage(dataUrl) {
@@ -3316,20 +3097,36 @@
       ghOcrRunning = false;
     }
 
-    // ─── Confirm Kill ───
+    // ─── Confirm ───
     confirmKillBtn.addEventListener('click', () => {
-      const ptsPer = ghCurrentBossId ? (ghBossPoints[ghCurrentBossId] || 0) : 0;
-      if (ghSelectedMembers.size === 0) return;
-      const bossObj = BOSSES.find(b => b.id === ghCurrentBossId);
-      const bossName = bossObj ? bossObj.name : ghCurrentBossId;
-      for (const name of ghSelectedMembers) {
-        ghMemberPoints[name] = (ghMemberPoints[name] || 0) + ptsPer;
+      if (panelMode === 'party') {
+        const ptsPer = ghCurrentBossId ? (ghBossPoints[ghCurrentBossId] || 0) : 0;
+        if (ghSelectedMembers.size === 0) return;
+        const bossObj = BOSSES.find(b => b.id === ghCurrentBossId);
+        const bossName = bossObj ? bossObj.name : ghCurrentBossId;
+        for (const name of ghSelectedMembers) {
+          ghMemberPoints[name] = (ghMemberPoints[name] || 0) + ptsPer;
+        }
+        const names = [...ghSelectedMembers];
+        saveAdminData();
+        logAction("award_points", { bossName, bossId: ghCurrentBossId, points: ptsPer, members: names });
+        ghAddActivity('Killed ' + bossName + '. Awarded ' + ptsPer + ' pts to ' + names.join(', '));
+        showToast('Awarded ' + ptsPer + ' pts to ' + names.length + ' member(s)', 'success');
+      } else {
+        const selected = [...ghSelectedMembers];
+        let pts = parseInt(ghPointsInput.value) || 0;
+        if (ghPointsSignToggle.textContent === '-') pts = -Math.abs(pts);
+        if (selected.length === 0) { showToast('Select at least one member.', 'error'); return; }
+        if (pts === 0) { showToast('Points must not be 0.', 'error'); return; }
+        for (const name of selected) {
+          ghMemberPoints[name] = (ghMemberPoints[name] || 0) + pts;
+        }
+        saveAdminData();
+        logAction("give_points", { members: selected, points: pts });
+        const verb = pts > 0 ? 'awarded' : 'deducted';
+        ghAddActivity('Manually ' + verb + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.join(', '));
+        showToast((pts > 0 ? 'Awarded' : 'Deducted') + ' ' + Math.abs(pts) + ' pts ' + (pts > 0 ? 'to' : 'from') + ' ' + selected.length + ' member(s)', 'success');
       }
-      const names = [...ghSelectedMembers];
-      saveAdminData();
-      logAction("award_points", { bossName, bossId: ghCurrentBossId, points: ptsPer, members: names });
-      ghAddActivity('Killed ' + bossName + '. Awarded ' + ptsPer + ' pts to ' + names.join(', '));
-      showToast('Awarded ' + ptsPer + ' pts to ' + names.length + ' member(s)', 'success');
       ghSelectedMembers.clear();
       hidePartyPanel();
       ghRenderMemberList(ghMemberSearch.value);
