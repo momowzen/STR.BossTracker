@@ -2710,7 +2710,10 @@
     ghBossConfigSearch.addEventListener("blur", updateBossConfigClear);
     clearBossConfigSearch.addEventListener("click", () => { ghBossConfigSearch.value = ""; updateBossConfigClear(); ghRenderBossConfig(""); });
     updateBossConfigClear();
-    ghResetBossConfig.addEventListener('click', () => { ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); logAction("boss_config_reset"); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success'); });
+    ghResetBossConfig.addEventListener('click', async () => {
+      if (!(await showConfirmModal("Reset all boss points to 0?"))) return;
+      ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); logAction("boss_config_reset"); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success');
+    });
 
     // ─── Leaderboard ───
     function ghRenderLeaderboard() {
@@ -2728,9 +2731,15 @@
       ghLeaderboardList.innerHTML = html;
     }
 
-    ghResetLeaderboard.addEventListener('click', () => { ghMemberPoints = {}; saveAdminData(); ghRenderLeaderboard(); ghAddActivity('Reset all member points'); showToast('All member points reset.', 'success'); logAction('leaderboard_reset'); });
+    ghResetLeaderboard.addEventListener('click', async () => {
+      if (!(await showConfirmModal("Reset all member points to 0?"))) return;
+      ghMemberPoints = {}; saveAdminData(); ghRenderLeaderboard(); ghAddActivity('Reset all member points'); showToast('All member points reset.', 'success'); logAction('leaderboard_reset');
+    });
 
-    ghClearActivity.addEventListener('click', () => { ghActivityLog = []; saveAdminData(); ghRenderActivity(); showToast('Activity logs cleared.', 'success'); logAction('activity_cleared'); });
+    ghClearActivity.addEventListener('click', async () => {
+      if (!(await showConfirmModal("Clear all activity logs? This cannot be undone."))) return;
+      ghActivityLog = []; saveAdminData(); ghRenderActivity(); showToast('Activity logs cleared.', 'success'); logAction('activity_cleared');
+    });
 
     // ─── Party Popup ───
     function showPartyPanel(bossId, mode) {
