@@ -1222,9 +1222,6 @@ gap: 2px;
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); }
     #actionLogsColumnHeaders { display: flex; gap: 2px; padding: 6px 8px; font-size: 11px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
-    #actionLogsColumnHeaders .log-date, #actionLogsColumnHeaders .log-user, #actionLogsColumnHeaders .log-action { color: inherit; font-weight: inherit; flex-shrink: 0; font-family: inherit; }
-    #actionLogsColumnHeaders .log-date { min-width: 110px; }
-    #actionLogsColumnHeaders .log-user { min-width: 100px; }
     #actionLogsContainer .log-entry {
       display: flex; gap: 2px; padding: 6px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);

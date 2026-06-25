@@ -1962,7 +1962,7 @@
         snap.forEach((doc) => {
           const d = doc.data();
           const ts = d.timestamp?.toDate?.() || new Date(d.timestamp);
-          const dateTime = isNaN(ts.getTime()) ? "—" : ts.toLocaleString("en-US", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+          const dateTime = isNaN(ts.getTime()) ? "—" : `${String(ts.getMonth()+1).padStart(2,'0')}/${String(ts.getDate()).padStart(2,'0')} ${ts.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
           html += `<div class="log-entry">
             <span class="log-date">${dateTime}</span>
             <span class="log-user">${escapeHtml(d.username || "?")}</span>
