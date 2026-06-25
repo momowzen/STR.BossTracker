@@ -1951,7 +1951,7 @@
     async function loadActionLogs() {
       actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">Loading...</div>`;
       try {
-        const q = query(collection(db, "actionLogs"), orderBy("timestamp", "desc"), limit(200));
+        const q = query(collection(db, "actionLogs"), orderBy("timestamp", "desc"), limit(50));
         const snap = await getDocs(q);
         if (snap.empty) {
           actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">No logs found.</div>`;
@@ -2117,9 +2117,9 @@
         });
         const q = query(collection(db, "actionLogs"), orderBy("timestamp", "asc"));
         const snap = await getDocs(q);
-        if (snap.docs.length > 100) {
+        if (snap.docs.length > 50) {
           const batch = writeBatch(db);
-          snap.docs.slice(0, snap.docs.length - 100).forEach(d => batch.delete(d.ref));
+          snap.docs.slice(0, snap.docs.length - 50).forEach(d => batch.delete(d.ref));
           await batch.commit();
         }
       } catch (e) {
@@ -2479,7 +2479,7 @@
       const date = now.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
       const time = date + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       ghActivityLog.unshift({ time, message });
-      if (ghActivityLog.length > 100) ghActivityLog = ghActivityLog.slice(0, 100);
+      if (ghActivityLog.length > 50) ghActivityLog = ghActivityLog.slice(0, 50);
       saveAdminData();
       ghRenderActivity();
     }
