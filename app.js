@@ -62,6 +62,7 @@
     const alarmBtn = document.getElementById("alarmBtn");
     const adminAuthBtn = document.getElementById("adminAuthBtn");
     const settingsDropdown = document.getElementById("settingsDropdown");
+    const navDropdown = document.getElementById("navDropdown");
     const discordWebhookBtn = document.getElementById("discordWebhookBtn");
     const webhookBackdrop = document.getElementById("webhookModalBackdrop");
     const webhookInput = document.getElementById("webhookInput");
@@ -647,7 +648,7 @@
         console.log(`✅ Sent ${type} notification for ${boss.name}`);
       } catch (e) {
         if (e?.code === "ABORTED") {
-          console.warn("â„¹ Transaction aborted (expected):", e);
+          console.warn("ℹ Transaction aborted (expected):", e);
           return;
         }
         console.warn("⚠️  sendDiscordEmbedOnce error:", e);
@@ -1053,6 +1054,9 @@
       }
     }
 
+    // ✅ Firestore document for lock management
+    const deadLockRef = doc(db, "meta", "deadLocks");
+
     // === Unified Boss List Click Handler with atomic deadlock attempt ===
     bossListEl.addEventListener("click", async (e) => {
       const btn = e.target.closest(".kbtn");
@@ -1072,7 +1076,7 @@
         // Immediate visual disable to give feedback
         btn.disabled = true;
         console.log(
-          `ðŸ”˜ mark clicked: attempting lock for ${id} (local visual disabled)`
+          `🔒 mark clicked: attempting lock for ${id} (local visual disabled)`
         );
 
         try {
@@ -1095,7 +1099,7 @@
           if (!locked) {
             // lock lost to another client: re-enable and warn
             console.warn(
-              `â›” markDead: failed to acquire lock for ${id} â€” another user locked it.`
+              `⛔ markDead: failed to acquire lock for ${id} — another user locked it.`
             );
             // refresh deadLocks on next snapshot will correct disabled state, but re-enable for good UX
             btn.disabled = false;
@@ -1218,8 +1222,8 @@
       upcoming.sort((a, b) => a.endTime - b.endTime);
 
       if (upcoming.length === 0) {
-        nextBossNameEl.textContent = "Next Boss: â€”";
-        nextTimeEl.textContent = "â€”";
+        nextBossNameEl.textContent = "Next Boss: —";
+        nextTimeEl.textContent = "—";
         return;
       }
 
@@ -1564,7 +1568,6 @@
 
     // ─── Nav Menu Dropdown (mobile) ───
     const navMenuBtn = document.getElementById("navMenuBtn");
-    const navDropdown = document.getElementById("navDropdown");
 
     function positionNavDropdown() {
       const btnRect = navMenuBtn.getBoundingClientRect();
@@ -1874,7 +1877,7 @@
             renderBossList();
             showToast("Timers imported.", "success");
             logAction('import_timers', { count: Object.keys(imported).length });
-            console.log("ðŸ“¥ Imported timers from file.");
+            console.log("📥 Imported timers from file.");
           }
         } catch (e) {
           showToast("Invalid JSON file.", "error");
@@ -1888,8 +1891,6 @@
       if (await showConfirmModal("Are you sure you want to reset all timers?")) { resetAll(); logAction('reset_all_timers'); }
     });
 
-    // ✅ Firestore document for lock management
-    const deadLockRef = doc(db, "meta", "deadLocks");
     onSnapshot(deadLockRef, (snapshot) => {
       if (snapshot.metadata?.hasPendingWrites) return;
       deadLocks = snapshot.data() || {};

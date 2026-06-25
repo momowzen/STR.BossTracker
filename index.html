@@ -165,7 +165,7 @@
           title="Admin">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-admin"/></svg>
         </button>
-        <div style="position:relative">
+        <div class="pos-relative">
           <button type="button" class="discord-badge-btn" id="discordBadgeBtn" title="Discord" aria-label="Discord">
             <svg class="discord-badge-icon" aria-hidden="true"><use href="#icon-discord"/></svg>
             <span class="discord-badge-name" id="discordBadgeName"></span>
@@ -205,7 +205,7 @@
         </div>
       </div>
       <section class="card" id="bossListPanel" aria-label="Field boss list">
-        <h2 class="card-header"><div class="search-wrapper" style="display:flex;align-items:center;flex:0 1 auto;min-width:0;position:relative;max-width:360px;margin-right:auto"><input class="search" id="bossSearch" placeholder="Search boss..." autocomplete="off" aria-label="Search bosses" style="height:30px;font-size:11px;padding:2px 28px 2px 8px;text-transform:none;letter-spacing:0;width:100%" /><span class="clear-icon" id="clearSearch" role="button" tabindex="0" aria-label="Clear search" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:6px;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#icon-x"/></svg></span></div><span class="header-sort" id="sortContainer"><button class="sort-btn" id="sortBtn"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg><span id="sortLabel">Time</span></button><button class="sort-dir-btn" id="sortDirBtn" title="Ascending"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg></button><div class="sort-dropdown hidden" id="sortDropdown"><button class="sort-option" data-sort="time">Time</button><button class="sort-option" data-sort="name">Name</button><button class="sort-option" data-sort="level">Level</button></div></span><button class="view-toggle" id="viewToggle" aria-label="Toggle view"><svg width="14" height="14" aria-hidden="true"><use href="#icon-view-toggle"/></svg></button><button type="button" class="alarm-btn" id="scheduleBtn" aria-label="View spawn schedule" title="Spawn schedule"><svg class="btn-icon" aria-hidden="true"><use href="#icon-schedule"/></svg></button></h2>
+        <h2 class="card-header"><div class="search-wrapper mr-auto"><input class="search compact" id="bossSearch" placeholder="Search boss..." autocomplete="off" aria-label="Search bosses" /><span class="clear-icon" id="clearSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span></div><span class="header-sort" id="sortContainer"><button class="sort-btn" id="sortBtn"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg><span id="sortLabel">Time</span></button><button class="sort-dir-btn" id="sortDirBtn" title="Ascending"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg></button><div class="sort-dropdown hidden" id="sortDropdown"><button class="sort-option" data-sort="time">Time</button><button class="sort-option" data-sort="name">Name</button><button class="sort-option" data-sort="level">Level</button></div></span><button class="view-toggle" id="viewToggle" aria-label="Toggle view"><svg width="14" height="14" aria-hidden="true"><use href="#icon-view-toggle"/></svg></button><button type="button" class="alarm-btn" id="scheduleBtn" aria-label="View spawn schedule" title="Spawn schedule"><svg class="btn-icon" aria-hidden="true"><use href="#icon-schedule"/></svg></button></h2>
         <div id="bossList">
           <div class="boss-column" id="intervalColumn" role="tabpanel" aria-label="Fixed interval bosses">
             <div class="column-label"><span class="label-dot active" aria-hidden="true"></span> FIXED INTERVAL</div>
@@ -243,26 +243,26 @@
       <div class="admin-panel" id="panelMembers">
         <div class="admin-panel-header">
           <span>Member List (<span id="ghMemberCount">0</span>)</span>
-          <div style="display:flex;align-items:center;gap:6px">
+          <div class="flex-row gap-6">
             <button class="kbtn" id="ghToggleGivePoints">POINTS CONFIG</button>
             <button class="kbtn" id="ghToggleAddMember">ADD MEMBER</button>
           </div>
         </div>
-        <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
-          <div style="flex-shrink:0">
+        <div class="admin-panel-body">
+          <div class="flex-shrink-0">
             <div class="ml-toolbar">
-               <div class="search-wrapper" style="display:flex;align-items:center;flex:0 1 auto;min-width:0;position:relative;max-width:360px;margin-right:auto">
-                <input class="search" id="ghMemberSearch" placeholder="Search member name..." style="padding-right:28px;width:100%">
-                <span class="clear-icon" id="clearMemberSearch" role="button" tabindex="0" aria-label="Clear search" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:6px;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#icon-x"/></svg></span>
+               <div class="search-wrapper mr-auto">
+                <input class="search compact-alt" id="ghMemberSearch" placeholder="Search member name...">
+                <span class="clear-icon" id="clearMemberSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
               </div>
               <div class="ml-toolbar-right">
-                <button class="kbtn" id="ghSortBtn" style="min-width:70px">Name</button>
-                <button class="kbtn" id="ghOrderBtn" style="width:32px;min-width:32px"><span id="ghOrderIcon">↑</span></button>
+                <button class="kbtn btn-sm" id="ghSortBtn">Name</button>
+                <button class="kbtn btn-xs" id="ghOrderBtn"><span id="ghOrderIcon">↑</span></button>
               </div>
             </div>
             <div class="member-list-header" id="ghMemberListHeader"><span>NAME</span><span>WEAPON MASTERY</span><span></span></div>
           </div>
-          <div class="member-list" id="ghMemberList" style="overflow-y:auto;flex:1"></div>
+          <div class="member-list scroll-y" id="ghMemberList"></div>
         </div>
       </div>
 
@@ -272,19 +272,19 @@
           <span>BOSS CONFIG</span>
           <button class="kbtn" id="ghResetBossConfig">Reset All</button>
         </div>
-        <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
-          <div style="flex-shrink:0">
-            <div class="ml-toolbar" style="margin-bottom:8px">
-              <div class="search-wrapper" style="display:flex;align-items:center;flex:0 1 auto;min-width:0;position:relative;max-width:360px">
-                <input class="search" id="ghBossConfigSearch" placeholder="search boss name..." style="height:28px;font-size:11px;padding-right:28px;width:100%">
-                <span class="clear-icon" id="clearBossConfigSearch" role="button" tabindex="0" aria-label="Clear search" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:6px;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#icon-x"/></svg></span>
+        <div class="admin-panel-body">
+          <div class="flex-shrink-0">
+            <div class="ml-toolbar mb-8">
+              <div class="search-wrapper">
+                <input class="search compact-alt" id="ghBossConfigSearch" placeholder="search boss name...">
+                <span class="clear-icon" id="clearBossConfigSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
               </div>
             </div>
-            <div class="form-group flex-center" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span style="font-size:11px;color:var(--text-muted)">Set points (0–100) per boss kill</span>
+            <div class="flex-between mb-8">
+              <span class="text-muted-sm">Set points (0–100) per boss kill</span>
             </div>
           </div>
-          <div class="boss-config-list" id="ghBossConfigList" style="overflow-y:auto;flex:1"></div>
+          <div class="boss-config-list scroll-y" id="ghBossConfigList"></div>
         </div>
       </div>
 
@@ -294,8 +294,8 @@
           <span>LEADERBOARD</span>
           <button class="kbtn" id="ghResetLeaderboard">Reset All</button>
         </div>
-        <div class="admin-panel-body" style="display:flex;flex-direction:column;overflow:hidden">
-          <div class="lb-list" id="ghLeaderboardList" style="overflow-y:auto;flex:1"></div>
+        <div class="admin-panel-body">
+          <div class="lb-list scroll-y" id="ghLeaderboardList"></div>
         </div>
       </div>
 
@@ -305,8 +305,8 @@
           <span>ACTIVITY LOGS</span>
           <button class="kbtn admin-only" id="ghClearActivity">Clear Logs</button>
         </div>
-        <div class="admin-panel-body" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
-          <div class="activity-log" id="ghActivityLog" style="overflow-y:auto;flex:1"></div>
+        <div class="admin-panel-body p-0">
+          <div class="activity-log scroll-y" id="ghActivityLog"></div>
         </div>
       </div>
 
@@ -329,7 +329,7 @@
   <!-- Toast container -->
   <div id="toastContainer"></div>
 
-  <!-- Webhook modal â€” compact cyber panel -->
+  <!-- Webhook modal -->
   <div class="modal-backdrop" id="webhookModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="webhookTitle">
     <div class="modal">
       <h3 id="webhookTitle">Discord Webhook</h3>
@@ -366,7 +366,7 @@
         <span class="log-user">USER</span>
         <span class="log-action">ACTION</span>
       </div>
-      <div id="actionLogsContainer" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;font-size:11px;line-height:1.5"></div>
+      <div id="actionLogsContainer" class="scroll-y" style="font-size:11px;line-height:1.5"></div>
     </div>
   </div>
 
@@ -452,15 +452,15 @@
       <button class="party-popup-close" id="ghMemberPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="party-popup-body">
-      <div style="margin-bottom:12px">
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Add Member</label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="ghMemberNameInput" class="search-input" placeholder="Enter character name" maxlength="24" style="flex:1;min-width:0">
+      <div class="mb-12">
+        <label class="label-uppercase">Add Member</label>
+        <div class="flex-row" style="gap:6px">
+          <input type="text" id="ghMemberNameInput" class="search-input flex-1" placeholder="Enter character name" maxlength="24">
           <button class="kbtn" id="ghAddMemberBtn" style="white-space:nowrap">ADD</button>
         </div>
       </div>
-      <div style="margin-bottom:12px">
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Weapon Mastery</label>
+      <div class="mb-12">
+        <label class="label-uppercase">Weapon Mastery</label>
         <select id="ghWmSelect">
           <option value="">—</option>
           <option value="Bare Hands">Bare Hands</option>
@@ -475,7 +475,7 @@
         </select>
       </div>
       <div>
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Bulk Import</label>
+        <label class="label-uppercase">Bulk Import</label>
         <textarea id="ghBulkImportArea" placeholder="Paste names, one per line&#10;Or comma-separated: Alice, Bob, Charlie"></textarea>
         <div style="margin-top:8px">
           <button class="kbtn" id="ghBulkImportBtn">Import Names</button>
@@ -508,24 +508,24 @@
       <hr class="admin-divider">
       <div class="section-title">Party Members</div>
       <div class="party-panel selected-panel" id="ghPointsSelectedPanel">
-        <div class="pill-list" id="ghPointsSelectedPillList"><span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span></div>
+        <div class="pill-list" id="ghPointsSelectedPillList"><span class="text-muted-placeholder">No members selected</span></div>
         <div class="unrecognized-list" id="ghPointsUnrecognizedList" style="display:none"></div>
       </div>
       <div class="party-search-row">
-        <input class="search" id="ghPointsSearch" placeholder="Search member..." style="flex:1;min-width:0;height:28px;font-size:11px;text-transform:none;letter-spacing:0">
-        <button class="kbtn" id="ghPointsSortBtn" style="min-width:60px">Name</button>
-        <button class="kbtn" id="ghPointsOrderBtn" style="width:32px;min-width:32px"><span id="ghPointsOrderIcon">↑</span></button>
+        <input class="search compact-alt" id="ghPointsSearch" placeholder="Search member..." style="flex:1">
+        <button class="kbtn btn-xs60" id="ghPointsSortBtn">Name</button>
+        <button class="kbtn btn-xs" id="ghPointsOrderBtn"><span id="ghPointsOrderIcon">↑</span></button>
       </div>
-      <div class="party-panel all-panel" id="ghPointsAllMembers" style="max-height:200px;overflow-y:auto"></div>
+      <div class="party-panel all-panel scroll-y" id="ghPointsAllMembers" style="max-height:200px"></div>
       <hr class="admin-divider">
-      <div style="margin-bottom:12px">
-        <label style="display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Points per member <span id="ghPointsSignLabel" style="color:var(--accent-gold)">+</span></label>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="kbtn" id="ghPointsSignToggle" style="width:32px;min-width:32px;height:28px;padding:0;font-size:14px;font-weight:700">+</button>
-          <input type="number" id="ghPointsInput" value="1" style="flex:1;padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
+      <div class="mb-12">
+        <label class="label-uppercase">Points per member <span id="ghPointsSignLabel" style="color:var(--accent-gold)">+</span></label>
+        <div class="flex-row-center">
+          <button class="kbtn btn-xs" id="ghPointsSignToggle" style="height:28px;padding:0;font-size:14px;font-weight:700">+</button>
+          <input type="number" id="ghPointsInput" value="1" class="flex-1" style="padding:6px 8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:13px">
         </div>
       </div>
-      <button class="kbtn" id="ghPointsConfirm" style="width:100%;justify-content:center">CONFIRM</button>
+      <button class="kbtn w-full flex-center-justify" id="ghPointsConfirm">CONFIRM</button>
     </div>
   </div>
 
@@ -553,24 +553,24 @@
       <hr class="admin-divider">
       <div class="section-title">Party Members</div>
       <div class="party-panel selected-panel" id="selectedMembersPanel">
-        <div class="pill-list" id="selectedPillList"><span style="font-style:italic;color:var(--text-muted);font-size:12px">No members selected</span></div>
+        <div class="pill-list" id="selectedPillList"><span class="text-muted-placeholder">No members selected</span></div>
         <div class="unrecognized-list" id="unrecognizedList" style="display:none"></div>
       </div>
       <div class="party-search-row">
-        <input class="search" id="partySearch" placeholder="Search member..." style="flex:1;min-width:0;height:28px;font-size:11px;text-transform:none;letter-spacing:0">
-        <button class="kbtn" id="partySortBtn" style="min-width:60px">Name</button>
-        <button class="kbtn" id="partyOrderBtn" style="width:32px;min-width:32px"><span id="partyOrderIcon">↑</span></button>
+        <input class="search compact-alt" id="partySearch" placeholder="Search member..." style="flex:1">
+        <button class="kbtn btn-xs60" id="partySortBtn">Name</button>
+        <button class="kbtn btn-xs" id="partyOrderBtn"><span id="partyOrderIcon">↑</span></button>
       </div>
       <div class="party-panel all-panel" id="allMembersPanel"></div>
       <hr class="admin-divider">
       <div class="confirm-area">
-        <div style="text-align:center">
-          <div style="font-size:11px;color:var(--text-muted)">Members selected</div>
-          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--accent-gold)" id="selectedCount">0</div>
+        <div class="flex-center-justify" style="flex-direction:column;text-align:center">
+          <div class="text-muted-sm">Members selected</div>
+          <div class="confirm-value" id="selectedCount">0</div>
         </div>
-        <div style="text-align:center">
-          <div style="font-size:11px;color:var(--text-muted)">Points each</div>
-          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--accent-gold)" id="confirmPointsEach">0</div>
+        <div class="flex-center-justify" style="flex-direction:column;text-align:center">
+          <div class="text-muted-sm">Points each</div>
+          <div class="confirm-value" id="confirmPointsEach">0</div>
         </div>
         <button class="kbtn" id="confirmKillBtn" disabled>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

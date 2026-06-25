@@ -153,10 +153,14 @@
     }
 
     .search-wrapper {
-      flex: 1;
+      display: flex;
+      align-items: center;
+      flex: 0 1 auto;
       min-width: 0;
       position: relative;
+      max-width: 360px;
     }
+    .search-wrapper.mr-auto { margin-right: auto; }
 
     .search {
       width: 100%;
@@ -172,6 +176,20 @@
       transition: border-color var(--transition), box-shadow var(--transition);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+    .search.compact {
+      height: 28px;
+      font-size: 11px;
+      padding: 2px 28px 2px 8px;
+      text-transform: none;
+      letter-spacing: 0;
+      width: 100%;
+    }
+    .search.compact-alt {
+      height: 28px;
+      font-size: 11px;
+      padding-right: 28px;
+      width: 100%;
     }
 
     .search:focus {
@@ -742,15 +760,19 @@
       scrollbar-color: rgba(var(--accent-rgb),0.12) transparent;
       background: rgba(0,0,0,0.35);
     }
-    .boss-column .scrollable::-webkit-scrollbar { width: 5px; }
-    .boss-column .scrollable::-webkit-scrollbar-track { background: transparent; }
-    .boss-column .scrollable::-webkit-scrollbar-thumb {
+    .boss-column .scrollable::-webkit-scrollbar,
+    .schedule-column .schedule-list::-webkit-scrollbar { width: 5px; }
+    .boss-column .scrollable::-webkit-scrollbar-track,
+    .schedule-column .schedule-list::-webkit-scrollbar-track { background: transparent; }
+    .boss-column .scrollable::-webkit-scrollbar-thumb,
+    .schedule-column .schedule-list::-webkit-scrollbar-thumb {
       background: rgba(var(--accent-rgb),0.12);
       border-radius: 3px;
     }
-      .boss-column .scrollable::-webkit-scrollbar-thumb:hover {
-        background: rgba(var(--accent-rgb),0.25);
-      }
+    .boss-column .scrollable::-webkit-scrollbar-thumb:hover,
+    .schedule-column .schedule-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(var(--accent-rgb),0.25);
+    }
 
       .boss.stagger-enter,
       .schedule-item.stagger-enter {
@@ -790,11 +812,6 @@
       #bossListPanel.view-weekly #intervalColumn {
         display: none;
       }
-
-      #bossListPanel.view-schedule .boss-column { display: none; }
-      #bossListPanel.view-schedule .header-sort { display: none; }
-      #bossListPanel.view-schedule .search-wrapper { display: none !important; }
-      #bossListPanel.view-schedule #scheduleView { display: flex; }
 
       /* Mobile: schedule day columns toggle (like interval/weekly) */
       #bossListPanel.view-schedule .schedule-column:last-child { display: none; }
@@ -1443,13 +1460,6 @@ gap: 2px;
       scrollbar-color: rgba(var(--accent-rgb),0.12) transparent;
       background: rgba(0,0,0,0.35);
     }
-    .schedule-column .schedule-list::-webkit-scrollbar { width: 5px; }
-    .schedule-column .schedule-list::-webkit-scrollbar-track { background: transparent; }
-    .schedule-column .schedule-list::-webkit-scrollbar-thumb {
-      background: rgba(var(--accent-rgb),0.12);
-      border-radius: 3px;
-    }
-
     .schedule-item {
       display: flex;
       justify-content: space-between;
@@ -1786,7 +1796,7 @@ gap: 2px;
 
     .clear-icon {
       position: absolute;
-      right: 8px;
+      right: 4px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
@@ -1799,6 +1809,7 @@ gap: 2px;
       padding: 6px;
       display: flex;
       align-items: center;
+      justify-content: center;
       transition: opacity 0.15s ease, color 0.15s ease;
     }
     .clear-icon.visible { opacity: 1; pointer-events: auto; }
@@ -2073,10 +2084,43 @@ gap: 2px;
       text-transform: uppercase;
     }
     .admin-panel-body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       padding: 12px;
-      overflow-y: auto;
       flex: 1;
     }
+    .admin-panel-body.p-0 { padding: 0; }
+    .flex-row { display: flex; align-items: center; }
+    .flex-row.gap-6 { gap: 6px; }
+    .flex-row.gap-8 { gap: 8px; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+    .flex-1 { flex: 1; min-width: 0; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .overflow-hidden { overflow: hidden; }
+    .scroll-y { overflow-y: auto; }
+    .pos-relative { position: relative; }
+    .text-muted-sm { font-size: 11px; color: var(--text-muted); }
+    .mb-8 { margin-bottom: 8px; }
+    .mt-8 { margin-top: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .label-uppercase {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .btn-sm { min-width: 70px; }
+    .btn-xs { width: 32px; min-width: 32px; }
+    .btn-xs60 { min-width: 60px; }
+    .w-full { width: 100%; }
+    .flex-row-center { display: flex; gap: 6px; align-items: center; }
+    .flex-center-justify { display: flex; justify-content: center; }
+    .text-muted-placeholder { font-style: italic; color: var(--text-muted); font-size: 12px; }
+    .confirm-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--accent-gold); }
 
     /* ─── MEMBER LIST ─── */
     .member-list { display: flex; flex-direction: column; gap: 4px; }
