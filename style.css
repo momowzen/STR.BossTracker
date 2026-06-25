@@ -1056,7 +1056,7 @@ gap: 2px;
 
     .boss .time-remaining {
       font-size: 10px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-family: var(--font-display);
       letter-spacing: 0.3px;
     }
