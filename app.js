@@ -381,14 +381,23 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ✅ Auto-detect page updates by polling index.html hash
+    // ✅ Auto-detect page updates by polling index.html + app.js + style.css hash
     let lastPageHash = null;
+
+    async function fetchText(url) {
+      const res = await fetch(url + "?t=" + Date.now());
+      return res.text();
+    }
 
     async function checkForUpdates() {
       try {
-        const res = await fetch("index.html?t=" + Date.now());
-        const text = await res.text();
-        const enc = new TextEncoder().encode(text);
+        const files = await Promise.all([
+          fetchText("index.html"),
+          fetchText("app.js"),
+          fetchText("style.css"),
+        ]);
+        const combined = files.join("\n---\n");
+        const enc = new TextEncoder().encode(combined);
         const buf = await crypto.subtle.digest("SHA-256", enc);
         const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
         if (lastPageHash === null) {
