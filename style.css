@@ -1222,16 +1222,22 @@ gap: 2px;
     }
     .logs-refresh-btn:hover { color: var(--accent-gold); }
     #actionLogsColumnHeaders { display: flex; gap: 2px; padding: 6px 8px; font-size: 11px; font-weight: 700; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
-    #actionLogsContainer .log-entry {
-      display: flex; gap: 2px; padding: 6px 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      align-items: flex-start;
+    #actionLogsContainer .log-date {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      width: 80px;
     }
-    #actionLogsContainer .log-entry:last-child { border-bottom: none; }
-    #actionLogsContainer .log-entry { font-family: var(--font-sans); }
-    #actionLogsContainer .log-date { color: var(--text-muted); white-space: nowrap; font-size: 11px; min-width: 110px; flex-shrink: 0; }
-    #actionLogsContainer .log-user { color: var(--accent); font-weight: 500; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
-    #actionLogsContainer .log-action { color: var(--text-primary); overflow-wrap: break-word; word-break: break-word; white-space: normal; min-width: 0; font-weight: 400; }
+    #actionLogsContainer .log-user {
+      color: var(--accent);
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+    #actionLogsContainer .log-action { flex: 1; min-width: 0; }
     #actionLogsContainer .log-action .act { color: var(--accent-gold, #d4a853); font-weight: 500; }
     #actionLogsContainer .log-detail { color: var(--text-muted); font-size: 10px; }
 
