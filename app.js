@@ -2109,7 +2109,7 @@
       if (!auth) return;
       try {
         await addDoc(collection(db, "actionLogs"), {
-          username: auth.displayName || auth.username,
+          username: auth.username,
           userId: auth.id,
           action,
           details,
