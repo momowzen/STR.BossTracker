@@ -1971,6 +1971,31 @@
 
     if (actionLogsRefresh) actionLogsRefresh.addEventListener("click", loadActionLogs);
 
+    function formatAction(action, details) {
+      const fmt = (s) => escapeHtml(String(s ?? ""));
+      switch (action) {
+        case "mark_dead": return `Marked ${fmt(details.bossName || details.bossId)} dead`;
+        case "manual_time": return `Set kill time for ${fmt(details.bossName || details.bossId)}`;
+        case "clear_timer": return `Cleared timer for ${fmt(details.bossId || "?")}`;
+        case "import_timers": return `Imported ${fmt(details.count)} timer(s)`;
+        case "reset_all_timers": return `Reset all timers`;
+        case "webhook_save": return `Saved webhook`;
+        case "webhook_clear": return `Cleared webhook`;
+        case "remove_member": return `Removed member ${fmt(details.name)}`;
+        case "rename_member": return `Renamed ${fmt(details.oldName)} → ${fmt(details.newName)}`;
+        case "add_member": return `Added member ${fmt(details.name)}`;
+        case "add_member_scan": return `Added ${fmt(details.name)} via scan`;
+        case "bulk_import": return `Bulk imported ${fmt(details.count)} member(s)`;
+        case "boss_config": return `Set boss ${fmt(details.bossId)} points to ${fmt(details.points)}`;
+        case "boss_config_reset": return `Reset all boss points`;
+        case "leaderboard_reset": return `Reset leaderboard`;
+        case "activity_cleared": return `Cleared activity logs`;
+        case "award_points": return `Awarded ${fmt(details.points)} pts each for ${fmt(details.bossName || details.bossId || "?")}`;
+        case "give_points": return `Gave ${fmt(details.points)} pts`;
+        default: return fmt(action).replace(/_/g, " ");
+      }
+    }
+
     async function loadActionLogs() {
       actionLogsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">Loading...</div>`;
       try {
@@ -1988,7 +2013,7 @@
           html += `<div class="log-entry">
             <span class="log-date">${dateTime}</span>
             <span class="log-user">${escapeHtml(d.username || "?")}</span>
-            <span class="log-action"><span class="act">${escapeHtml(d.action)}</span></span>
+            <span class="log-action"><span class="act">${formatAction(d.action, d.details || {})}</span></span>
           </div>`;
         });
         actionLogsContainer.innerHTML = html;
