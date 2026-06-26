@@ -314,7 +314,6 @@
       color: currentColor; display: block;
     }
 
-    .admin-auth-btn,
     .alarm-btn,
     .settings-btn,
     .nav-menu-btn {
@@ -337,7 +336,6 @@
       -webkit-backdrop-filter: blur(8px);
     }
 
-    .admin-auth-btn:hover,
     .alarm-btn:hover,
     .settings-btn:hover,
     .nav-menu-btn:hover {
@@ -346,17 +344,6 @@
       background: var(--bg-tertiary);
     }
 
-    .admin-auth-btn {
-      color: var(--accent-green);
-    }
-
-    .admin-auth-btn:hover {
-      border-color: var(--border);
-      color: var(--accent-green);
-      background: var(--bg-primary);
-    }
-
-    .admin-auth-btn .btn-icon,
     .alarm-btn .btn-icon,
     .settings-btn .btn-icon,
     .nav-menu-btn .btn-icon {
@@ -394,24 +381,11 @@
       color: var(--accent-gold);
     }
 
-    .admin-auth-btn.on {
-      color: var(--accent-gold);
-    }
-
-    .admin-auth-btn .btn-icon {
-      filter: drop-shadow(0 0 2px rgba(46,204,113,0.5));
-    }
-
-    .admin-auth-btn.on .btn-icon {
-      filter: drop-shadow(0 0 2px var(--accent-gold));
-    }
-
     .settings-btn {
       position: relative;
     }
 
-    .settings-btn.hidden,
-    .admin-auth-btn.hidden {
+    .settings-btn.hidden {
       display: none !important;
     }
 
@@ -881,7 +855,7 @@ gap: 2px;
       }
       header .admin-nav { display: none !important; }
       .header-actions { gap: 2px; }
-      .admin-auth-btn, .alarm-btn, .settings-btn, .nav-menu-btn {
+      .alarm-btn, .settings-btn, .nav-menu-btn {
         width: 28px;
         height: 28px;
         min-width: 28px;
@@ -1128,7 +1102,6 @@ gap: 2px;
         height: 34px;
       }
 
-      .admin-auth-btn,
       .alarm-btn,
       .settings-btn,
       .nav-menu-btn,

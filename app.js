@@ -73,7 +73,7 @@
     }
     const settingsBtn = document.getElementById("settingsBtn");
     const alarmBtn = document.getElementById("alarmBtn");
-    const adminAuthBtn = document.getElementById("adminAuthBtn");
+    
     const settingsDropdown = document.getElementById("settingsDropdown");
     const navDropdown = document.getElementById("navDropdown");
     const discordWebhookBtn = document.getElementById("discordWebhookBtn");
@@ -2328,29 +2328,12 @@
     function updateAuthUI() {
       const isAdmin = sessionStorage.getItem("userMode") === "admin";
       document.documentElement.classList.toggle("is-admin", isAdmin);
-      if (adminAuthBtn) {
-        adminAuthBtn.classList.toggle("on", isAdmin);
-        const icon = adminAuthBtn.querySelector("use");
-        if (icon) icon.setAttribute("href", isAdmin ? "#icon-crown" : "#icon-person");
-        adminAuthBtn.setAttribute(
-          "aria-label",
-          isAdmin ? "Admin" : "Member"
-        );
-        adminAuthBtn.title = isAdmin ? "Admin" : "Member";
-      }
       if (settingsBtn) {
         settingsBtn.classList.toggle("hidden", !isAdmin);
       }
       if (!isAdmin) {
         settingsDropdown.classList.add("hidden");
       }
-    }
-
-    if (adminAuthBtn) {
-      adminAuthBtn.addEventListener("click", () => {
-        if (navDropdown) navDropdown.classList.add("hidden");
-        settingsDropdown.classList.add("hidden");
-      });
     }
 
     updateAuthUI();
