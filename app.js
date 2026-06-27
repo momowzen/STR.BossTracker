@@ -448,7 +448,9 @@
       if (!container) return;
       const el = document.createElement("div");
       el.className = "toast toast-" + type;
-      el.textContent = msg;
+      const icons = { success: "icon-check", error: "icon-x", info: "icon-alert-circle" };
+      const iconId = icons[type] || "icon-alert-circle";
+      el.innerHTML = '<svg class="toast-icon" aria-hidden="true" viewBox="0 0 16 16"><use href="#' + iconId + '"/></svg><span>' + msg + '</span>';
       container.appendChild(el);
       requestAnimationFrame(function () {
         el.classList.add("show");
