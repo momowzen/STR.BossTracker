@@ -1010,16 +1010,18 @@ gap: 2px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 26px;
-      height: 14px;
-      padding: 0 5px;
-      font-size: 9px;
+      min-width: 28px;
+      height: 18px;
+      padding: 0 6px;
+      font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.5px;
-      border-radius: 3px;
-      color: #000;
+      border-radius: 4px;
       line-height: 1;
       font-family: var(--font-mono);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      top: -1px;
     }
 
     .boss .sub {
@@ -1050,11 +1052,6 @@ gap: 2px;
     .boss .name.dead {
       color: var(--text-secondary);
       font-weight: 600;
-    }
-
-    .name.dead .level-badge {
-      background: var(--text-muted);
-      color: #000;
     }
 
     .kbtn {

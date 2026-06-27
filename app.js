@@ -913,11 +913,11 @@
 
       function getLevelColor(level) {
         if (!level) return "";
-        if (level <= 75) return "var(--accent-green)";
-        if (level <= 90) return "var(--accent-blue)";
-        if (level <= 98) return "var(--accent-purple)";
-        if (level <= 120) return "var(--accent-orange)";
-        return "var(--accent-red)";
+        if (level <= 75) return "background:var(--accent-green);color:#000;box-shadow:0 0 6px rgba(46,204,113,0.4)";
+        if (level <= 90) return "background:var(--accent-blue);color:#fff;box-shadow:0 0 6px rgba(74,144,226,0.4)";
+        if (level <= 100) return "background:var(--accent-purple);color:#fff;box-shadow:0 0 6px rgba(155,89,182,0.4)";
+        if (level <= 145) return "background:var(--accent-orange);color:#000;box-shadow:0 0 6px rgba(243,156,18,0.4)";
+        return "background:var(--accent-red);color:#fff;box-shadow:0 0 8px rgba(231,76,60,0.6)";
       }
 
       function buildBossCard(b) {
@@ -968,7 +968,7 @@
                 <img class="boss-portrait" src="https://raw.githubusercontent.com/momowzen/DFck.LordnineSpawnTracker/refs/heads/main/assets/images/${b.id}.png" alt="${b.name}">
               </div>
               <div class="info">
-                <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge" style="background:${getLevelColor(b.level)}">${b.level}</span>` : ""}</div>
+                <div class="${nameClass}">${b.name}${b.level ? `<span class="level-badge" style="${isDeadState ? 'background:var(--text-muted);color:#555;box-shadow:none;border-color:transparent' : getLevelColor(b.level)}">${b.level}</span>` : ""}</div>
                 <div class="sub">${subText}</div>
                 <div class="location">${LOCATIONS[b.id] || ""}</div>
                 <div class="spawn-time">${spawnTimeText}</div>
