@@ -209,8 +209,6 @@
       font-family: var(--font-sans);
       outline: none;
       transition: border-color var(--transition), box-shadow var(--transition);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
     .search.compact {
       height: 28px;

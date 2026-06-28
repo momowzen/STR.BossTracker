@@ -1477,7 +1477,6 @@
     };
 
     searchInput.addEventListener("input", () => {
-      searchInput.value = searchInput.value.toUpperCase();
       renderBossList();
       updateClearButtonVisibility();
     });
