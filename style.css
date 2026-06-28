@@ -2501,11 +2501,11 @@ gap: 2px;
       border-color: rgba(var(--accent-rgb),0.2);
       background: rgba(var(--accent-rgb),0.03);
       min-height: 36px;
-      height: 140px;
+      max-height: 140px;
       overflow-y: auto;
     }
     .party-panel.all-panel {
-      height: 240px;
+      max-height: 240px;
       overflow-y: auto;
     }
     .party-search-row {
