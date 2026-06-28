@@ -1,1 +1,4 @@
 .wrangler/
+bot/service-account.json
+bot/node_modules/
+
