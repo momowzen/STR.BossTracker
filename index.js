@@ -1,3 +1,13 @@
+try {
+  require.resolve('discord.js');
+} catch (e) {
+  const { execSync } = require('child_process');
+  console.log('Installing dependencies...');
+  execSync('npm install', { stdio: 'inherit', cwd: __dirname });
+  console.log('Dependencies installed. Restarting...');
+  process.exit(0);
+}
+
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { db } = require('./firebase');
 const BOSSES = require('./data/bosses.json');
