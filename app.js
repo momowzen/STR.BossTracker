@@ -2031,17 +2031,60 @@
     const loginStatus = document.getElementById("loginStatus");
     const loginStartBtn = document.getElementById("loginStartBtn");
 
+    let discordOAuthWindow = null;
+    let discordOAuthPoll = null;
+
     loginStartBtn.addEventListener("click", startDiscordLogin);
 
+    function resetLoginBtn() {
+      loginStartBtn.disabled = false;
+      loginStartBtn.innerHTML = '<svg aria-hidden="true"><use href="#icon-discord"/></svg> Login with Discord';
+      if (discordOAuthPoll) {
+        clearInterval(discordOAuthPoll);
+        discordOAuthPoll = null;
+      }
+    }
+
     function startDiscordLogin() {
+      if (discordOAuthWindow && !discordOAuthWindow.closed) {
+        discordOAuthWindow.focus();
+        return;
+      }
+
       const state = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
       sessionStorage.setItem("discordOAuthState", state);
       const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20guilds&state=${state}`;
-      window.open(url, "discord-auth", "width=600,height=700");
+
+      loginStartBtn.disabled = true;
+      loginStartBtn.innerHTML = '<svg aria-hidden="true"><use href="#icon-discord"/></svg> Connecting...';
+      loginStatus.textContent = "Opening Discord...";
+
+      discordOAuthWindow = window.open(url, "discord-auth", "width=600,height=700");
+
+      if (!discordOAuthWindow || discordOAuthWindow.closed) {
+        loginStatus.textContent = "Popup blocked. Please allow popups for this site and try again.";
+        resetLoginBtn();
+        discordOAuthWindow = null;
+        return;
+      }
+
+      discordOAuthPoll = setInterval(() => {
+        if (discordOAuthWindow.closed) {
+          loginStatus.textContent = "Login with Discord to access the Command Center.";
+          resetLoginBtn();
+          discordOAuthWindow = null;
+        }
+      }, 1000);
     }
 
     window.addEventListener("message", (event) => {
       if (event.data?.type === "discordAuth") {
+        discordOAuthWindow = null;
+        if (discordOAuthPoll) {
+          clearInterval(discordOAuthPoll);
+          discordOAuthPoll = null;
+        }
+        resetLoginBtn();
         const d = event.data.data;
         d.timestamp = Date.now();
         sessionStorage.setItem("discordAuthData", JSON.stringify(d));
