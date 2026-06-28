@@ -124,10 +124,6 @@
         <line x1="8" y1="5" x2="8" y2="9"/>
         <line x1="8" y1="11" x2="8" y2="11.5"/>
       </symbol>
-      <symbol id="icon-search" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="7" cy="7" r="4.5"/>
-        <line x1="10.5" y1="10.5" x2="14" y2="14"/>
-      </symbol>
     </defs>
   </svg>
 
@@ -207,7 +203,7 @@
         </div>
       </div>
       <section class="card" id="bossListPanel" aria-label="Field boss list">
-        <h2 class="card-header"><div class="search-wrapper mr-auto"><span class="search-icon"><svg aria-hidden="true"><use href="#icon-search"/></svg></span><input class="search compact" id="bossSearch" placeholder="Search boss name..." autocomplete="off" aria-label="Search bosses" /><span class="clear-icon" id="clearSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span></div><span class="header-sort" id="sortContainer"><button class="sort-btn" id="sortBtn"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg><span id="sortLabel">Time</span></button><button class="sort-dir-btn" id="sortDirBtn" title="Ascending"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg></button><div class="sort-dropdown hidden" id="sortDropdown"><button class="sort-option" data-sort="time">Time</button><button class="sort-option" data-sort="name">Name</button><button class="sort-option" data-sort="level">Level</button></div></span><button class="view-toggle" id="viewToggle" aria-label="Toggle view"><svg width="14" height="14" aria-hidden="true"><use href="#icon-view-toggle"/></svg></button><button type="button" class="alarm-btn" id="scheduleBtn" aria-label="View spawn schedule" title="Spawn schedule"><svg class="btn-icon" aria-hidden="true"><use href="#icon-schedule"/></svg></button></h2>
+        <h2 class="card-header"><div class="search-wrapper mr-auto"><input class="search compact" id="bossSearch" placeholder="Search boss..." autocomplete="off" aria-label="Search bosses" /><span class="clear-icon" id="clearSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span></div><span class="header-sort" id="sortContainer"><button class="sort-btn" id="sortBtn"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg><span id="sortLabel">Time</span></button><button class="sort-dir-btn" id="sortDirBtn" title="Ascending"><svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg></button><div class="sort-dropdown hidden" id="sortDropdown"><button class="sort-option" data-sort="time">Time</button><button class="sort-option" data-sort="name">Name</button><button class="sort-option" data-sort="level">Level</button></div></span><button class="view-toggle" id="viewToggle" aria-label="Toggle view"><svg width="14" height="14" aria-hidden="true"><use href="#icon-view-toggle"/></svg></button><button type="button" class="alarm-btn" id="scheduleBtn" aria-label="View spawn schedule" title="Spawn schedule"><svg class="btn-icon" aria-hidden="true"><use href="#icon-schedule"/></svg></button></h2>
         <div id="bossList">
           <div class="boss-column" id="intervalColumn" role="tabpanel" aria-label="Fixed interval bosses">
             <div class="column-label"><span class="label-dot active" aria-hidden="true"></span> FIXED INTERVAL</div>
@@ -254,7 +250,6 @@
           <div class="flex-shrink-0">
             <div class="ml-toolbar">
                <div class="search-wrapper mr-auto">
-                <span class="search-icon"><svg aria-hidden="true"><use href="#icon-search"/></svg></span>
                 <input class="search compact-alt" id="ghMemberSearch" placeholder="Search member name...">
                 <span class="clear-icon" id="clearMemberSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
               </div>
@@ -279,8 +274,7 @@
           <div class="flex-shrink-0">
             <div class="ml-toolbar mb-8">
               <div class="search-wrapper">
-                <span class="search-icon"><svg aria-hidden="true"><use href="#icon-search"/></svg></span>
-                <input class="search compact-alt" id="ghBossConfigSearch" placeholder="Search boss name...">
+                <input class="search compact-alt" id="ghBossConfigSearch" placeholder="search boss name...">
                 <span class="clear-icon" id="clearBossConfigSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
               </div>
             </div>
@@ -514,11 +508,7 @@
         <div class="unrecognized-list" id="unrecognizedList" style="display:none"></div>
       </div>
       <div class="party-search-row">
-        <div class="search-wrapper">
-          <span class="search-icon"><svg aria-hidden="true"><use href="#icon-search"/></svg></span>
-          <input class="search compact-alt" id="partySearch" placeholder="Search member name...">
-          <span class="clear-icon" id="clearPartySearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
-        </div>
+        <input class="search compact-alt" id="partySearch" placeholder="Search member..." style="flex:1">
         <button class="kbtn btn-xs60" id="partySortBtn">Name</button>
         <button class="kbtn btn-xs" id="partyOrderBtn"><span id="partyOrderIcon">↑</span></button>
       </div>

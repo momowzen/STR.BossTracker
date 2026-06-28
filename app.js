@@ -1477,6 +1477,7 @@
     };
 
     searchInput.addEventListener("input", () => {
+      searchInput.value = searchInput.value.toUpperCase();
       renderBossList();
       updateClearButtonVisibility();
     });
@@ -2451,7 +2452,6 @@
     const selectedPillList = $('selectedPillList');
     const allMembersPanel = $('allMembersPanel');
     const partySearch = $('partySearch');
-    const clearPartySearch = $('clearPartySearch');
     const partySortBtn = $('partySortBtn');
     const partyOrderBtn = $('partyOrderBtn');
     const partyOrderIcon = $('partyOrderIcon');
@@ -2931,11 +2931,7 @@
       }
     }
 
-    const updatePartyClear = () => clearPartySearch.classList.toggle("visible", !!partySearch.value);
-    partySearch.addEventListener('input', () => { ghRenderAllMembers(); updatePartyClear(); });
-    partySearch.addEventListener('focus', updatePartyClear);
-    partySearch.addEventListener('blur', updatePartyClear);
-    clearPartySearch.addEventListener('click', () => { partySearch.value = ""; updatePartyClear(); ghRenderAllMembers(); });
+    partySearch.addEventListener('input', ghRenderAllMembers);
     partySortBtn.addEventListener('click', () => {
       ghPartySortMode = ghPartySortMode === 'name' ? 'default' : 'name';
       partySortBtn.textContent = ghPartySortMode === 'name' ? 'Name' : 'Default';

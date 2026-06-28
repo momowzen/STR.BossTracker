@@ -197,47 +197,33 @@
     }
     .search-wrapper.mr-auto { margin-right: auto; }
 
-    .search-icon {
-      position: absolute;
-      left: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 2;
-    }
-    .search-icon svg {
-      width: 14px;
-      height: 14px;
-    }
-
     .search {
       width: 100%;
       height: 36px;
       background: var(--bg-primary);
       border: 1px solid var(--border);
-      padding: 4px 30px 4px 32px;
+      padding: 4px 30px 4px 12px;
       border-radius: var(--radius-md);
       color: var(--text-primary);
       font-size: 13px;
       font-family: var(--font-sans);
       outline: none;
       transition: border-color var(--transition), box-shadow var(--transition);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .search.compact {
       height: 28px;
       font-size: 11px;
-      padding: 2px 28px 2px 24px;
+      padding: 2px 28px 2px 8px;
+      text-transform: none;
       letter-spacing: 0;
       width: 100%;
     }
     .search.compact-alt {
       height: 28px;
       font-size: 11px;
-      padding: 2px 28px 2px 24px;
+      padding-right: 28px;
       width: 100%;
     }
 
@@ -2526,9 +2512,18 @@ gap: 2px;
       gap: 4px;
       margin: 6px 0;
     }
-    .party-search-row .search-wrapper {
+    .party-search-row .search {
+      margin: 0;
       flex: 1;
       min-width: 0;
+      height: 28px;
+      padding: 2px 8px 2px 26px;
+      font-size: 11px;
+      text-transform: none;
+      letter-spacing: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7A8F' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 6px center;
     }
     .pill-list {
       display: flex;
