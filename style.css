@@ -2707,11 +2707,6 @@ gap: 2px;
       border-color: var(--accent-gold);
       box-shadow: var(--glow-gold);
     }
-    .paste-names-body .kbtn {
-      margin-top: 6px;
-      width: 100%;
-    }
-
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;

@@ -2468,7 +2468,6 @@
     const pasteNamesToggle = $('pasteNamesToggle');
     const pasteNamesBody = $('pasteNamesBody');
     const pasteNamesInput = $('pasteNamesInput');
-    const pasteNamesApply = $('pasteNamesApply');
 
     let ghScreenshotDataUrls = [];
     let ghOcrRunning = false;
@@ -2946,11 +2945,12 @@
       if (!isOpen) pasteNamesInput.focus();
     });
 
-    pasteNamesApply.addEventListener('click', () => {
+    pasteNamesInput.addEventListener('input', () => {
+      ghSelectedMembers.clear();
       const text = pasteNamesInput.value.trim();
-      if (!text) return;
+      if (!text) { ghRenderAllMembers(); ghRenderSelectedMembers(); ghUpdateConfirmSummary(); unrecognizedList.style.display = 'none'; return; }
       const names = text.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-      if (names.length === 0) return;
+      if (names.length === 0) { ghRenderAllMembers(); ghRenderSelectedMembers(); ghUpdateConfirmSummary(); unrecognizedList.style.display = 'none'; return; }
       let matched = 0;
       const unrecognized = [];
       for (const name of names) {
@@ -2987,9 +2987,6 @@
       } else {
         unrecognizedList.style.display = 'none';
       }
-      const msg = matched > 0 ? 'Selected ' + matched + ' member(s).' : 'No known members found.';
-      const extra = unrecognized.length > 0 ? ' · ' + unrecognized.length + ' unrecognized' : '';
-      showToast(msg + extra, unrecognized.length > 0 ? 'warning' : 'success');
     });
 
     const updatePartyClear = () => clearPartySearch.classList.toggle("visible", !!partySearch.value);
