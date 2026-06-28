@@ -1,6 +1,2 @@
 .wrangler/
 node_modules/
-service-account.json
-bot/service-account.json
-bot/node_modules/
-
