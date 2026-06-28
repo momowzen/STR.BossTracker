@@ -1,8 +1,0 @@
-app = "str-bosstracker-bot"
-
-[build]
-
-[env]
-
-[checks]
-  status = "pass"
