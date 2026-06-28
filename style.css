@@ -889,7 +889,7 @@ gap: 2px;
       .boss-column .column-label,
       .schedule-column .column-label { font-size: 9px; letter-spacing: 1px; }
       .boss { margin: 0 10px; padding: 5px 8px; font-size: 11px; }
-      .boss .level-badge { font-size: 9px; min-width: 20px; height: 16px; }
+      .boss .level-badge { font-size: 9px; min-width: 18px; height: 14px; }
       .boss .sub { font-size: 9px; }
       .boss .location { font-size: 9px; }
       .boss .spawn-time { font-size: 8px; }
@@ -1010,16 +1010,16 @@ gap: 2px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 28px;
-      height: 18px;
-      padding: 0 7px;
+      min-width: 26px;
+      height: 14px;
+      padding: 0 6px;
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.5px;
+      border-radius: 50px;
       color: #000;
       line-height: 1;
       font-family: var(--font-mono);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     }
 
     .boss .sub {
