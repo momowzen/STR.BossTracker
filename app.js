@@ -2465,6 +2465,10 @@
     const ghPointsInput = $('ghPointsInput');
     const partyModeSummary = $('partyModeSummary');
     const pointsModeInput = $('pointsModeInput');
+    const pasteNamesToggle = $('pasteNamesToggle');
+    const pasteNamesBody = $('pasteNamesBody');
+    const pasteNamesInput = $('pasteNamesInput');
+    const pasteNamesApply = $('pasteNamesApply');
 
     let ghScreenshotDataUrls = [];
     let ghOcrRunning = false;
@@ -2829,6 +2833,9 @@
       ocrStatus.className = 'ocr-status';
       ocrStatusText.textContent = 'Waiting for screenshot...';
       partySearch.value = '';
+      pasteNamesBody.style.display = 'none';
+      pasteNamesToggle.classList.remove('open');
+      pasteNamesInput.value = '';
       partyOverlay.style.display = 'block';
       partyPanel.style.display = 'flex';
       partyPanel.style.animation = 'none';
@@ -2931,6 +2938,60 @@
       }
     }
 
+    // ─── Paste Names ───
+    pasteNamesToggle.addEventListener('click', () => {
+      const isOpen = pasteNamesBody.style.display !== 'none';
+      pasteNamesBody.style.display = isOpen ? 'none' : 'block';
+      pasteNamesToggle.classList.toggle('open', !isOpen);
+      if (!isOpen) pasteNamesInput.focus();
+    });
+
+    pasteNamesApply.addEventListener('click', () => {
+      const text = pasteNamesInput.value.trim();
+      if (!text) return;
+      const names = text.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+      if (names.length === 0) return;
+      let matched = 0;
+      const unrecognized = [];
+      for (const name of names) {
+        const found = ghMembers.find(m => m.toLowerCase() === name.toLowerCase());
+        if (found) { ghSelectedMembers.add(found); matched++; }
+        else { unrecognized.push(name); }
+      }
+      ghRenderAllMembers();
+      ghRenderSelectedMembers();
+      ghUpdateConfirmSummary();
+      if (unrecognized.length > 0) {
+        let html = '';
+        for (const name of unrecognized) {
+          html += `<span class="pill" data-name="${escapeHtml(name)}">${escapeHtml(name)}<button class="pill-add" data-name="${escapeHtml(name)}">+</button></span>`;
+        }
+        unrecognizedList.innerHTML = html;
+        unrecognizedList.style.display = 'block';
+        unrecognizedList.querySelectorAll('.pill-add').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const name = btn.dataset.name;
+            if (!ghMembers.some(m => m.toLowerCase() === name.toLowerCase())) {
+              ghMembers.push(name);
+              saveAdminData();
+              ghRenderMemberList(ghMemberSearch.value);
+              ghRenderAllMembers();
+              ghRenderLeaderboard();
+              ghAddActivity('Added member from paste: ' + name);
+              logAction("add_member_scan", { name });
+              showToast('Added "' + name + '" to guild.', 'success');
+              btn.closest('.pill').remove();
+            }
+          });
+        });
+      } else {
+        unrecognizedList.style.display = 'none';
+      }
+      const msg = matched > 0 ? 'Selected ' + matched + ' member(s).' : 'No known members found.';
+      const extra = unrecognized.length > 0 ? ' · ' + unrecognized.length + ' unrecognized' : '';
+      showToast(msg + extra, unrecognized.length > 0 ? 'warning' : 'success');
+    });
+
     const updatePartyClear = () => clearPartySearch.classList.toggle("visible", !!partySearch.value);
     partySearch.addEventListener('input', () => { ghRenderAllMembers(); updatePartyClear(); });
     partySearch.addEventListener('focus', updatePartyClear);
@@ -2974,6 +3035,29 @@
           ghRunOcr();
         };
         reader.readAsDataURL(file);
+      }
+    });
+
+    // Paste screenshot from clipboard
+    document.addEventListener('paste', (e) => {
+      if (partyPanel.style.display === 'none') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (!file) continue;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            ghScreenshotDataUrls.push(ev.target.result);
+            ghRenderThumbnails();
+            ghRunOcr();
+          };
+          reader.readAsDataURL(file);
+          break;
+        }
       }
     });
 

@@ -493,13 +493,24 @@
         <div class="su-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
-        <div class="su-text">Click or drop</div>
+        <div class="su-text">Upload, drop, or paste (Ctrl+V)</div>
         <input type="file" accept="image/*" id="screenshotInput" multiple>
       </div>
       <div class="screenshot-thumbs" id="screenshotThumbs"></div>
       <div class="ocr-status" id="ocrStatus">
         <div class="ocr-spinner"></div>
         <span id="ocrStatusText">Waiting for screenshot...</span>
+      </div>
+      <div class="paste-names-section" id="pasteNamesSection">
+        <button class="paste-names-toggle" id="pasteNamesToggle">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+          <span>Paste Names</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="paste-names-body" id="pasteNamesBody" style="display:none">
+          <textarea id="pasteNamesInput" placeholder="Paste names, one per line or comma-separated"></textarea>
+          <button class="kbtn" id="pasteNamesApply">Apply</button>
+        </div>
       </div>
       <hr class="admin-divider">
       <div class="section-title">Party Members</div>
