@@ -221,8 +221,12 @@
     .search.compact-alt {
       height: 28px;
       font-size: 11px;
-      padding-right: 28px;
+      padding: 2px 28px 2px 26px;
       width: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7A8F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 6px center;
+      background-size: 14px;
     }
 
     .search:focus {
@@ -2510,18 +2514,10 @@ gap: 2px;
       gap: 4px;
       margin: 6px 0;
     }
-    .party-search-row .search {
-      margin: 0;
+    .party-search-row .search-wrapper {
       flex: 1;
       min-width: 0;
-      height: 28px;
-      padding: 2px 8px 2px 26px;
-      font-size: 11px;
-      text-transform: none;
-      letter-spacing: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7A8F' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: 6px center;
+      max-width: none;
     }
     .pill-list {
       display: flex;

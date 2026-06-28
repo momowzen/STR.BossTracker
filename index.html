@@ -274,7 +274,7 @@
           <div class="flex-shrink-0">
             <div class="ml-toolbar mb-8">
               <div class="search-wrapper">
-                <input class="search compact-alt" id="ghBossConfigSearch" placeholder="search boss name...">
+                <input class="search compact-alt" id="ghBossConfigSearch" placeholder="Search boss name...">
                 <span class="clear-icon" id="clearBossConfigSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
               </div>
             </div>
@@ -508,7 +508,10 @@
         <div class="unrecognized-list" id="unrecognizedList" style="display:none"></div>
       </div>
       <div class="party-search-row">
-        <input class="search compact-alt" id="partySearch" placeholder="Search member..." style="flex:1">
+        <div class="search-wrapper">
+          <input class="search compact-alt" id="partySearch" placeholder="Search member name...">
+          <span class="clear-icon" id="clearPartySearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
+        </div>
         <button class="kbtn btn-xs60" id="partySortBtn">Name</button>
         <button class="kbtn btn-xs" id="partyOrderBtn"><span id="partyOrderIcon">↑</span></button>
       </div>
