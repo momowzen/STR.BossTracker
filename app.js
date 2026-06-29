@@ -3096,6 +3096,8 @@
       }
       ghScreenshotDataUrls = [];
       screenshotThumbs.innerHTML = '';
+      unrecognizedList.innerHTML = '';
+      unrecognizedList.style.display = 'none';
       ocrStatus.className = 'ocr-status';
       ocrStatusText.textContent = 'Waiting for screenshot...';
       ghRenderAllMembers();
