@@ -1865,21 +1865,32 @@
     exportBtn.addEventListener("click", () => {
       settingsDropdown.classList.add("hidden");
       try {
-        const blob = new Blob([JSON.stringify(timers, null, 2)], {
+        const data = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          timers,
+          admin: {
+            members: ghMembers,
+            bossPoints: ghBossPoints,
+            memberPoints: ghMemberPoints,
+            weaponMastery: ghWeaponMastery,
+            activityLog: ghActivityLog,
+          },
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
           type: "application/json",
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "boss_timers_backup.json";
+        a.download = "boss_tracker_backup.json";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast("Timers exported.", "success");
-        console.log("📤 Exported timers.json");
+        showToast("All data exported.", "success");
       } catch (e) {
-        showToast("Failed to export timers.", "error");
+        showToast("Failed to export data.", "error");
       }
     });
 
@@ -1894,13 +1905,27 @@
         const text = await file.text();
         try {
           const imported = JSON.parse(text);
-          if (await showConfirmModal("Import this JSON data? It will overwrite existing timers.")) {
-            timers = imported;
+          if (await showConfirmModal("Import this JSON data? It will overwrite existing timers and admin data.")) {
+            // Support both new format (with version) and old format (just timers)
+            if (imported.version && imported.admin) {
+              timers = imported.timers || {};
+              ghMembers = imported.admin.members || [];
+              ghBossPoints = imported.admin.bossPoints || {};
+              ghMemberPoints = imported.admin.memberPoints || {};
+              ghWeaponMastery = imported.admin.weaponMastery || {};
+              ghActivityLog = imported.admin.activityLog || [];
+            } else {
+              timers = imported;
+            }
             await saveTimers();
+            saveAdminData();
             renderBossList();
-            showToast("Timers imported.", "success");
-            logAction('import_timers', { count: Object.keys(imported).length });
-            console.log("📥 Imported timers from file.");
+            ghRenderMemberList(ghMemberSearch.value);
+            ghRenderBossConfig(ghBossConfigSearch.value);
+            ghRenderLeaderboard();
+            ghRenderActivity();
+            ghRenderAllMembers();
+            showToast("Data imported.", "success");
           }
         } catch (e) {
           showToast("Invalid JSON file.", "error");
