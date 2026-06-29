@@ -3069,7 +3069,22 @@
           const idx = parseInt(btn.dataset.idx);
           ghScreenshotDataUrls.splice(idx, 1);
           ghRenderThumbnails();
-          if (ghScreenshotDataUrls.length === 0) ghClearScreenshot();
+          if (ghScreenshotDataUrls.length === 0) {
+            ghClearScreenshot();
+          } else {
+            if (ghScanResults) {
+              for (const n of (ghScanResults.matched || [])) ghSelectedMembers.delete(n);
+              ghScanResults = null;
+            }
+            ocrStatus.className = 'ocr-status';
+            ocrStatusText.textContent = 'Waiting for screenshot...';
+            unrecognizedList.innerHTML = '';
+            unrecognizedList.style.display = 'none';
+            ghRenderAllMembers();
+            ghRenderSelectedMembers();
+            ghUpdateConfirmSummary();
+            ghRunOcr();
+          }
         });
       });
     }
