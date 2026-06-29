@@ -848,6 +848,7 @@
     }
 
     @media (max-width: 600px) {
+      .container { padding-bottom: 0; }
       header.app-header {
 gap: 2px;
         padding: 4px 6px;
@@ -1409,7 +1410,7 @@ gap: 2px;
 
     @media (max-width: 600px) {
       .bottom-nav { display: flex; }
-      main { padding-bottom: 56px; }
+      main { padding-bottom: calc(44px + 6px + env(safe-area-inset-bottom, 0px)); }
     }
 
     /* Schedule view: two columns like the boss list */
