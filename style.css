@@ -1371,10 +1371,13 @@ gap: 2px;
       left: 0;
       right: 0;
       z-index: 100;
-      background: linear-gradient(135deg, rgba(26,26,26,0.97) 0%, rgba(18,18,18,0.99) 100%);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-top: 2px solid rgba(var(--accent-rgb),0.15);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 4px max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
       padding-bottom: env(safe-area-inset-bottom, 0);
     }
     .bottom-nav .nav-btn {
@@ -1410,7 +1413,7 @@ gap: 2px;
 
     @media (max-width: 600px) {
       .bottom-nav { display: flex; }
-      main { padding-bottom: calc(44px + 6px + env(safe-area-inset-bottom, 0px)); }
+      main { padding-bottom: calc(57px + env(safe-area-inset-bottom, 0px)); }
     }
 
     /* Schedule view: two columns like the boss list */
