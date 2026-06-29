@@ -151,10 +151,6 @@
           <span class="nav-sep"></span>
           <span class="nav-btn" data-tab="activity">Activity</span>
         </nav>
-        <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-label="Navigation menu"
-          title="Menu">
-          <svg class="btn-icon" aria-hidden="true"><use href="#icon-menu"/></svg>
-        </button>
         <button type="button" class="alarm-btn" id="alarmBtn" aria-pressed="false"
           aria-label="Boss respawn alarm disabled" title="Boss respawn alarm">
           <svg class="btn-icon" aria-hidden="true"><use href="#icon-alarm"/></svg>
@@ -392,7 +388,7 @@
       </button>
     </div>
   </div>
-  <div class="nav-dropdown hidden" id="navDropdown">
+  <nav class="bottom-nav" id="bottomNav">
     <button class="nav-btn active" data-tab="bosslist">
       <svg class="nav-dd-icon" aria-hidden="true"><use href="#icon-skull"/></svg>
       <span>Tracker</span>
@@ -413,7 +409,7 @@
       <svg class="nav-dd-icon" aria-hidden="true"><use href="#icon-clock"/></svg>
       <span>Activity</span>
     </button>
-  </div>
+  </nav>
   <div id="loadingOverlay" class="loading-overlay" role="status" aria-label="Loading">
     <div class="loading-container">
       <div class="loading-spinner"></div>

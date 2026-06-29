@@ -75,7 +75,6 @@
     const alarmBtn = document.getElementById("alarmBtn");
     
     const settingsDropdown = document.getElementById("settingsDropdown");
-    const navDropdown = document.getElementById("navDropdown");
     const discordWebhookBtn = document.getElementById("discordWebhookBtn");
     const webhookBackdrop = document.getElementById("webhookModalBackdrop");
     const webhookInput = document.getElementById("webhookInput");
@@ -215,7 +214,6 @@
 
     if (alarmBtn) {
       alarmBtn.addEventListener("click", async () => {
-        if (navDropdown) navDropdown.classList.add("hidden");
         settingsDropdown.classList.add("hidden");
         if (!alarmEnabled) {
           await requestNotificationPermission();
@@ -1558,7 +1556,6 @@
     // === SETTINGS BUTTON + MODAL TOGGLE ===
     settingsBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      if (navDropdown) navDropdown.classList.add("hidden");
       const userMode = sessionStorage.getItem("userMode");
       // Keep settings hidden for member mode
       if (userMode === "member") {
@@ -1589,62 +1586,27 @@
       }
     });
 
-    // ─── Nav Menu Dropdown (mobile) ───
-    const navMenuBtn = document.getElementById("navMenuBtn");
-
-    function positionNavDropdown() {
-      const btnRect = navMenuBtn.getBoundingClientRect();
-      navDropdown.style.top = (btnRect.bottom + 4) + "px";
-      navDropdown.style.right = (window.innerWidth - btnRect.right) + "px";
-    }
-
-    if (navMenuBtn) {
-      navMenuBtn.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        settingsDropdown.classList.add("hidden");
-        navDropdown.classList.toggle("hidden");
-        if (!navDropdown.classList.contains("hidden")) {
-          positionNavDropdown();
-        }
-      });
-    }
-
-    document.addEventListener("click", (ev) => {
-      if (
-        navMenuBtn && !navMenuBtn.contains(ev.target) &&
-        navDropdown && !navDropdown.contains(ev.target)
-      ) {
-        navDropdown.classList.add("hidden");
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (navDropdown && !navDropdown.classList.contains("hidden")) {
-        positionNavDropdown();
-      }
-    });
-
-    // Tab clicks inside nav dropdown
-    if (navDropdown) {
-      navDropdown.querySelectorAll(".nav-btn").forEach(btn => {
+    // ─── Bottom Navigation tabs (mobile) ───
+    const bottomNav = document.getElementById("bottomNav");
+    if (bottomNav) {
+      bottomNav.querySelectorAll(".nav-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          navDropdown.classList.add("hidden");
           const tab = btn.dataset.tab;
-          const panelId = 'panel' + tab.charAt(0).toUpperCase() + tab.slice(1);
-          const panel = document.getElementById(panelId);
-          // Sync active state with admin-nav
+          document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.admin-nav .nav-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
           const desktopBtn = document.querySelector(`.admin-nav .nav-btn[data-tab="${tab}"]`);
           if (desktopBtn) desktopBtn.classList.add('active');
+          const panel = document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1));
           if (panel) panel.classList.add('active');
-          // use outer bossListPanel (declared at module level)
-          const topRow = document.getElementById('topPanelsRow');
           if (tab !== 'bosslist') {
             if (bossListPanel) bossListPanel.style.display = 'none';
+            const topRow = document.getElementById('topPanelsRow');
             if (topRow) topRow.style.display = 'none';
           } else {
             if (bossListPanel) bossListPanel.style.display = '';
+            const topRow = document.getElementById('topPanelsRow');
             if (topRow) topRow.style.display = '';
           }
           if (typeof hidePartyPanel === 'function') hidePartyPanel();
@@ -3367,14 +3329,14 @@
     updateAuthUI = function() {
       if (typeof origUpdateAuthUI === 'function') origUpdateAuthUI();
       const isAdmin = sessionStorage.getItem("userMode") === "admin";
-      if (navMenuBtn) {
-        if (!isAdmin) navDropdown.classList.add('hidden');
-      }
       if (!isAdmin) {
         document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.admin-nav .nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
         const firstBtn = document.querySelector('.admin-nav .nav-btn[data-tab="bosslist"]');
         if (firstBtn) firstBtn.classList.add('active');
+        const bottomFirst = document.querySelector('.bottom-nav .nav-btn[data-tab="bosslist"]');
+        if (bottomFirst) bottomFirst.classList.add('active');
         $('bossListPanel').style.display = '';
         const topRow = $('topPanelsRow');
         if (topRow) topRow.style.display = '';

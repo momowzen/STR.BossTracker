@@ -317,8 +317,7 @@
     }
 
     .alarm-btn,
-    .settings-btn,
-    .nav-menu-btn {
+    .settings-btn {
       width: 36px;
       height: 36px;
       min-width: 36px;
@@ -339,16 +338,14 @@
     }
 
     .alarm-btn:hover,
-    .settings-btn:hover,
-    .nav-menu-btn:hover {
+    .settings-btn:hover {
       border-color: var(--border-hover);
       color: var(--text-primary);
       background: var(--bg-tertiary);
     }
 
     .alarm-btn .btn-icon,
-    .settings-btn .btn-icon,
-    .nav-menu-btn .btn-icon {
+    .settings-btn .btn-icon {
       width: 14px;
       height: 14px;
       display: block;
@@ -857,7 +854,7 @@ gap: 2px;
       }
       header .admin-nav { display: none !important; }
       .header-actions { gap: 2px; }
-      .alarm-btn, .settings-btn, .nav-menu-btn {
+      .alarm-btn, .settings-btn {
         width: 28px;
         height: 28px;
         min-width: 28px;
@@ -1106,7 +1103,6 @@ gap: 2px;
 
       .alarm-btn,
       .settings-btn,
-      .nav-menu-btn,
       .discord-badge-btn {
         width: 34px;
         height: 34px;
@@ -1366,55 +1362,54 @@ gap: 2px;
 
     .settings-dropdown.hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
 
-    /* ─── Nav Menu Dropdown (mobile) ─── */
-    .nav-menu-btn { display: none; }
-    .nav-dropdown {
+    /* ─── Bottom Navigation (mobile) ─── */
+    .bottom-nav {
+      display: none;
       position: fixed;
-      background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: linear-gradient(135deg, rgba(26,26,26,0.97) 0%, rgba(18,18,18,0.99) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: var(--radius-lg);
-      z-index: 10002;
-      width: max-content;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-      overflow: hidden;
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: env(safe-area-inset-bottom, 0);
     }
-    .nav-dropdown.hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
-    .nav-dropdown .nav-btn {
+    .bottom-nav .nav-btn {
+      flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      width: 100%;
-      padding: 9px 16px;
-      background: transparent;
+      justify-content: center;
+      gap: 2px;
+      padding: 6px 4px 4px;
+      background: none;
       border: none;
       cursor: pointer;
-      font-family: var(--font-sans);
-      font-size: 12px;
-      white-space: nowrap;
-      color: var(--text-secondary);
-      text-align: left;
-      transition: background var(--transition), color var(--transition);
-    }
-    .nav-dropdown .nav-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .nav-dropdown .nav-btn.active { color: var(--accent-gold); }
-    .nav-dd-icon {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       color: var(--text-muted);
       transition: color var(--transition);
+      min-height: 44px;
     }
-    .nav-dropdown .nav-btn:hover .nav-dd-icon { color: var(--accent-gold); }
-    .nav-dropdown .nav-btn.active .nav-dd-icon { color: var(--accent-gold); }
+    .bottom-nav .nav-btn:hover { color: var(--text-secondary); }
+    .bottom-nav .nav-btn.active { color: var(--accent-gold); }
+    .bottom-nav .nav-btn .nav-dd-icon {
+      width: 18px;
+      height: 18px;
+    }
+    .bottom-nav .nav-btn:hover .nav-dd-icon { color: var(--accent-gold); }
+    .bottom-nav .nav-btn.active .nav-dd-icon { color: var(--accent-gold); }
+    .bottom-nav .admin-only { display: none; }
+    .is-admin .bottom-nav .admin-only { display: flex; }
 
     @media (max-width: 600px) {
-      .nav-menu-btn { display: inline-flex; }
+      .bottom-nav { display: flex; }
+      main { padding-bottom: 56px; }
     }
 
     /* Schedule view: two columns like the boss list */
@@ -2005,8 +2000,6 @@ gap: 2px;
     }
     .admin-only { display: none; }
     .is-admin .admin-only { display: inline-flex; }
-    .nav-dropdown .admin-only { display: none; }
-    .is-admin .nav-dropdown .admin-only { display: flex; }
     .admin-nav .nav-btn.admin-only { display: none; }
     .is-admin .admin-nav .nav-btn.admin-only { display: inline-flex; }
     .admin-nav .nav-sep.admin-only { display: none; }
