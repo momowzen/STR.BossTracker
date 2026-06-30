@@ -1438,58 +1438,6 @@
     const viewToggle = document.getElementById("viewToggle");
     const bossListPanel = document.getElementById("bossListPanel");
 
-    // === PANELS SLIDER (mobile: swipe left/right, auto-rotate every 3s) ===
-    const panelsTrack = document.getElementById("panelsTrack");
-    const panelsDots = document.getElementById("panelsDots");
-    let currentPanel = 0;
-    const panelCount = 2;
-    let touchStartX = 0;
-    let touchDiff = 0;
-    let isDragging = false;
-
-    function goToPanel(index) {
-      if (index < 0 || index >= panelCount) return;
-      currentPanel = index;
-      panelsTrack.style.transform = `translateX(-${index * 50}%)`;
-      const dots = panelsDots.querySelectorAll(".dot");
-      dots.forEach((d, i) => d.classList.toggle("active", i === index));
-    }
-
-    if (panelsTrack && panelsDots) {
-      panelsTrack.addEventListener("touchstart", (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        isDragging = true;
-      }, { passive: true });
-
-      panelsTrack.addEventListener("touchmove", (e) => {
-        if (!isDragging) return;
-        touchDiff = e.changedTouches[0].screenX - touchStartX;
-      }, { passive: true });
-
-      panelsTrack.addEventListener("touchend", () => {
-        if (!isDragging) return;
-        isDragging = false;
-        const threshold = 30;
-        if (touchDiff < -threshold && currentPanel < panelCount - 1) {
-          goToPanel(currentPanel + 1);
-        } else if (touchDiff > threshold && currentPanel > 0) {
-          goToPanel(currentPanel - 1);
-        } else {
-          goToPanel(currentPanel);
-        }
-        touchDiff = 0;
-      }, { passive: true });
-
-      window.addEventListener("resize", () => {
-        if (window.innerWidth > TABLET_BREAKPOINT) {
-          panelsTrack.style.transform = "translateX(0)";
-          currentPanel = 0;
-          const dots = panelsDots.querySelectorAll(".dot");
-          dots.forEach((d, i) => d.classList.toggle("active", i === 0));
-        }
-      });
-    }
-
     // === SETTINGS INLINE SUB-MENU TOGGLE ===
     const settingsGroup = document.querySelector(".sidebar-settings-group");
     settingsBtn.addEventListener("click", (ev) => {
