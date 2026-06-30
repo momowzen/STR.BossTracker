@@ -1,0 +1,22 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Increment version
+        run: |
+          v=$(jq '.v' version.json)
+          echo "$(jq --argjson v $((v + 1)) '.v = $v' version.json)" > version.json
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Bump version
+          file_pattern: version.json

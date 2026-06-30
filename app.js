@@ -207,14 +207,13 @@
       if (!alarmEnabled || !boss) return;
       playAlarmSound();
       showBossTrayNotification(boss, timers[boss.id]?.endTime);
-      console.log(`🔔 Local alarm triggered for ${boss.name}`);
     }
 
     updateAlarmButton();
 
     if (alarmBtn) {
       alarmBtn.addEventListener("click", async () => {
-        settingsDropdown.classList.add("hidden");
+        if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
         if (!alarmEnabled) {
           await requestNotificationPermission();
           alarmEnabled = true;
@@ -224,15 +223,6 @@
         localStorage.setItem(ALARM_STORAGE_KEY, alarmEnabled ? "true" : "false");
         updateAlarmButton();
       });
-    }
-
-    // -------------------------
-    // Settings Dropdown Positioning
-    // -------------------------
-    function positionSettingsDropdown() {
-      const btnRect = settingsBtn.getBoundingClientRect();
-      settingsDropdown.style.top = (btnRect.bottom + 4) + "px";
-      settingsDropdown.style.right = (window.innerWidth - btnRect.right) + "px";
     }
 
     // -------------------------
@@ -392,36 +382,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ✅ Auto-detect page updates by polling index.html + app.js + style.css hash
-    let lastPageHash = null;
-
-    async function fetchText(url) {
-      const res = await fetch(url + "?t=" + Date.now());
-      return res.text();
-    }
-
-    async function checkForUpdates() {
-      try {
-        const files = await Promise.all([
-          fetchText("index.html"),
-          fetchText("app.js"),
-          fetchText("style.css"),
-        ]);
-        const combined = files.join("\n---\n");
-        const enc = new TextEncoder().encode(combined);
-        const buf = await crypto.subtle.digest("SHA-256", enc);
-        const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-        if (lastPageHash === null) {
-          lastPageHash = hash;
-        } else if (hash !== lastPageHash) {
-          console.log("🔄 Update detected, reloading...");
-          location.reload();
-        }
-      } catch (e) {
-        console.warn("Update check failed:", e);
-      }
-    }
-
     // ✅ Safe Firestore write helper — dot-path updates only (never replace whole timers map)
     async function safeWrite(ref, payload) {
       try {
@@ -469,15 +429,29 @@
         if (snap.exists()) {
           const data = snap.data();
           cachedWebhookUrl = data.url || null;
-          console.log("✅ Webhook synced from Firestore:", cachedWebhookUrl);
         } else {
           cachedWebhookUrl = null;
-          console.log("ℹ No webhook in Firestore.");
         }
       }, (err) => {
         console.warn("Webhook snapshot error (non-fatal):", err.code);
       });
     }
+
+    // --- Lightweight version.json polling (auto-reload clients on deploy) ---
+    let appLastVersion = null;
+    async function pollVersion() {
+      try {
+        const res = await fetch("version.json?t=" + Date.now());
+        const data = await res.json();
+        const v = data.v;
+        if (v !== undefined && v !== null) {
+          if (appLastVersion !== null && v !== appLastVersion) location.reload();
+          appLastVersion = v;
+        }
+      } catch (e) { /* ignore */ }
+    }
+    pollVersion();
+    setInterval(pollVersion, 60000);
 
     // -------------------------
     // Webhook save/clear
@@ -491,7 +465,6 @@
         await setDoc(doc(db, "config", "discordWebhook"), { url });
         cachedWebhookUrl = url;
         webhookInput.value = url;
-        console.log("✅ Webhook saved to Firestore.");
       } catch (e) {
         console.warn("save webhook err", e);
         showToast("Failed to save webhook.", "error");
@@ -504,7 +477,6 @@
         cachedWebhookUrl = null;
         webhookInput.value = "";
         showToast("Webhook cleared.", "success");
-        console.log("✅ Webhook cleared from Firestore.");
       } catch (e) {
         console.warn("clear webhook err", e);
         showToast("Failed to clear webhook.", "error");
@@ -545,8 +517,6 @@
             res.status,
             await res.text()
           );
-        } else {
-          console.log("✅ Discord message sent successfully.");
         }
       } catch (err) {
         console.error("⚠️ Discord webhook error:", err);
@@ -578,7 +548,6 @@
           if (preSnap.exists()) {
             const preData = preSnap.data();
             if (preData.lastEndTimeMs !== 0 && preData.lastEndTimeMs === thisEndTimeMs) {
-              console.log(`⏸️ Pre-check dedupe: ${type} for ${boss.name} already notified`);
               return;
             }
           }
@@ -594,9 +563,6 @@
 
             // If this exact spawn cycle was already notified, skip
             if (lastEndTimeMs !== 0 && lastEndTimeMs === thisEndTimeMs) {
-              console.log(
-                `⏸️ Firestore dedupe prevented ${type} for ${boss.name} (same spawn cycle)`
-              );
               return false;
             }
 
@@ -618,9 +584,6 @@
         }
 
         if (txResult === false) {
-          console.log(
-            `⏹️ sendDiscordEmbedOnce: server dedupe prevented sending ${type} for ${boss.name}`
-          );
           return;
         }
 
@@ -667,7 +630,6 @@
         }
 
         await sendDiscordMessage(message);
-        console.log(`✅ Sent ${type} notification for ${boss.name}`);
       } catch (e) {
         if (e?.code === "ABORTED") {
           console.warn("ℹ Transaction aborted (expected):", e);
@@ -698,7 +660,6 @@
       try {
         // No merge: writes the entire timers map, dropping any stale sub-fields
         await setDoc(doc(db, "timers", "global"), { timers });
-        console.log("✅ saveTimersToFirestore: saved timers document.");
       } catch (e) {
         console.warn("saveTimersToFirestore err", e);
       }
@@ -755,12 +716,10 @@
         if (!data) return;
         const json = JSON.stringify(data);
         if (lastWriteCache[bossId] === json) {
-          console.log(`ℹ Skipping redundant write for ${bossId}`);
           return;
         }
         await safeWrite(ref, { [`timers.${bossId}`]: data });
         lastWriteCache[bossId] = json;
-        console.log(`✅ saveTimerToFirestoreOnce: wrote timer for ${bossId}`);
       } catch (e) {
         console.warn("saveTimerToFirestoreOnce err", e);
         throw e;
@@ -801,7 +760,6 @@
       renderBossList();
 
       logAction("mark_dead", { bossId: boss.id, bossName: boss.name, endTime });
-      console.log(`startTimer: ${bossId} -> ${new Date(endTime).toISOString()}`);
       sendDiscordEmbedOnce("killed", boss);
     }
 
@@ -817,7 +775,6 @@
         await setDoc(doc(db, "timers", "global"), { timers }); // overwrite entire timers doc
         renderBossList();
         showToast("All non-weekly timers reset.", "success");
-        console.log("🔁 resetAll: fully reset timers and updated Firestore.");
       } catch (e) {
         console.warn("❌ resetAll Firestore update failed", e);
         showToast("Failed to update Firestore.", "error");
@@ -884,7 +841,6 @@
         closeTimeModal();
         renderBossList();
         sendDiscordEmbedOnce("manual", boss);
-        console.log(`Manual time saved: ${boss.name}`);
         showToast(`Time saved for ${boss.name}.`, "success");
         showPartyPanel(bossId);
       } catch (err) {
@@ -1097,9 +1053,6 @@
 
         // Immediate visual disable to give feedback
         btn.disabled = true;
-        console.log(
-          `🔒 mark clicked: attempting lock for ${id} (local visual disabled)`
-        );
 
         try {
           // Try atomic transaction to set lock only if not locked
@@ -1133,11 +1086,6 @@
           document
             .querySelectorAll(`.kbtn[data-id="${id}"][data-action="mark"]`)
             .forEach((b) => (b.disabled = true));
-          console.log(
-            `🔒 Acquired lock for ${id} until ${new Date(
-              lockUntil
-            ).toISOString()}`
-          );
 
           // Animate the boss card
           const card = btn.closest(".boss");
@@ -1425,7 +1373,7 @@
         }
       }
 
-      // Update remaining boss count (includes timer-based + weekly schedule spawns)
+      // Update remaining boss count (includes timer-based + weekly schedule spawns + SPAWNED)
       const activeCountEl = document.getElementById("activeCount");
       if (activeCountEl) {
         const jstNow = new Date(now + TIME_ZONE_OFFSET_MS);
@@ -1436,7 +1384,13 @@
           if (b.isWorldBoss) return;
           const info = timers[b.id];
           let et = info?.endTime;
+          // Active timer ending today in the future
           if (et && et >= todayStart && et < tomorrowStart && et > now) {
+            counted.add(b.id);
+            return;
+          }
+          // SPAWNED: timer expired, boss currently visible (cooldown active)
+          if (info?.cooldownUntil && info.cooldownUntil > now) {
             counted.add(b.id);
             return;
           }
@@ -1468,34 +1422,16 @@
     // -------------------------
     // UI wiring
     // -------------------------
-    // Function to update clear button visibility
-    const updateClearButtonVisibility = () => {
-      const hasText = !!searchInput.value;
-      clearSearch.classList.toggle("visible", hasText);
-    };
+    function setupSearchClear(input, clearBtn, renderFn) {
+      const update = () => clearBtn.classList.toggle("visible", !!input.value);
+      input.addEventListener("input", () => { renderFn(input.value); update(); });
+      input.addEventListener("focus", update);
+      input.addEventListener("blur", update);
+      clearBtn.addEventListener("click", () => { input.value = ""; update(); renderFn(""); });
+      update();
+    }
 
-    searchInput.addEventListener("input", () => {
-      renderBossList();
-      updateClearButtonVisibility();
-    });
-
-    // Keep clear button visible on focus/blur if text exists
-    searchInput.addEventListener("focus", () => {
-      updateClearButtonVisibility();
-    });
-
-    searchInput.addEventListener("blur", () => {
-      updateClearButtonVisibility();
-    });
-
-    clearSearch.addEventListener("click", () => {
-      searchInput.value = "";
-      updateClearButtonVisibility();
-      renderBossList();
-    });
-
-    // Initialize on page load
-    updateClearButtonVisibility();
+    setupSearchClear(searchInput, clearSearch, renderBossList);
 
     // === VIEW TOGGLE (mobile: switch between WEEKLY and FIX) ===
     const viewToggle = document.getElementById("viewToggle");
@@ -1553,38 +1489,56 @@
       });
     }
 
-    // === SETTINGS BUTTON + MODAL TOGGLE ===
+    // === SETTINGS INLINE SUB-MENU TOGGLE ===
+    const settingsGroup = document.querySelector(".sidebar-settings-group");
     settingsBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
       const userMode = sessionStorage.getItem("userMode");
-      // Keep settings hidden for member mode
-      if (userMode === "member") {
-        settingsDropdown.classList.add("hidden");
-        console.log(`⚙️ settings hidden for member mode`);
-        return;
-      }
-      settingsDropdown.classList.toggle("hidden");
-      if (!settingsDropdown.classList.contains("hidden")) {
-        positionSettingsDropdown();
-      }
-      console.log(`⚙️ settings modal opened`);
+      if (userMode === "member") return;
+      if (settingsGroup) settingsGroup.classList.toggle("open");
     });
 
-    document.addEventListener("click", (ev) => {
-      if (
-        !settingsBtn.contains(ev.target) &&
-        !settingsDropdown.contains(ev.target)
-      ) {
-        settingsDropdown.classList.add("hidden");
-      }
-    });
+    // ─── Sidebar collapse toggle ─────────────
+    const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+    const appLayout = document.querySelector(".app-layout");
+    if (sidebarCollapseBtn && appLayout) {
+      sidebarCollapseBtn.addEventListener("click", () => {
+        appLayout.classList.toggle("sidebar-collapsed");
+      });
+    }
 
-    // Reposition dropdown on window resize
-    window.addEventListener("resize", () => {
-      if (!settingsDropdown.classList.contains("hidden")) {
-        positionSettingsDropdown();
-      }
-    });
+    // ─── Sidebar settings sub-menu delegation ──
+    const settingsSub = document.getElementById("settingsSub");
+    if (settingsSub) {
+      settingsSub.addEventListener("click", (ev) => {
+        const item = ev.target.closest(".settings-sub-item");
+        if (!item) return;
+        const action = item.dataset.action;
+        settingsGroup.classList.remove("open");
+        if (action === "export") document.getElementById("exportBtn")?.click();
+        else if (action === "import") document.getElementById("importBtn")?.click();
+        else if (action === "reset") document.getElementById("resetBtn")?.click();
+        else if (action === "webhook") document.getElementById("discordWebhookBtn")?.click();
+        else if (action === "actionlogs") document.getElementById("actionLogsBtn")?.click();
+      });
+    }
+
+    // ─── Bottom nav settings button (mobile) ──
+    const bottomSettingsBtn = document.getElementById("bottomSettingsBtn");
+    const settingsBackdrop = document.getElementById("settingsBackdrop");
+    if (bottomSettingsBtn && settingsBackdrop) {
+      bottomSettingsBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const userMode = sessionStorage.getItem("userMode");
+        if (userMode === "member") return;
+        settingsBackdrop.classList.toggle("hidden");
+      });
+      settingsBackdrop.addEventListener("click", (ev) => {
+        if (ev.target === settingsBackdrop) {
+          settingsBackdrop.classList.add("hidden");
+        }
+      });
+    }
 
     // ─── Bottom Navigation tabs (mobile) ───
     const bottomNav = document.getElementById("bottomNav");
@@ -1592,6 +1546,7 @@
       bottomNav.querySelectorAll(".nav-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const tab = btn.dataset.tab;
+          if (!tab) return;
           document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.admin-nav .nav-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
@@ -1600,8 +1555,14 @@
           if (desktopBtn) desktopBtn.classList.add('active');
           const panel = document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1));
           if (panel) panel.classList.add('active');
+          // Clear search inputs when switching tabs
+          searchInput.value = ''; ghMemberSearch.value = ''; ghBossConfigSearch.value = '';
+          renderBossList();
           if (tab !== 'bosslist') {
-            if (bossListPanel) bossListPanel.style.display = 'none';
+            if (bossListPanel) {
+              bossListPanel.style.display = 'none';
+              bossListPanel.classList.remove('view-schedule', 'view-schedule-day', 'view-weekly');
+            }
             const topRow = document.getElementById('topPanelsRow');
             if (topRow) topRow.style.display = 'none';
           } else {
@@ -1713,7 +1674,7 @@
     }
 
     scheduleBtn.addEventListener("click", () => {
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       const enteringSchedule = !bossListPanel.classList.contains("view-schedule");
       bossListPanel.classList.toggle("view-schedule");
       if (enteringSchedule) {
@@ -1810,7 +1771,7 @@
 
     discordWebhookBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       loadWebhookIntoInput();
       webhookBackdrop.classList.add("active");
     });
@@ -1825,7 +1786,7 @@
     const resetBtn = document.getElementById("resetBtn");
 
     exportBtn.addEventListener("click", () => {
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       try {
         const data = {
           version: 1,
@@ -1857,7 +1818,7 @@
     });
 
     importBtn.addEventListener("click", () => {
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "application/json";
@@ -1897,12 +1858,15 @@
     });
 
     resetBtn.addEventListener("click", async () => {
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       if (await showConfirmModal("Are you sure you want to reset all timers?")) { resetAll(); logAction('reset_all_timers'); }
     });
 
+    let deadLockRendering = false;
     onSnapshot(deadLockRef, (snapshot) => {
       if (snapshot.metadata?.hasPendingWrites) return;
+      if (deadLockRendering) return;
+      deadLockRendering = true;
       deadLocks = snapshot.data() || {};
       const now = Date.now();
 
@@ -1915,7 +1879,7 @@
         });
 
       if (firebaseLoaded) renderBossList();
-      console.log("🔔 deadLocks updated from Firestore:", deadLocks);
+      deadLockRendering = false;
     });
 
     webhookSave.addEventListener("click", async () => {
@@ -1947,7 +1911,7 @@
 
     actionLogsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      settingsDropdown.classList.add("hidden");
+      if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       actionLogsBackdrop.classList.add("active");
       loadActionLogs();
     });
@@ -2137,33 +2101,28 @@
 
     function updateDiscordBadge() {
       const auth = getDiscordAuth();
-      const badge = document.getElementById("discordBadgeBtn");
+      const btn = document.getElementById("discordUserBtn");
       const nameEl = document.getElementById("discordBadgeName");
-      const iconEl = badge?.querySelector(".discord-badge-icon");
+      const avatarImg = document.getElementById("discordUserAvatar");
+      const avatarWrap = document.getElementById("discordAvatarWrap");
       if (auth && auth.inGuild) {
         const display = auth.displayName || auth.username;
         nameEl.textContent = display;
-        badge.style.display = "flex";
-        const len = display.length;
-        nameEl.style.fontSize = (len >= 18 ? "10px" : len >= 14 ? "11px" : "12px");
-
-        if (auth.avatar && iconEl && iconEl.tagName === "IMG") {
-          iconEl.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
-          iconEl.alt = `${display} avatar`;
-        } else if (auth.avatar && iconEl) {
-          const img = document.createElement("img");
-          img.className = iconEl.getAttribute("class") || "discord-badge-icon";
-          img.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
-          img.alt = `${display} avatar`;
-          iconEl.replaceWith(img);
+        btn.style.display = "flex";
+        if (auth.avatar) {
+          avatarImg.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
+          avatarImg.alt = `${display} avatar`;
+          avatarWrap.style.display = "inline-flex";
+        } else {
+          avatarWrap.style.display = "none";
         }
       } else {
-        badge.style.display = "none";
+        btn.style.display = "none";
       }
     }
 
     // ── Discord dropdown ────────────────────────────
-    document.getElementById("discordBadgeBtn").addEventListener("click", () => {
+    document.getElementById("discordUserBtn").addEventListener("click", () => {
       if (!getDiscordAuth()) return;
       document.getElementById("discordDropdown").classList.toggle("show");
     });
@@ -2179,7 +2138,7 @@
       updateDiscordBadge();
     });
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#discordBadgeBtn") || e.target.closest("#discordDropdown")) return;
+      if (e.target.closest("#discordUserBtn") || e.target.closest("#discordDropdown")) return;
       document.getElementById("discordDropdown").classList.remove("show");
     }, true);
 
@@ -2212,19 +2171,6 @@
     async function init() {
       if (appInitialized) return;
       showLoadingOverlay();
-
-      // ✅ Wait until the DOM is fully loaded
-      await new Promise((resolve) => {
-        if (
-          document.readyState === "complete" ||
-          document.readyState === "interactive"
-        )
-          resolve();
-        else
-          document.addEventListener("DOMContentLoaded", resolve, {
-            once: true,
-          });
-      });
 
       // Load boss data from external JSON
       try {
@@ -2347,7 +2293,6 @@
 
       updateWorldBossName();
 
-      console.log("✅ init completed successfully.");
     }
 
     // === AUTH: member by default, admin status from Discord OAuth worker ===
@@ -2363,7 +2308,7 @@
         settingsBtn.classList.toggle("hidden", !isAdmin);
       }
       if (!isAdmin) {
-        settingsDropdown.classList.add("hidden");
+        if (settingsBackdrop) settingsBackdrop.classList.add("hidden");
       }
     }
 
@@ -2373,8 +2318,6 @@
 
     window.addEventListener("load", () => {
       checkAuth();
-      checkForUpdates();
-      setInterval(checkForUpdates, 30000);
     });
 
 
@@ -2384,9 +2327,7 @@
 
     const $ = (id) => document.getElementById(id);
     function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.appendChild(document.createTextNode(str));
-      return div.innerHTML;
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
     const ADMIN_DOC = doc(db, "guildData", "admin");
 
@@ -2518,12 +2459,19 @@
         btn.classList.add('active');
         const panel = $('panel' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1));
         if (panel) panel.classList.add('active');
+        // Clear search inputs when switching tabs
+        searchInput.value = ''; ghMemberSearch.value = ''; ghBossConfigSearch.value = '';
+        renderBossList();
         if (btn.dataset.tab !== 'bosslist') {
-          $('bossListPanel').style.display = 'none';
-          $('topPanelsRow') && ($('topPanelsRow').style.display = 'none');
+          const blp = $('bossListPanel');
+          if (blp) {
+            blp.style.display = 'none';
+            blp.classList.remove('view-schedule', 'view-schedule-day', 'view-weekly');
+          }
+          const topRow = $('topPanelsRow'); if (topRow) topRow.style.display = 'none';
         } else {
           $('bossListPanel').style.display = '';
-          $('topPanelsRow') && ($('topPanelsRow').style.display = '');
+          const topRow2 = $('topPanelsRow'); if (topRow2) topRow2.style.display = '';
         }
         hidePartyPanel();
       });
@@ -2702,12 +2650,7 @@
       ghOrderIcon.textContent = ghSortOrder === 'asc' ? '↑' : '↓';
       ghRenderMemberList(ghMemberSearch.value);
     });
-    const updateMemberClear = () => clearMemberSearch.classList.toggle("visible", !!ghMemberSearch.value);
-    ghMemberSearch.addEventListener("input", () => { ghRenderMemberList(ghMemberSearch.value); updateMemberClear(); });
-    ghMemberSearch.addEventListener("focus", updateMemberClear);
-    ghMemberSearch.addEventListener("blur", updateMemberClear);
-    clearMemberSearch.addEventListener("click", () => { ghMemberSearch.value = ""; updateMemberClear(); ghRenderMemberList(""); });
-    updateMemberClear();
+    setupSearchClear(ghMemberSearch, clearMemberSearch, ghRenderMemberList);
 
     let panelMode = 'party';
 
@@ -2769,12 +2712,7 @@
       });
     }
 
-    const updateBossConfigClear = () => clearBossConfigSearch.classList.toggle("visible", !!ghBossConfigSearch.value);
-    ghBossConfigSearch.addEventListener("input", () => { ghRenderBossConfig(ghBossConfigSearch.value); updateBossConfigClear(); });
-    ghBossConfigSearch.addEventListener("focus", updateBossConfigClear);
-    ghBossConfigSearch.addEventListener("blur", updateBossConfigClear);
-    clearBossConfigSearch.addEventListener("click", () => { ghBossConfigSearch.value = ""; updateBossConfigClear(); ghRenderBossConfig(""); });
-    updateBossConfigClear();
+    setupSearchClear(ghBossConfigSearch, clearBossConfigSearch, ghRenderBossConfig);
     ghResetBossConfig.addEventListener('click', async () => {
       if (!(await showConfirmModal("Reset all boss points to 0?"))) return;
       ghBossPoints = {}; saveAdminData(); ghRenderBossConfig(); logAction("boss_config_reset"); ghAddActivity('Reset all boss points'); showToast('Boss points reset.', 'success');
@@ -2976,11 +2914,7 @@
       }
     });
 
-    const updatePartyClear = () => clearPartySearch.classList.toggle("visible", !!partySearch.value);
-    partySearch.addEventListener('input', () => { ghRenderAllMembers(); updatePartyClear(); });
-    partySearch.addEventListener('focus', updatePartyClear);
-    partySearch.addEventListener('blur', updatePartyClear);
-    clearPartySearch.addEventListener('click', () => { partySearch.value = ""; updatePartyClear(); ghRenderAllMembers(); });
+    setupSearchClear(partySearch, clearPartySearch, () => ghRenderAllMembers());
     partySortBtn.addEventListener('click', () => {
       ghPartySortMode = ghPartySortMode === 'name' ? 'default' : 'name';
       partySortBtn.textContent = ghPartySortMode === 'name' ? 'Name' : 'Default';
@@ -3319,8 +3253,8 @@
 
     // Patch init to also load admin data
     const origInit = init;
-    init = function() {
-      if (typeof origInit === 'function') origInit();
+    init = async function() {
+      if (typeof origInit === 'function') await origInit();
       ghInit();
     };
 
@@ -3337,8 +3271,10 @@
         if (firstBtn) firstBtn.classList.add('active');
         const bottomFirst = document.querySelector('.bottom-nav .nav-btn[data-tab="bosslist"]');
         if (bottomFirst) bottomFirst.classList.add('active');
-        $('bossListPanel').style.display = '';
+        const blp = $('bossListPanel');
+        if (blp) blp.style.display = '';
         const topRow = $('topPanelsRow');
         if (topRow) topRow.style.display = '';
       }
     };
+
