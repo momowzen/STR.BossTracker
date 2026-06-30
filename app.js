@@ -1270,10 +1270,9 @@
         // could trigger false spawns for already-killed bosses.
         if (!normalized) continue;
         if (remainingMs <= 0 && !co) {
-          // Condition 8: send spawn notification (firestore-deduped, condition 13)
+          // Condition 8: (spawn notification removed — only soon/killed/manual)
           if (!localNotifCache[`${id}_spawn`]) {
             localNotifCache[`${id}_spawn`] = Date.now();
-            discordPromises.push(sendDiscordEmbedOnce("spawn", boss));
           }
 
           // Condition 10: enter SPAWNED cooldown
