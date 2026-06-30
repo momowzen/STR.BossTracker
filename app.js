@@ -2603,13 +2603,22 @@
       if (!text) return;
       const names = text.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
       let added = 0;
+      let skipped = 0;
       for (const n of names) {
         if (n && !ghMembers.some(m => m.toLowerCase() === n.toLowerCase())) {
           ghMembers.push(n);
           added++;
+        } else {
+          skipped++;
         }
       }
-      if (added > 0) { saveAdminData(); ghRenderMemberList(ghMemberSearch.value); ghRenderAllMembers(); ghRenderLeaderboard(); showToast('Added ' + added + ' member(s)', 'success'); logAction('bulk_import', { count: added }); }
+      if (added > 0) { saveAdminData(); ghRenderMemberList(ghMemberSearch.value); ghRenderAllMembers(); ghRenderLeaderboard(); }
+      if (added > 0 || skipped > 0) {
+        const msg = added > 0 ? 'Added ' + added + ' member(s)' : '';
+        const skipMsg = skipped > 0 ? 'Skipped ' + skipped + ' duplicate(s)' : '';
+        showToast([msg, skipMsg].filter(Boolean).join(', '), added > 0 ? 'success' : 'info');
+        if (added > 0) logAction('bulk_import', { count: added });
+      }
       ghBulkImportArea.value = '';
     });
 
