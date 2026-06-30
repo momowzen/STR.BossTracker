@@ -521,6 +521,39 @@
     </div>
   </div>
 
+  <!-- ─── EDIT MEMBER POPUP ─── -->
+  <div id="ghEditMemberPopup" class="party-popup add-member-popup" style="display:none">
+    <div class="party-popup-header">
+      <span>Edit Member</span>
+      <button class="party-popup-close" id="ghEditPopupClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="party-popup-body">
+      <div class="mb-12">
+        <label class="label-uppercase">Character Name</label>
+        <input type="text" id="ghEditNameInput" class="search-input" placeholder="Enter character name" maxlength="24">
+      </div>
+      <div class="mb-12">
+        <label class="label-uppercase">Weapon Mastery</label>
+        <select id="ghEditWmSelect">
+          <option value="">—</option>
+          <option value="Bare Hands">Bare Hands</option>
+          <option value="Sword and Shield">Sword and Shield</option>
+          <option value="Battle Staff">Battle Staff</option>
+          <option value="Battle Shield">Battle Shield</option>
+          <option value="Greatsword">Greatsword</option>
+          <option value="Staff">Staff</option>
+          <option value="Dual Daggers">Dual Daggers</option>
+          <option value="Bow">Bow</option>
+          <option value="Crossbow">Crossbow</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="kbtn" id="ghEditSaveBtn">SAVE</button>
+        <button class="kbtn" id="ghEditCancelBtn">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── PARTY RALLY POPUP ─── -->
   <div id="partyOverlay" class="party-overlay" style="display:none"></div>
   <div id="partyPanel" class="party-popup" style="display:none">

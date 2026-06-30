@@ -2479,8 +2479,10 @@
       ghMemberList.innerHTML = html;
 
       ghMemberList.querySelectorAll('[data-action="remove"]').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const name = btn.dataset.name;
+          const confirmed = await showConfirmModal(`Remove member "${name}"? This cannot be undone.`);
+          if (!confirmed) return;
           ghMembers = ghMembers.filter(m => m.toLowerCase() !== name.toLowerCase());
           delete ghMemberPoints[name];
           delete ghWeaponMastery[name];
@@ -2491,52 +2493,76 @@
         });
       });
       ghMemberList.querySelectorAll('[data-action="edit"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const item = btn.closest('.member-item');
-          const nameEl = item.querySelector('.member-name');
-          const wmEl = item.querySelector('.member-wm');
-          const oldName = nameEl.textContent;
-          const oldWm = ghWeaponMastery[oldName] || '';
-
-          const input = document.createElement('input');
-          input.type = 'text'; input.value = oldName;
-          input.style.cssText = 'flex:1;min-width:0;padding:2px 6px;font-size:12px;font-family:var(--font-display);background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);outline:none';
-          nameEl.replaceWith(input);
-          input.focus(); input.select();
-
-          const select = document.createElement('select');
-          select.style.cssText = 'padding:1px 20px 1px 6px;font-size:12px;font-family:var(--font-display);font-weight:500;flex:1;min-width:0;margin:0;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-primary);color:var(--text-primary);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath d=\'M0 0l5 6 5-6z\' fill=\'%236B7A8F\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;text-align:center;text-align-last:center';
-          select.innerHTML = '<option value="">—</option>' + ['Bare Hands','Sword and Shield','Battle Staff','Battle Shield','Greatsword','Staff','Dual Daggers','Bow','Crossbow'].map(w => `<option value="${w}"${w===oldWm?' selected':''}>${w}</option>`).join('');
-          wmEl.replaceWith(select);
-
-          function finish(save) {
-            const newName = input.value.trim() || oldName;
-            const newWm = select.value;
-            if (!save || (newName === oldName && newWm === oldWm)) {
-              const sn = document.createElement('span'); sn.className = 'member-name'; sn.textContent = oldName; input.replaceWith(sn);
-              const sw = document.createElement('span'); sw.className = 'member-wm'; sw.innerHTML = oldWm ? escapeHtml(oldWm) : '<span style="color:var(--text-muted)">—</span>'; select.replaceWith(sw);
+        btn.addEventListener('click', async () => {
+          const oldName = btn.dataset.name;
+          const result = await showEditMemberPopup(oldName);
+          if (!result.saved) return;
+          const { newName, newWm } = result;
+          if (newName !== oldName) {
+            if (ghMembers.some(m => m.toLowerCase() !== oldName.toLowerCase() && m.toLowerCase() === newName.toLowerCase())) {
+              showToast('Member already exists', 'error');
               return;
             }
-            if (newName !== oldName) {
-              if (ghMembers.some(m => m.toLowerCase() !== oldName.toLowerCase() && m.toLowerCase() === newName.toLowerCase())) { showToast('Member exists', 'error'); finish(false); return; }
-              const idx = ghMembers.indexOf(oldName);
-              if (idx > -1) ghMembers[idx] = newName;
-              if (ghMemberPoints[oldName] !== undefined) { ghMemberPoints[newName] = ghMemberPoints[oldName]; delete ghMemberPoints[oldName]; }
-              if (ghWeaponMastery[oldName] !== undefined) { ghWeaponMastery[newName] = ghWeaponMastery[oldName]; delete ghWeaponMastery[oldName]; }
-              logAction("rename_member", { oldName, newName });
-            }
-            if (newWm !== oldWm) { ghWeaponMastery[newName] = newWm || ''; }
-            saveAdminData();
-            ghRenderMemberList(ghMemberSearch.value);
-            ghRenderLeaderboard();
-            ghRenderAllMembers();
+            const idx = ghMembers.indexOf(oldName);
+            if (idx > -1) ghMembers[idx] = newName;
+            if (ghMemberPoints[oldName] !== undefined) { ghMemberPoints[newName] = ghMemberPoints[oldName]; delete ghMemberPoints[oldName]; }
+            if (ghWeaponMastery[oldName] !== undefined) { ghWeaponMastery[newName] = ghWeaponMastery[oldName]; delete ghWeaponMastery[oldName]; }
+            logAction("rename_member", { oldName, newName });
           }
-
-          let blurTimer = null;
-          input.addEventListener('blur', () => { blurTimer = setTimeout(() => { if (!item.contains(document.activeElement)) finish(true); }, 150); });
-          input.addEventListener('keydown', e => { if (e.key==='Enter') finish(true); if (e.key==='Escape') finish(false); });
-          select.addEventListener('change', () => { if (blurTimer) { clearTimeout(blurTimer); blurTimer = null; } input.focus(); });
+          if (newWm !== (ghWeaponMastery[newName || oldName] || '')) {
+            ghWeaponMastery[newName || oldName] = newWm || '';
+          }
+          saveAdminData();
+          ghRenderMemberList(ghMemberSearch.value);
+          ghRenderLeaderboard();
+          ghRenderAllMembers();
         });
+      });
+    }
+
+    // ─── Edit Member Popup ───
+    async function showEditMemberPopup(oldName) {
+      const editPopup = document.getElementById('ghEditMemberPopup');
+      const editOverlay = document.getElementById('ghMemberOverlay');
+      const nameInput = document.getElementById('ghEditNameInput');
+      const wmSelect = document.getElementById('ghEditWmSelect');
+      const saveBtn = document.getElementById('ghEditSaveBtn');
+      const cancelBtn = document.getElementById('ghEditCancelBtn');
+      const closeBtn = document.getElementById('ghEditPopupClose');
+
+      nameInput.value = oldName;
+      wmSelect.value = ghWeaponMastery[oldName] || '';
+
+      return new Promise((resolve) => {
+        const cleanup = () => {
+          editPopup.style.display = 'none';
+          editOverlay.style.display = 'none';
+          saveBtn.removeEventListener('click', onSave);
+          cancelBtn.removeEventListener('click', onCancel);
+          closeBtn.removeEventListener('click', onCancel);
+          editOverlay.removeEventListener('click', onOverlay);
+          nameInput.removeEventListener('keydown', onKeydown);
+        };
+        const onSave = () => {
+          const newName = nameInput.value.trim() || oldName;
+          const newWm = wmSelect.value;
+          cleanup();
+          resolve({ newName, newWm, saved: true });
+        };
+        const onCancel = () => { cleanup(); resolve({ saved: false }); };
+        const onOverlay = (e) => { if (e.target === editOverlay) onCancel(); };
+        const onKeydown = (e) => { if (e.key === 'Enter') onSave(); if (e.key === 'Escape') onCancel(); };
+
+        editPopup.style.display = 'flex';
+        editOverlay.style.display = 'block';
+        nameInput.focus();
+        nameInput.select();
+
+        saveBtn.addEventListener('click', onSave);
+        cancelBtn.addEventListener('click', onCancel);
+        closeBtn.addEventListener('click', onCancel);
+        editOverlay.addEventListener('click', onOverlay);
+        nameInput.addEventListener('keydown', onKeydown);
       });
     }
 
