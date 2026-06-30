@@ -285,10 +285,19 @@
                     <input class="search compact-alt" id="ghMemberSearch" placeholder="Search member name...">
                     <span class="clear-icon" id="clearMemberSearch" role="button" tabindex="0" aria-label="Clear search"><svg aria-hidden="true"><use href="#icon-x"/></svg></span>
                   </div>
-                  <div class="ml-toolbar-right">
-                    <button class="kbtn btn-sm" id="ghSortBtn">Name</button>
-                    <button class="kbtn btn-xs" id="ghOrderBtn"><span id="ghOrderIcon">↑</span></button>
-                  </div>
+                  <span class="header-sort" id="ghSortContainer">
+                    <button class="sort-btn" id="ghSortBtn">
+                      <svg width="12" height="12" aria-hidden="true"><use href="#icon-sort"/></svg>
+                      <span id="ghSortLabel">Name</span>
+                    </button>
+                    <button class="sort-dir-btn" id="ghOrderBtn" title="Ascending">
+                      <svg width="12" height="12" aria-hidden="true"><use href="#icon-sort-dir"/></svg>
+                    </button>
+                    <div class="sort-dropdown hidden" id="ghSortDropdown">
+                      <button class="sort-option" data-sort="name">Name</button>
+                      <button class="sort-option" data-sort="weapon">Weapon</button>
+                    </div>
+                  </span>
                 </div>
                 <div class="member-list-header" id="ghMemberListHeader"><span>NAME</span><span>WEAPON MASTERY</span><span></span></div>
               </div>

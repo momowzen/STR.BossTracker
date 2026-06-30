@@ -2347,7 +2347,6 @@
     const ghMemberCount = $('ghMemberCount');
     const ghSortBtn = $('ghSortBtn');
     const ghOrderBtn = $('ghOrderBtn');
-    const ghOrderIcon = $('ghOrderIcon');
     const ghBossConfigList = $('ghBossConfigList');
     const ghBossConfigSearch = $('ghBossConfigSearch');
     const clearBossConfigSearch = $('clearBossConfigSearch');
@@ -2639,17 +2638,62 @@
       ghBulkImportArea.value = '';
     });
 
-    // ─── Member list sort ───
-    ghSortBtn.addEventListener('click', () => {
-      ghSortMode = ghSortMode === 'name' ? 'weapon' : 'name';
-      ghSortBtn.textContent = ghSortMode === 'name' ? 'Name' : 'Weapon';
-      ghRenderMemberList(ghMemberSearch.value);
+    // ─── Member list sort (boss-list style dropdown) ───
+    const ghSortLabel = document.getElementById("ghSortLabel");
+    const ghSortDropdown = document.getElementById("ghSortDropdown");
+    const ghSortOptions = ghSortDropdown?.querySelectorAll(".sort-option");
+    const ghOrderIcon = document.getElementById("ghOrderBtn").querySelector("svg");
+
+    function renderMemberSortUI() {
+      ghSortLabel.textContent = ghSortMode === 'name' ? 'Name' : 'Weapon';
+      ghOrderBtn.title = ghSortOrder === 'asc' ? 'Ascending' : 'Descending';
+      ghOrderIcon.innerHTML = ghSortOrder === 'asc'
+        ? '<use href="#icon-sort-dir"/>'
+        : '<use href="#icon-sort-dir-desc"/>';
+      ghSortOptions?.forEach(opt => {
+        opt.style.display = opt.dataset.sort === ghSortMode ? 'none' : '';
+      });
+    }
+
+    let ghSortHoverTimer = null;
+    function closeGhSortDropdown() {
+      ghSortDropdown.classList.add("hidden");
+      ghSortBtn.classList.remove("open");
+    }
+    if (ghSortBtn) {
+      ghSortBtn.addEventListener("mouseenter", () => {
+        clearTimeout(ghSortHoverTimer);
+        ghSortDropdown.classList.remove("hidden");
+        ghSortBtn.classList.add("open");
+      });
+      ghSortBtn.addEventListener("mouseleave", () => {
+        ghSortHoverTimer = setTimeout(closeGhSortDropdown, 200);
+      });
+    }
+    if (ghSortDropdown) {
+      ghSortDropdown.addEventListener("mouseenter", () => clearTimeout(ghSortHoverTimer));
+      ghSortDropdown.addEventListener("mouseleave", () => {
+        ghSortHoverTimer = setTimeout(closeGhSortDropdown, 200);
+      });
+    }
+
+    ghSortOptions?.forEach(opt => {
+      opt.addEventListener("click", () => {
+        ghSortMode = opt.dataset.sort;
+        renderMemberSortUI();
+        ghRenderMemberList(ghMemberSearch.value);
+      });
     });
-    ghOrderBtn.addEventListener('click', () => {
-      ghSortOrder = ghSortOrder === 'asc' ? 'desc' : 'asc';
-      ghOrderIcon.textContent = ghSortOrder === 'asc' ? '↑' : '↓';
-      ghRenderMemberList(ghMemberSearch.value);
-    });
+
+    if (ghOrderBtn) {
+      ghOrderBtn.addEventListener("click", () => {
+        ghSortOrder = ghSortOrder === 'asc' ? 'desc' : 'asc';
+        renderMemberSortUI();
+        ghRenderMemberList(ghMemberSearch.value);
+      });
+    }
+
+    renderMemberSortUI();
     setupSearchClear(ghMemberSearch, clearMemberSearch, ghRenderMemberList);
 
     let panelMode = 'party';

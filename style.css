@@ -1678,7 +1678,6 @@ header.app-header::after {
   background-repeat: no-repeat;
   background-position: 6px center;
 }
-.ml-toolbar-right { display: flex; align-items: center; gap: 4px; }
 .member-list-header {
   display: flex;
   align-items: center;
