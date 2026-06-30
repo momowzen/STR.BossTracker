@@ -201,7 +201,7 @@ body {
   color: var(--text-muted);
   font-family: var(--font-sans);
   letter-spacing: 0.5px;
-  margin-top: 6px;
+  margin-top: 2px;
   opacity: 0.6;
 }
 .sidebar-collapsed .sidebar-version { display: none; }
@@ -209,7 +209,7 @@ body {
   width: 100%;
   border: none;
   border-top: 1px solid var(--border);
-  margin: 8px 0 6px;
+  margin: 4px 0 2px;
   opacity: 0.5;
 }
 .sidebar-collapsed .sidebar-sep { display: none; }
