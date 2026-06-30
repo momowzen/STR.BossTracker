@@ -205,6 +205,14 @@ body {
   opacity: 0.6;
 }
 .sidebar-collapsed .sidebar-version { display: none; }
+.sidebar-sep {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 8px 0 6px;
+  opacity: 0.5;
+}
+.sidebar-collapsed .sidebar-sep { display: none; }
 
 /* ─── SIDEBAR NAV ─── */
 .sidebar .admin-nav {
