@@ -439,6 +439,7 @@
 
     // --- Lightweight version.json polling (auto-reload clients on deploy) ---
     let appLastVersion = null;
+    const sidebarVersionEl = document.getElementById("sidebarVersion");
     async function pollVersion() {
       try {
         const res = await fetch("version.json?t=" + Date.now());
@@ -447,6 +448,7 @@
         if (v !== undefined && v !== null) {
           if (appLastVersion !== null && v !== appLastVersion) location.reload();
           appLastVersion = v;
+          if (sidebarVersionEl) sidebarVersionEl.textContent = "v" + v;
         }
       } catch (e) { /* ignore */ }
     }
