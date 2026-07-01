@@ -486,7 +486,8 @@ header.app-header::after {
   cursor: pointer; transition: background var(--transition), color var(--transition);
   text-align: left;
 }
-.discord-dropdown-item:hover { background: rgba(88,101,242,0.12); color: var(--text-primary); }
+.discord-dropdown-item:hover { background: rgba(var(--accent-rgb),0.08); color: var(--accent); }
+.discord-dropdown-item:hover .dropdown-icon { color: var(--accent); }
 .discord-dropdown-item .dropdown-icon {
   width: 14px; height: 14px; flex-shrink: 0;
   color: currentColor; display: block;
