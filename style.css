@@ -447,6 +447,10 @@ header.app-header::after {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  transition: box-shadow var(--transition);
+}
+.discord-user-btn:hover .discord-user-avatar-wrap {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 .discord-user-btn .discord-user-avatar {
   width: 100%;
