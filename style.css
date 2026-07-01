@@ -204,7 +204,17 @@ body {
   margin-top: 2px;
   opacity: 0.6;
 }
-.sidebar-collapsed .sidebar-version { display: none; }
+.sidebar-version::before {
+  content: "Version: ";
+}
+.sidebar-collapsed .sidebar-version {
+  font-size: 8px;
+  letter-spacing: 0;
+  margin-top: 4px;
+}
+.sidebar-collapsed .sidebar-version::before {
+  content: none;
+}
 .sidebar-sep {
   width: 100%;
   border: none;
