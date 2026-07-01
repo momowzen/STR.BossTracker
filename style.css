@@ -439,7 +439,7 @@ header.app-header::after {
   letter-spacing: 0.3px;
   transition: color var(--transition);
 }
-.discord-user-btn:hover .discord-user-name { color: var(--text-primary); }
+.discord-user-btn:hover .discord-user-name { color: var(--accent); }
 .discord-user-btn .discord-user-avatar-wrap {
   display: inline-flex;
   width: 22px;
