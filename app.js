@@ -2054,16 +2054,33 @@
       const nameEl = document.getElementById("discordBadgeName");
       const avatarImg = document.getElementById("discordUserAvatar");
       const avatarWrap = document.getElementById("discordAvatarWrap");
+      const profileAvatar = document.getElementById("discordProfileAvatar");
+      const profileDisplayName = document.getElementById("discordProfileDisplayName");
+      const profileUsername = document.getElementById("discordProfileUsername");
+      const profileRole = document.getElementById("discordProfileRole");
       if (auth && auth.inGuild) {
         const display = auth.displayName || auth.username;
         nameEl.textContent = display;
         btn.style.display = "flex";
+        const avatarUrl = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
         if (auth.avatar) {
-          avatarImg.src = `https://cdn.discordapp.com/avatars/${auth.id}/${auth.avatar}.png`;
+          avatarImg.src = avatarUrl;
           avatarImg.alt = `${display} avatar`;
           avatarWrap.style.display = "inline-flex";
         } else {
           avatarWrap.style.display = "none";
+        }
+        if (profileAvatar) profileAvatar.src = avatarUrl;
+        if (profileDisplayName) profileDisplayName.textContent = display;
+        if (profileUsername) profileUsername.textContent = "@" + auth.username;
+        if (profileRole) {
+          if (auth.isAdmin) {
+            profileRole.textContent = "Admin";
+            profileRole.className = "discord-profile-role role-admin";
+          } else {
+            profileRole.textContent = "Member";
+            profileRole.className = "discord-profile-role role-member";
+          }
         }
       } else {
         btn.style.display = "none";

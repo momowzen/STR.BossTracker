@@ -141,6 +141,17 @@
             <svg class="discord-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="discord-dropdown" id="discordDropdown">
+            <div class="discord-profile-card">
+              <div class="discord-profile-banner" id="discordProfileBanner">
+                <img class="discord-profile-avatar" id="discordProfileAvatar" src="" alt="" />
+              </div>
+              <div class="discord-profile-info">
+                <div class="discord-profile-display-name" id="discordProfileDisplayName"></div>
+                <div class="discord-profile-username" id="discordProfileUsername"></div>
+                <span class="discord-profile-role" id="discordProfileRole"></span>
+              </div>
+            </div>
+            <div class="discord-dropdown-divider"></div>
             <button type="button" class="discord-dropdown-item" id="discordDisconnectBtn">
               <svg class="dropdown-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10 11l3-3-3-3M13 8H6"/></svg>
               Disconnect

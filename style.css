@@ -467,8 +467,7 @@ header.app-header::after {
 
 .discord-dropdown {
   position: absolute; top: 100%; right: 0; z-index: 9999;
-  width: max-content; min-width: 0;
-  padding: 4px 0;
+  width: 240px;
   background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(18,18,18,0.98) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -476,11 +475,78 @@ header.app-header::after {
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
   display: none;
+  overflow: hidden;
 }
 .discord-dropdown.show { display: block; }
+.discord-profile-card {
+  display: flex;
+  flex-direction: column;
+}
+.discord-profile-banner {
+  position: relative;
+  height: 60px;
+  background: linear-gradient(135deg, var(--accent-gold), rgba(var(--accent-rgb),0.4));
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 0 16px;
+}
+.discord-profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid var(--bg-primary);
+  object-fit: cover;
+  display: block;
+  transform: translateY(50%);
+}
+.discord-profile-info {
+  padding: 32px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.discord-profile-display-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+.discord-profile-username {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+.discord-profile-role {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+.discord-profile-role.role-admin {
+  background: rgba(var(--accent-rgb),0.15);
+  color: var(--accent-gold);
+}
+.discord-profile-role.role-member {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-muted);
+}
+.discord-dropdown-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 0;
+}
 .discord-dropdown-item {
   display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 8px 14px;
+  width: 100%; padding: 10px 16px;
   border: none; background: none;
   color: var(--text-secondary); font-size: 12px; font-family: var(--font-display);
   cursor: pointer; transition: background var(--transition), color var(--transition);
